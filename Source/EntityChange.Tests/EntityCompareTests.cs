@@ -739,7 +739,7 @@ namespace EntityChange.Tests
             {
                 Id = original.Id,
                 Created = original.Created,
-                Updated = DateTime.Now,
+                Updated = original.Updated.AddSeconds(1),
                 FirstName = "Jim",
                 LastName = "Bob",
                 JobTitle = "CEO",
