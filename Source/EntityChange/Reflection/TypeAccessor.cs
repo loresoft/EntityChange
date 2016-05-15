@@ -205,7 +205,6 @@ namespace EntityChange.Reflection
 
         private IMemberAccessor CreateColumnAccessor(string name, BindingFlags flags)
         {
-            // first try property
             // first try GetProperty
             PropertyInfo property = Type.GetProperty(name, flags);
             if (property != null)

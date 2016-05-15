@@ -3,12 +3,6 @@ using EntityChange.Reflection;
 
 namespace EntityChange
 {
-    public interface ICompareOptions
-    {
-        Func<object, object, bool> Equality { get; set; }
-        CollectionComparison CollectionComparison { get; set; }
-    }
-
     /// <summary>
     /// Mapping information for a class member.
     /// </summary>
@@ -31,9 +25,28 @@ namespace EntityChange
         public IMemberAccessor MemberAccessor { get; set; }
 
 
+        /// <summary>
+        /// Gets or sets the display name.
+        /// </summary>
+        /// <value>
+        /// The display name.
+        /// </value>
+        public string DisplayName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the equality <see langword="delegate" />.
+        /// </summary>
+        /// <value>
+        /// The equality <see langword="delegate" />.
+        /// </value>
         public Func<object, object, bool> Equality { get; set; }
 
-
+        /// <summary>
+        /// Gets or sets the collection comparison.
+        /// </summary>
+        /// <value>
+        /// The collection comparison.
+        /// </value>
         public CollectionComparison CollectionComparison { get; set; }
     }
 }

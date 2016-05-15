@@ -4,10 +4,10 @@ using EntityChange.Fluent;
 namespace EntityChange
 {
     /// <summary>
-    /// A <see langword="base"/> class for creating mapping profiles
+    /// A <see langword="base"/> class for creating entity comparision profiles
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
-    public abstract class MappingProfile<TEntity> : ClassMappingBuilder<TEntity>, IMappingProfile
+    public abstract class EntityProfile<TEntity> : EntityMappingBuilder<TEntity>, IEntityProfile
         where TEntity : class
     {
         /// <summary>
@@ -16,15 +16,15 @@ namespace EntityChange
         /// <value>
         /// The type of the entity.
         /// </value>
-        Type IMappingProfile.EntityType => typeof(TEntity);
+        Type IEntityProfile.EntityType => typeof(TEntity);
 
         /// <summary>
         /// Registers the specified class mapping.
         /// </summary>
-        /// <param name="classMapping">The class mapping.</param>
-        void IMappingProfile.Register(ClassMapping classMapping)
+        /// <param name="entityMapping">The class mapping.</param>
+        void IEntityProfile.Register(EntityMapping entityMapping)
         {
-            ClassMapping = classMapping;
+            EntityMapping = entityMapping;
             Configure();
         }
 

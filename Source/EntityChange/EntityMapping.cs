@@ -7,12 +7,12 @@ namespace EntityChange
     /// <summary>
     /// Mapping information on how to compare a class
     /// </summary>
-    public class ClassMapping
+    public class EntityMapping
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ClassMapping"/> class.
+        /// Initializes a new instance of the <see cref="EntityMapping"/> class.
         /// </summary>
-        public ClassMapping()
+        public EntityMapping()
         {
             AutoMap = true;
             Members = new List<MemberMapping>();
@@ -20,10 +20,10 @@ namespace EntityChange
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ClassMapping"/> class.
+        /// Initializes a new instance of the <see cref="EntityMapping"/> class.
         /// </summary>
         /// <param name="typeAccessor">The type accessor.</param>
-        public ClassMapping(TypeAccessor typeAccessor) : this()
+        public EntityMapping(TypeAccessor typeAccessor) : this()
         {
             TypeAccessor = typeAccessor;
         }
@@ -60,6 +60,12 @@ namespace EntityChange
         /// </value>
         public TypeAccessor TypeAccessor { get; set; }
 
+        /// <summary>
+        /// Gets or sets the <see langword="delegate"/> to comparer two entities.
+        /// </summary>
+        /// <value>
+        /// The <see langword="delegate"/> to comparer two entities.
+        /// </value>
         public Func<object, object, bool> Comparer { get; set; }
 
         /// <summary>

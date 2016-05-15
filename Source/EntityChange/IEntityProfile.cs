@@ -3,9 +3,9 @@
 namespace EntityChange
 {
     /// <summary>
-    /// An <see langword="interface"/> for mapping a class.
+    /// An <see langword="interface"/> for entity comparision profiles.
     /// </summary>
-    public interface IMappingProfile
+    public interface IEntityProfile
     {
         /// <summary>
         /// Gets the type of the entity.
@@ -18,7 +18,7 @@ namespace EntityChange
         /// <summary>
         /// Registers the specified class mapping.
         /// </summary>
-        /// <param name="classMapping">The class mapping.</param>
-        void Register(ClassMapping classMapping);
+        /// <param name="entityMapping">The class mapping.</param>
+        void Register(EntityMapping entityMapping);
     }
 }

@@ -7,14 +7,14 @@ namespace EntityChange.Fluent
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <typeparam name="TProperty">The type of the property.</typeparam>
-    public class MemberConfigurationBuilder<TEntity, TProperty>
+    public class CollectionMappingBuilder<TEntity, TProperty>
     {
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MemberConfigurationBuilder{TEntity, TProperty}"/> class.
+        /// Initializes a new instance of the <see cref="CollectionMappingBuilder{TEntity,TProperty}"/> class.
         /// </summary>
         /// <param name="memberMapping">The member mapping.</param>
-        public MemberConfigurationBuilder(MemberMapping memberMapping)
+        public CollectionMappingBuilder(MemberMapping memberMapping)
         {
             MemberMapping = memberMapping;
         }
@@ -35,17 +35,25 @@ namespace EntityChange.Fluent
         /// <returns>
         /// Fluent builder for an entity property.
         /// </returns>
-        public MemberConfigurationBuilder<TEntity, TProperty> Ignore(bool value = true)
+        public CollectionMappingBuilder<TEntity, TProperty> Ignore(bool value = true)
         {
             MemberMapping.Ignored = value;
             return this;
         }
 
 
-        public MemberConfigurationBuilder<TEntity, TProperty> Equality(Func<object, object, bool> equalityFactory)
+        public CollectionMappingBuilder<TEntity, TProperty> ElementEquality(Func<object, object, bool> equalityFactory)
         {
             MemberMapping.Equality = equalityFactory;
             return this;
         }
+
+
+        public CollectionMappingBuilder<TEntity, TProperty> CollectionComparison(CollectionComparison comparison)
+        {
+            MemberMapping.CollectionComparison = comparison;
+            return this;
+        }
+
     }
 }

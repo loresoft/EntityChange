@@ -5,26 +5,26 @@ using System.Linq.Expressions;
 namespace EntityChange.Fluent
 {
     /// <summary>
-    /// Fluent builder for <see cref="ClassMapping"/>.
+    /// Fluent builder for <see cref="EntityMapping"/>.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
-    public class ClassMappingBuilder<TEntity>
+    public class EntityMappingBuilder<TEntity>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ClassMappingBuilder{TEntity}"/> class.
+        /// Initializes a new instance of the <see cref="EntityMappingBuilder{TEntity}"/> class.
         /// </summary>
-        protected ClassMappingBuilder()
+        protected EntityMappingBuilder()
         {
 
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ClassMappingBuilder{TEntity}"/> class.
+        /// Initializes a new instance of the <see cref="EntityMappingBuilder{TEntity}"/> class.
         /// </summary>
-        /// <param name="classMapping">The class mapping.</param>
-        public ClassMappingBuilder(ClassMapping classMapping)
+        /// <param name="entityMapping">The class mapping.</param>
+        public EntityMappingBuilder(EntityMapping entityMapping)
         {
-            ClassMapping = classMapping;
+            EntityMapping = entityMapping;
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace EntityChange.Fluent
         /// <value>
         /// The class mapping.
         /// </value>
-        public ClassMapping ClassMapping { get; protected set; }
+        public EntityMapping EntityMapping { get; protected set; }
 
 
         /// <summary>
@@ -41,9 +41,9 @@ namespace EntityChange.Fluent
         /// </summary>
         /// <param name="value"><c>true</c> to automatic map properties; otherwise, <c>false</c>.</param>
         /// <returns>A fluent builder for class mapping.</returns>
-        public ClassMappingBuilder<TEntity> AutoMap(bool value = true)
+        public EntityMappingBuilder<TEntity> AutoMap(bool value = true)
         {
-            ClassMapping.AutoMap = value;
+            EntityMapping.AutoMap = value;
             return this;
         }
 
@@ -54,20 +54,20 @@ namespace EntityChange.Fluent
         /// <typeparam name="TProperty">The type of the property.</typeparam>
         /// <param name="property">The source property to configure.</param>
         /// <returns>A fluent member builder for the specified property.</returns>
-        public MemberConfigurationBuilder<TEntity, TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> property)
+        public MemberMappingBuilder<TEntity, TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> property)
         {
-            var propertyAccessor = ClassMapping.TypeAccessor.FindProperty(property);
+            var propertyAccessor = EntityMapping.TypeAccessor.FindProperty(property);
 
-            var memberMapping = ClassMapping.Members.Find(m => m.MemberAccessor.MemberInfo == propertyAccessor.MemberInfo);
+            var memberMapping = EntityMapping.Members.Find(m => m.MemberAccessor.MemberInfo == propertyAccessor.MemberInfo);
             if (memberMapping == null)
             {
                 memberMapping = new MemberMapping();
                 memberMapping.MemberAccessor = propertyAccessor;
 
-                ClassMapping.Members.Add(memberMapping);
+                EntityMapping.Members.Add(memberMapping);
             }
 
-            var builder = new MemberConfigurationBuilder<TEntity, TProperty>(memberMapping);
+            var builder = new MemberMappingBuilder<TEntity, TProperty>(memberMapping);
             return builder;
         }
         
@@ -77,21 +77,21 @@ namespace EntityChange.Fluent
         /// <typeparam name="TProperty">The type of the property.</typeparam>
         /// <param name="collection">The source property to configure.</param>
         /// <returns>A fluent member builder for the specified property.</returns>
-        public CollectionConfigurationBuilder<TEntity, TProperty> Collection<TProperty>(Expression<Func<TEntity, TProperty>> collection)
+        public CollectionMappingBuilder<TEntity, TProperty> Collection<TProperty>(Expression<Func<TEntity, TProperty>> collection)
             where TProperty : IEnumerable
         {
-            var propertyAccessor = ClassMapping.TypeAccessor.FindProperty(collection);
+            var propertyAccessor = EntityMapping.TypeAccessor.FindProperty(collection);
 
-            var memberMapping = ClassMapping.Members.Find(m => m.MemberAccessor.MemberInfo == propertyAccessor.MemberInfo);
+            var memberMapping = EntityMapping.Members.Find(m => m.MemberAccessor.MemberInfo == propertyAccessor.MemberInfo);
             if (memberMapping == null)
             {
                 memberMapping = new MemberMapping();
                 memberMapping.MemberAccessor = propertyAccessor;
 
-                ClassMapping.Members.Add(memberMapping);
+                EntityMapping.Members.Add(memberMapping);
             }
 
-            var builder = new CollectionConfigurationBuilder<TEntity, TProperty>(memberMapping);
+            var builder = new CollectionMappingBuilder<TEntity, TProperty>(memberMapping);
             return builder;
         }
     }

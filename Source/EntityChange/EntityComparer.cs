@@ -8,20 +8,32 @@ using EntityChange.Reflection;
 
 namespace EntityChange
 {
+    /// <summary>
+    /// A class to compare two entities generating a change list. 
+    /// </summary>
     public class EntityComparer
     {
         private readonly Stack<string> _pathStack;
+        private readonly Stack<string> _displayStack;
         private readonly List<ChangeRecord> _changes;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EntityComparer"/> class.
+        /// </summary>
         public EntityComparer() : this(Configuration.Default)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EntityComparer"/> class.
+        /// </summary>
+        /// <param name="configuration">The configuration.</param>
         public EntityComparer(Configuration configuration)
         {
             Configuration = configuration;
             _changes = new List<ChangeRecord>();
             _pathStack = new Stack<string>();
+            _displayStack = new Stack<string>();
         }
 
 
@@ -35,20 +47,16 @@ namespace EntityChange
 
 
         /// <summary>
-        /// Configures the generator with specified fluent <paramref name="builder"/>.
+        /// Compares the specified <paramref name="original"/> and <paramref name="current"/> entities.
         /// </summary>
-        /// <param name="builder">The fluent configuration builder <see langword="delegate"/>.</param>
-        public void Configure(Action<ConfigurationBuilder> builder)
-        {
-            var configurationBuilder = new ConfigurationBuilder(Configuration);
-            builder(configurationBuilder);
-        }
-
-
-        public IReadOnlyCollection<ChangeRecord> Compare<T>(T original, T current)
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="original">The original entity.</param>
+        /// <param name="current">The current entity.</param>
+        /// <returns>A list of changes.</returns>
+        public IReadOnlyCollection<ChangeRecord> Compare<TEntity>(TEntity original, TEntity current)
         {
             _changes.Clear();
-            var type = typeof(T);
+            var type = typeof(TEntity);
 
             CompareType(type, original, current);
             return _changes;
@@ -72,10 +80,8 @@ namespace EntityChange
                 CompareGenericDictionary(original, current, keyType, elementType, options);
             else if (original is IList || current is IList)
                 CompareList(original, current, options);
-            else if (type.IsList(out elementType))
-                CompareEnumerable(original, current, options);
             else if (type.IsCollection())
-                CompareEnumerable(original, current, options);
+                CompareCollection(original, current, options);
             else if (type.IsValueType || type == typeof(string))
                 CompareValue(original, current, options);
             else
@@ -88,24 +94,25 @@ namespace EntityChange
                 return;
 
 
-            CompareProperties(type, original, current);
-        }
-
-        private void CompareProperties(Type type, object original, object current)
-        {
-            var classMapping = GetMapping(type);
+            var classMapping = Configuration.GetMapping(type);
             foreach (var memberMapping in classMapping.Members)
             {
-                var originalValue = memberMapping.MemberAccessor.GetValue(original);
-                var currentValue = memberMapping.MemberAccessor.GetValue(current);
+                var accessor = memberMapping.MemberAccessor;
 
-                var path = memberMapping.MemberAccessor.Name;
-                _pathStack.Push(path);
+                var originalValue = accessor.GetValue(original);
+                var currentValue = accessor.GetValue(current);
 
-                var propertyType = memberMapping.MemberAccessor.MemberType.GetUnderlyingType();
+                var propertyName = accessor.Name;
+                var displayName = memberMapping.DisplayName ?? accessor.Name.ToSpacedWords();
+
+                _pathStack.Push(propertyName);
+                _displayStack.Push(displayName);
+
+                var propertyType = accessor.MemberType.GetUnderlyingType();
 
                 CompareType(propertyType, originalValue, currentValue, memberMapping);
 
+                _displayStack.Pop();
                 _pathStack.Pop();
             }
         }
@@ -124,6 +131,7 @@ namespace EntityChange
 
         private void CompareGenericDictionary(object original, object current, Type keyType, Type elementType, ICompareOptions options)
         {
+            // TODO improve this, currently slow due to CreateInstance usage
             var t = typeof(DictionaryWrapper<,>).MakeGenericType(keyType, elementType);
             var o = Activator.CreateInstance(t, original) as IDictionaryWrapper;
             var c = Activator.CreateInstance(t, current) as IDictionaryWrapper;
@@ -143,7 +151,7 @@ namespace EntityChange
             if (CheckForNull(originalArray, currentArray))
                 return;
 
-            if (options.CollectionComparison == CollectionComparison.ObjectEquality)
+            if (options?.CollectionComparison == CollectionComparison.ObjectEquality)
                 CompareByEquality(originalArray, currentArray, options);
             else
                 CompareByIndexer(originalArray, currentArray, t => t.Length, (t, i) => t.GetValue(i));
@@ -157,13 +165,13 @@ namespace EntityChange
             if (CheckForNull(originalList, currentList))
                 return;
 
-            if (options.CollectionComparison == CollectionComparison.ObjectEquality)
+            if (options?.CollectionComparison == CollectionComparison.ObjectEquality)
                 CompareByEquality(originalList, currentList, options);
             else
                 CompareByIndexer(originalList, currentList, t => t.Count, (t, i) => t[i]);
         }
 
-        private void CompareEnumerable(object original, object current, ICompareOptions options)
+        private void CompareCollection(object original, object current, ICompareOptions options)
         {
             var originalEnumerable = original as IEnumerable;
             var currentEnumerable = current as IEnumerable;
@@ -171,7 +179,7 @@ namespace EntityChange
             if (CheckForNull(originalEnumerable, currentEnumerable))
                 return;
 
-            if (options.CollectionComparison == CollectionComparison.ObjectEquality)
+            if (options?.CollectionComparison == CollectionComparison.ObjectEquality)
             {
                 CompareByEquality(originalEnumerable, currentEnumerable, options);
                 return;
@@ -206,6 +214,7 @@ namespace EntityChange
             var currentList = current.Cast<object>().ToList();
 
             var currentPath = CurrentPath();
+            var currentName = CurrentName();
             var compare = options?.Equality ?? Object.Equals;
 
 
@@ -219,7 +228,7 @@ namespace EntityChange
                 if (o == null)
                 {
                     // added item
-                    CreateChange(ChangeOperation.Add, null, v, p);
+                    CreateChange(ChangeOperation.Add, null, v, p, currentName);
                     continue;
                 }
 
@@ -402,99 +411,37 @@ namespace EntityChange
                 .ToDelimitedString(".");
         }
 
-        private void CreateChange(ChangeOperation operation, object original, object current, string path = null)
+        private string CurrentName()
         {
-            var c = new ChangeRecord
-            {
-                Path = path ?? CurrentPath(),
-                Operation = operation,
-                OrginalValue = original,
-                CurrentValue = current
-            };
+            if (_pathStack.Count > 0)
+                return _pathStack.Peek();
+
+            return string.Empty;
+        }
+
+        private string CurrentDisplay()
+        {
+            if (_displayStack.Count > 0)
+                return _displayStack.Peek();
+
+            if (_pathStack.Count > 0)
+                return _pathStack.Peek();
+
+            return string.Empty;
+        }
+
+        private void CreateChange(ChangeOperation operation, object original, object current, string path = null, string name = null)
+        {
+            var c = new ChangeRecord();
+            c.PropertyName = name ?? CurrentName();
+            c.DisplayName = CurrentDisplay();
+            c.Path = path ?? CurrentPath();
+            c.Operation = operation;
+            c.OriginalValue = original;
+            c.CurrentValue = current;
 
             _changes.Add(c);
         }
 
-
-        private ClassMapping GetMapping(Type type)
-        {
-            var mapping = Configuration.Mapping
-                .GetOrAdd(type, t => new ClassMapping(TypeAccessor.GetAccessor(type)));
-
-            if (mapping.Mapped)
-                return mapping;
-
-            bool autoMap = mapping.AutoMap || Configuration.AutoMap;
-            if (!autoMap)
-                return mapping;
-
-            // thread-safe initialization 
-            lock (mapping.SyncRoot)
-            {
-                if (mapping.Mapped)
-                    return mapping;
-
-                var typeAccessor = mapping.TypeAccessor;
-
-                var properties = typeAccessor.GetProperties()
-                    .Where(p => p.HasGetter && p.HasSetter);
-
-                foreach (var property in properties)
-                {
-                    // get or create member
-                    var memberMapping = mapping.Members.FirstOrDefault(m => m.MemberAccessor.Name == property.Name);
-                    if (memberMapping == null)
-                    {
-                        memberMapping = new MemberMapping { MemberAccessor = property };
-                        mapping.Members.Add(memberMapping);
-                    }
-
-
-                    // skip already mapped fields
-                    if (memberMapping.Ignored || memberMapping.Equality != null)
-                        continue;
-
-
-                    // init here
-                }
-
-                mapping.Mapped = true;
-
-                return mapping;
-            }
-        }
-
-    }
-
-
-    public interface IDictionaryWrapper
-    {
-        IEnumerable GetKeys();
-        object GetValue(object key);
-    }
-
-    public class DictionaryWrapper<TKey, TValue> : IDictionaryWrapper
-    {
-        private readonly IDictionary<TKey, TValue> _dictionary;
-
-        public DictionaryWrapper(IDictionary<TKey, TValue> dictionary)
-        {
-            _dictionary = dictionary;
-        }
-
-
-        public IEnumerable GetKeys()
-        {
-            return _dictionary.Keys;
-        }
-
-        public object GetValue(object key)
-        {
-            TValue value;
-
-            _dictionary.TryGetValue((TKey)key, out value);
-
-            return value;
-        }
     }
 }

@@ -21,7 +21,7 @@ namespace EntityChange.Tests
                 e.Collection(p => p.Items).CollectionComparison(CollectionComparison.ObjectEquality);
             });
 
-            ClassMapping orderMapping;
+            EntityMapping orderMapping;
             bool result = configuration.Mapping.TryGetValue(typeof(Order), out orderMapping);
 
             result.Should().BeTrue();

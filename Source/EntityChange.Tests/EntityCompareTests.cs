@@ -4,11 +4,19 @@ using System.Linq;
 using EntityChange.Tests.Models;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace EntityChange.Tests
 {
     public class EntityCompareTests
     {
+        private readonly ITestOutputHelper _output;
+
+        public EntityCompareTests(ITestOutputHelper output)
+        {
+            _output = output;
+        }
+
         [Fact]
         public void CompareObjectTest()
         {
@@ -40,7 +48,8 @@ namespace EntityChange.Tests
                 }
             };
 
-            var comparer = new EntityComparer();
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
             var changes = comparer.Compare(original, current).ToList();
 
             changes.Should().NotBeNull();
@@ -49,6 +58,8 @@ namespace EntityChange.Tests
             changes[0].Path.Should().Be("Id");
             changes[1].Path.Should().Be("BillingAddress.Zip");
             changes[2].Path.Should().Be("Total");
+
+            WriteMarkdown(changes);
 
         }
 
@@ -84,7 +95,8 @@ namespace EntityChange.Tests
                 }
             };
 
-            var comparer = new EntityComparer();
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
             var changes = comparer.Compare(original, current).ToList();
 
             changes.Should().NotBeNull();
@@ -94,6 +106,8 @@ namespace EntityChange.Tests
             changes[1].Path.Should().Be("BillingAddress.Address2");
             changes[2].Path.Should().Be("BillingAddress.Zip");
             changes[3].Path.Should().Be("Total");
+
+            WriteMarkdown(changes);
 
         }
 
@@ -129,7 +143,8 @@ namespace EntityChange.Tests
                 }
             };
 
-            var comparer = new EntityComparer();
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
             var changes = comparer.Compare(original, current).ToList();
 
             changes.Should().NotBeNull();
@@ -140,6 +155,8 @@ namespace EntityChange.Tests
             changes[1].Operation.Should().Be(ChangeOperation.Replace);
             changes[2].Path.Should().Be("BillingAddress.Zip");
             changes[3].Path.Should().Be("Total");
+
+            WriteMarkdown(changes);
 
         }
 
@@ -167,7 +184,8 @@ namespace EntityChange.Tests
                 }
             };
 
-            var comparer = new EntityComparer();
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
             var changes = comparer.Compare(original, current).ToList();
 
             changes.Should().NotBeNull();
@@ -176,6 +194,8 @@ namespace EntityChange.Tests
             changes[0].Path.Should().Be("Id");
             changes[1].Path.Should().Be("BillingAddress");
             changes[2].Path.Should().Be("Total");
+
+            WriteMarkdown(changes);
 
         }
 
@@ -203,7 +223,8 @@ namespace EntityChange.Tests
                 Total = 11000
             };
 
-            var comparer = new EntityComparer();
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
             var changes = comparer.Compare(original, current).ToList();
 
             changes.Should().NotBeNull();
@@ -213,6 +234,8 @@ namespace EntityChange.Tests
             changes[1].Path.Should().Be("BillingAddress");
             changes[1].Operation.Should().Be(ChangeOperation.Remove);
             changes[2].Path.Should().Be("Total");
+
+            WriteMarkdown(changes);
 
         }
 
@@ -243,7 +266,8 @@ namespace EntityChange.Tests
                 }
             };
 
-            var comparer = new EntityComparer();
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
             var changes = comparer.Compare(original, current).ToList();
 
             changes.Should().NotBeNull();
@@ -254,6 +278,8 @@ namespace EntityChange.Tests
             changes[2].Path.Should().Be("Items[1]");
             changes[2].Operation.Should().Be(ChangeOperation.Add);
             changes[3].Path.Should().Be("Total");
+
+            WriteMarkdown(changes);
 
         }
 
@@ -283,7 +309,8 @@ namespace EntityChange.Tests
                 }
             };
 
-            var comparer = new EntityComparer();
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
             var changes = comparer.Compare(original, current).ToList();
 
             changes.Should().NotBeNull();
@@ -294,6 +321,9 @@ namespace EntityChange.Tests
             changes[2].Path.Should().Be("Items[1]");
             changes[2].Operation.Should().Be(ChangeOperation.Remove);
             changes[3].Path.Should().Be("Total");
+
+            WriteMarkdown(changes);
+
         }
 
         [Fact]
@@ -317,7 +347,8 @@ namespace EntityChange.Tests
                 }
             };
 
-            var comparer = new EntityComparer();
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
             var changes = comparer.Compare(original, current).ToList();
 
             changes.Should().NotBeNull();
@@ -327,6 +358,8 @@ namespace EntityChange.Tests
             changes[1].Path.Should().Be("Items");
             changes[1].Operation.Should().Be(ChangeOperation.Replace);
             changes[2].Path.Should().Be("Total");
+
+            WriteMarkdown(changes);
 
         }
 
@@ -351,7 +384,8 @@ namespace EntityChange.Tests
                 Total = 11000,
             };
 
-            var comparer = new EntityComparer();
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
             var changes = comparer.Compare(original, current).ToList();
 
             changes.Should().NotBeNull();
@@ -361,6 +395,9 @@ namespace EntityChange.Tests
             changes[1].Path.Should().Be("Items");
             changes[1].Operation.Should().Be(ChangeOperation.Remove);
             changes[2].Path.Should().Be("Total");
+
+            WriteMarkdown(changes);
+
         }
 
         [Fact]
@@ -386,8 +423,8 @@ namespace EntityChange.Tests
                 }
             };
 
-            var comparer = new EntityComparer();
-            comparer.Configure(config => config
+            var configuration = new Configuration();
+            configuration.Configure(config => config
                 .Entity<Order>(e =>
                 {
                     e.Collection(p => p.Items)
@@ -405,6 +442,7 @@ namespace EntityChange.Tests
                     e.Property(p => p.Sku).Equality(StringEquality.OrdinalIgnoreCase);
                 })
             );
+            var comparer = new EntityComparer(configuration);
 
 
             var changes = comparer.Compare(original, current).ToList();
@@ -416,6 +454,9 @@ namespace EntityChange.Tests
             changes[1].Path.Should().Be("Items[0].UnitPrice");
             changes[2].Path.Should().Be("Items[1].Quanity");
             changes[3].Path.Should().Be("Items[1].UnitPrice");
+
+            WriteMarkdown(changes);
+
         }
 
 
@@ -443,7 +484,8 @@ namespace EntityChange.Tests
                 }
             };
 
-            var comparer = new EntityComparer();
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
             var changes = comparer.Compare(original, current).ToList();
 
             changes.Should().NotBeNull();
@@ -453,6 +495,9 @@ namespace EntityChange.Tests
             changes[0].Operation.Should().Be(ChangeOperation.Replace);
             changes[1].Path.Should().Be("Data[Path]");
             changes[1].Operation.Should().Be(ChangeOperation.Replace);
+
+            WriteMarkdown(changes);
+
         }
 
         [Fact]
@@ -477,7 +522,8 @@ namespace EntityChange.Tests
                 }
             };
 
-            var comparer = new EntityComparer();
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
             var changes = comparer.Compare(original, current).ToList();
 
             changes.Should().NotBeNull();
@@ -485,6 +531,9 @@ namespace EntityChange.Tests
 
             changes[0].Path.Should().Be("Data[Path]");
             changes[0].Operation.Should().Be(ChangeOperation.Add);
+
+            WriteMarkdown(changes);
+
         }
 
         [Fact]
@@ -509,7 +558,8 @@ namespace EntityChange.Tests
                 }
             };
 
-            var comparer = new EntityComparer();
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
             var changes = comparer.Compare(original, current).ToList();
 
             changes.Should().NotBeNull();
@@ -517,6 +567,9 @@ namespace EntityChange.Tests
 
             changes[0].Path.Should().Be("Data[Path]");
             changes[0].Operation.Should().Be(ChangeOperation.Remove);
+
+            WriteMarkdown(changes);
+
         }
 
         [Fact]
@@ -536,7 +589,8 @@ namespace EntityChange.Tests
                 }
             };
 
-            var comparer = new EntityComparer();
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
             var changes = comparer.Compare(original, current).ToList();
 
             changes.Should().NotBeNull();
@@ -544,6 +598,9 @@ namespace EntityChange.Tests
 
             changes[0].Path.Should().Be("Data");
             changes[0].Operation.Should().Be(ChangeOperation.Replace);
+
+            WriteMarkdown(changes);
+
         }
 
         [Fact]
@@ -563,7 +620,8 @@ namespace EntityChange.Tests
                 Id = original.Id,
             };
 
-            var comparer = new EntityComparer();
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
             var changes = comparer.Compare(original, current).ToList();
 
             changes.Should().NotBeNull();
@@ -571,6 +629,9 @@ namespace EntityChange.Tests
 
             changes[0].Path.Should().Be("Data");
             changes[0].Operation.Should().Be(ChangeOperation.Remove);
+
+            WriteMarkdown(changes);
+
         }
 
 
@@ -590,7 +651,8 @@ namespace EntityChange.Tests
                 Categories = new HashSet<string> { "Person", "Owner", "Blah" },
             };
 
-            var comparer = new EntityComparer();
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
             var changes = comparer.Compare(original, current).ToList();
 
             changes.Should().NotBeNull();
@@ -598,6 +660,8 @@ namespace EntityChange.Tests
 
             changes[0].Path.Should().Be("Categories[2]");
             changes[0].Operation.Should().Be(ChangeOperation.Add);
+
+            WriteMarkdown(changes);
         }
 
         [Fact]
@@ -616,7 +680,8 @@ namespace EntityChange.Tests
                 Categories = new HashSet<string> { "Person", "Owner" },
             };
 
-            var comparer = new EntityComparer();
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
             var changes = comparer.Compare(original, current).ToList();
 
             changes.Should().NotBeNull();
@@ -624,6 +689,8 @@ namespace EntityChange.Tests
 
             changes[0].Path.Should().Be("Categories[2]");
             changes[0].Operation.Should().Be(ChangeOperation.Remove);
+
+            WriteMarkdown(changes);
         }
 
 
@@ -705,23 +772,33 @@ namespace EntityChange.Tests
                 }
             };
 
-            var comparer = new EntityComparer();
-
-            comparer.Configure(config => config
+            var configuration = new Configuration();
+            configuration.Configure(config => config
                 .Entity<Contact>(e =>
                 {
-                    e.Property(p => p.FirstName);
+                    e.Property(p => p.FirstName).Display("First Name");
                     e.Collection(p => p.Roles)
                         .CollectionComparison(CollectionComparison.ObjectEquality)
                         .ElementEquality(StringEquality.OrdinalIgnoreCase);
                 })
             );
 
+            var comparer = new EntityComparer(configuration);
             var changes = comparer.Compare(original, current).ToList();
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(9);
 
+
+            WriteMarkdown(changes);
+        }
+
+        private void WriteMarkdown(IReadOnlyCollection<ChangeRecord> changes)
+        {
+            var formatter = new MarkdownFormatter();
+            var markdown = formatter.Format(changes);
+
+            _output.WriteLine(markdown);
         }
     }
 

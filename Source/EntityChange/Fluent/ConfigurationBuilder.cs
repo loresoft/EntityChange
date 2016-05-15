@@ -28,15 +28,15 @@ namespace EntityChange.Fluent
 
 
         /// <summary>
-        /// Fluent configuration for <see cref="ClassMapping"/>.
+        /// Fluent configuration for <see cref="EntityMapping"/>.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity for the class mapping.</typeparam>
-        /// <param name="builder">The fluent builder for <see cref="ClassMapping"/>.</param>
+        /// <param name="builder">The fluent builder for <see cref="EntityMapping"/>.</param>
         /// <returns>
         /// A fluent builder to configure DataGenerator.
         /// </returns>
         /// <exception cref="ArgumentNullException">The <paramref name="builder"/> parameter is <see langword="null" />.</exception>
-        public ConfigurationBuilder Entity<TEntity>(Action<ClassMappingBuilder<TEntity>> builder)
+        public ConfigurationBuilder Entity<TEntity>(Action<EntityMappingBuilder<TEntity>> builder)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
@@ -44,7 +44,7 @@ namespace EntityChange.Fluent
             var type = typeof(TEntity);
             var classMapping = GetClassMap(type);
 
-            var mappingBuilder = new ClassMappingBuilder<TEntity>(classMapping);
+            var mappingBuilder = new EntityMappingBuilder<TEntity>(classMapping);
             builder(mappingBuilder);
 
             return this;
@@ -59,7 +59,7 @@ namespace EntityChange.Fluent
         /// A fluent builder to configure DataGenerator.
         /// </returns>
         public ConfigurationBuilder Profile<TProfile>() 
-            where TProfile : IMappingProfile, new()
+            where TProfile : IEntityProfile, new()
         {
             var profile = new TProfile();
             var type = profile.EntityType;
@@ -71,12 +71,12 @@ namespace EntityChange.Fluent
         }
 
 
-        private ClassMapping GetClassMap(Type type)
+        private EntityMapping GetClassMap(Type type)
         {
             var classMapping = Configuration.Mapping.GetOrAdd(type, t =>
             {
                 var typeAccessor = TypeAccessor.GetAccessor(t);
-                var mapping = new ClassMapping(typeAccessor);
+                var mapping = new EntityMapping(typeAccessor);
                 return mapping;
             });
 
