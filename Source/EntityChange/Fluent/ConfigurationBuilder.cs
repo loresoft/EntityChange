@@ -70,7 +70,7 @@ namespace EntityChange.Fluent
         /// <returns>
         /// A fluent builder to configure comparison.
         /// </returns>
-        public ConfigurationBuilder Profile<TProfile>() 
+        public ConfigurationBuilder Profile<TProfile>()
             where TProfile : IEntityProfile, new()
         {
             var profile = new TProfile();
@@ -88,7 +88,7 @@ namespace EntityChange.Fluent
             var classMapping = Configuration.Mapping.GetOrAdd(type, t =>
             {
                 var typeAccessor = TypeAccessor.GetAccessor(t);
-                var mapping = new EntityMapping(typeAccessor);
+                var mapping = new EntityMapping(typeAccessor) { AutoMap = Configuration.AutoMap };
                 return mapping;
             });
 
