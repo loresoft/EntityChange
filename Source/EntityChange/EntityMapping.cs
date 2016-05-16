@@ -14,7 +14,6 @@ namespace EntityChange
         /// </summary>
         public EntityMapping()
         {
-            AutoMap = true;
             Members = new List<MemberMapping>();
             SyncRoot = new object();
         }

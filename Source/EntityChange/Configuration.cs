@@ -24,6 +24,7 @@ namespace EntityChange
         public Configuration()
         {
             Mapping = new ConcurrentDictionary<Type, EntityMapping>();
+            AutoMap = true;
         }
 
         /// <summary>
@@ -61,12 +62,12 @@ namespace EntityChange
         public EntityMapping GetMapping(Type type)
         {
             var mapping = Mapping
-                .GetOrAdd(type, t => new EntityMapping(TypeAccessor.GetAccessor(type)));
+                .GetOrAdd(type, t => new EntityMapping(TypeAccessor.GetAccessor(type)) { AutoMap = AutoMap });
 
             if (mapping.Mapped)
                 return mapping;
 
-            bool autoMap = mapping.AutoMap || AutoMap;
+            bool autoMap = mapping.AutoMap;
             if (!autoMap)
                 return mapping;
 

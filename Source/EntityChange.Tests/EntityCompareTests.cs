@@ -793,6 +793,8 @@ namespace EntityChange.Tests
             WriteMarkdown(changes);
         }
 
+
+
         private void WriteMarkdown(IReadOnlyCollection<ChangeRecord> changes)
         {
             var formatter = new MarkdownFormatter();

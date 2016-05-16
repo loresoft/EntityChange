@@ -32,5 +32,47 @@ namespace EntityChange.Tests
             itemsMember.Should().NotBeNull();
             itemsMember.CollectionComparison.Should().Be(CollectionComparison.ObjectEquality);
         }
+
+        [Fact]
+        public void AutoMapDefaultOffTest()
+        {
+            var configuration = new Configuration();
+            var builder = new ConfigurationBuilder(configuration);
+            builder.AutoMap(false);
+            builder.Entity<EmailAddress>(e => e.AutoMap());
+
+
+            var orderMapping = configuration.GetMapping(typeof(Order));
+            orderMapping.Should().NotBeNull();
+            orderMapping.AutoMap.Should().BeFalse();
+            orderMapping.Members.Count.Should().Be(0);
+
+            var emailMapping = configuration.GetMapping(typeof(EmailAddress));
+            emailMapping.Should().NotBeNull();
+            emailMapping.AutoMap.Should().BeTrue();
+            emailMapping.Members.Count.Should().Be(2);
+
+
+        }
+
+        [Fact]
+        public void AutoMapDefaultOnTest()
+        {
+            var configuration = new Configuration();
+            var builder = new ConfigurationBuilder(configuration);
+            builder.Entity<Order>(e => e.AutoMap(false));
+
+            var orderMapping = configuration.GetMapping(typeof(Order));
+            orderMapping.Should().NotBeNull();
+            orderMapping.AutoMap.Should().BeFalse();
+            orderMapping.Members.Count.Should().Be(0);
+
+            var emailMapping = configuration.GetMapping(typeof(EmailAddress));
+            emailMapping.Should().NotBeNull();
+            emailMapping.AutoMap.Should().BeTrue();
+            emailMapping.Members.Count.Should().Be(2);
+
+
+        }
     }
 }

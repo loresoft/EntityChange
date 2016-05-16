@@ -26,6 +26,18 @@ namespace EntityChange.Fluent
         /// </value>
         public Configuration Configuration { get; }
 
+        /// <summary>
+        /// Sets a value indicating whether to automatic map properties of the entity by default
+        /// </summary>
+        /// <param name="value"><c>true</c> to automatic map properties; otherwise, <c>false</c>.</param>
+        /// <returns>
+        /// A fluent builder to configure comparison.
+        /// </returns>
+        public ConfigurationBuilder AutoMap(bool value = true)
+        {
+            Configuration.AutoMap = value;
+            return this;
+        }
 
         /// <summary>
         /// Fluent configuration for <see cref="EntityMapping"/>.
@@ -33,7 +45,7 @@ namespace EntityChange.Fluent
         /// <typeparam name="TEntity">The type of the entity for the class mapping.</typeparam>
         /// <param name="builder">The fluent builder for <see cref="EntityMapping"/>.</param>
         /// <returns>
-        /// A fluent builder to configure DataGenerator.
+        /// A fluent builder to configure comparison.
         /// </returns>
         /// <exception cref="ArgumentNullException">The <paramref name="builder"/> parameter is <see langword="null" />.</exception>
         public ConfigurationBuilder Entity<TEntity>(Action<EntityMappingBuilder<TEntity>> builder)
@@ -56,7 +68,7 @@ namespace EntityChange.Fluent
         /// </summary>
         /// <typeparam name="TProfile">The type of the profile.</typeparam>
         /// <returns>
-        /// A fluent builder to configure DataGenerator.
+        /// A fluent builder to configure comparison.
         /// </returns>
         public ConfigurationBuilder Profile<TProfile>() 
             where TProfile : IEntityProfile, new()
