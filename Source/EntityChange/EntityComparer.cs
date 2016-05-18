@@ -354,7 +354,7 @@ namespace EntityChange
                 string k = key.ToString();
                 string p = $"{currentPath}[{k}]";
 
-                // safe to use index because keys are common
+                // safe to use indexer because keys are common
                 var o = valueFactory(originalDictionary, key);
                 var v = valueFactory(currentDictionary, key);
 
