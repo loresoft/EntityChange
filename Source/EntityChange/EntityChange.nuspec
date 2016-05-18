@@ -8,11 +8,9 @@
     <licenseUrl>https://raw.githubusercontent.com/loresoft/EntityChange/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/loresoft/EntityChange</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description># EntityChange
+    <description>Library to compare two entity object graphs detecting changes
 
-Library to compare two entity object graphs detecting changes
-
-## Features
+Features
 
 * Compare complete entity graph including child entities, collections and dictionaries
 * Collection compare by index or element equality
@@ -21,7 +19,7 @@ Library to compare two entity object graphs detecting changes
 * Custom entity equality compare
 * Markdown or Html change report formatter
 
-Learn more at [https://github.com/loresoft/EntityChange](https://github.com/loresoft/EntityChange)
+Learn more at https://github.com/loresoft/EntityChange
     </description>
     <summary>Library to compare two entity object graphs detecting changes.</summary>
     <copyright>Copyright (c) 2016, LoreSoft</copyright>
