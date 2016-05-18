@@ -14,7 +14,7 @@ namespace EntityChange
     public class EntityComparer
     {
         private readonly Stack<string> _pathStack;
-        private readonly Stack<string> _displayStack;
+        private readonly Stack<IMemberOptions> _memberStack;
         private readonly List<ChangeRecord> _changes;
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace EntityChange
             Configuration = configuration;
             _changes = new List<ChangeRecord>();
             _pathStack = new Stack<string>();
-            _displayStack = new Stack<string>();
+            _memberStack = new Stack<IMemberOptions>();
         }
 
 
@@ -63,7 +63,7 @@ namespace EntityChange
         }
 
 
-        private void CompareType(Type type, object original, object current, ICompareOptions options = null)
+        private void CompareType(Type type, object original, object current, IMemberOptions options = null)
         {
             // both null, nothing to compare
             if (original == null && current == null)
@@ -90,9 +90,21 @@ namespace EntityChange
 
         private void CompareObject(Type type, object original, object current)
         {
-            if (CheckForNull(original, current))
+            // both null, nothing to compare
+            if (original == null && current == null)
                 return;
 
+            if (original == null)
+            {
+                CreateChange(ChangeOperation.Replace, null, current);
+                return;
+            }
+
+            if (current == null)
+            {
+                CreateChange(ChangeOperation.Replace, original, null);
+                return;
+            }
 
             var classMapping = Configuration.GetMapping(type);
             foreach (var memberMapping in classMapping.Members)
@@ -103,52 +115,54 @@ namespace EntityChange
                 var currentValue = accessor.GetValue(current);
 
                 var propertyName = accessor.Name;
-                var displayName = memberMapping.DisplayName ?? accessor.Name.ToSpacedWords();
 
                 _pathStack.Push(propertyName);
-                _displayStack.Push(displayName);
+                _memberStack.Push(memberMapping);
 
                 var propertyType = accessor.MemberType.GetUnderlyingType();
 
                 CompareType(propertyType, originalValue, currentValue, memberMapping);
 
-                _displayStack.Pop();
+                _memberStack.Pop();
                 _pathStack.Pop();
             }
         }
 
 
-        private void CompareDictionary(object original, object current, ICompareOptions options)
+        private void CompareDictionary(object original, object current, IMemberOptions options)
         {
             var originalDictionary = original as IDictionary;
             var currentDictionary = current as IDictionary;
 
-            if (CheckForNull(originalDictionary, currentDictionary))
+            // both null, nothing to compare
+            if (originalDictionary == null && currentDictionary == null)
                 return;
 
             CompareByKey(originalDictionary, currentDictionary, d => d.Keys, (d, k) => d[k]);
         }
 
-        private void CompareGenericDictionary(object original, object current, Type keyType, Type elementType, ICompareOptions options)
+        private void CompareGenericDictionary(object original, object current, Type keyType, Type elementType, IMemberOptions options)
         {
             // TODO improve this, currently slow due to CreateInstance usage
             var t = typeof(DictionaryWrapper<,>).MakeGenericType(keyType, elementType);
             var o = Activator.CreateInstance(t, original) as IDictionaryWrapper;
             var c = Activator.CreateInstance(t, current) as IDictionaryWrapper;
 
-            if (CheckForNull(o, c))
+            // both null, nothing to compare
+            if (o == null && c == null)
                 return;
 
             CompareByKey(o, c, d => d.GetKeys(), (d, k) => d.GetValue(k));
         }
 
 
-        private void CompareArray(object original, object current, ICompareOptions options)
+        private void CompareArray(object original, object current, IMemberOptions options)
         {
             var originalArray = original as Array;
             var currentArray = current as Array;
 
-            if (CheckForNull(originalArray, currentArray))
+            // both null, nothing to compare
+            if (originalArray == null && currentArray == null)
                 return;
 
             if (options?.CollectionComparison == CollectionComparison.ObjectEquality)
@@ -157,12 +171,13 @@ namespace EntityChange
                 CompareByIndexer(originalArray, currentArray, t => t.Length, (t, i) => t.GetValue(i));
         }
 
-        private void CompareList(object original, object current, ICompareOptions options)
+        private void CompareList(object original, object current, IMemberOptions options)
         {
             var originalList = original as IList;
             var currentList = current as IList;
 
-            if (CheckForNull(originalList, currentList))
+            // both null, nothing to compare
+            if (originalList == null && currentList == null)
                 return;
 
             if (options?.CollectionComparison == CollectionComparison.ObjectEquality)
@@ -171,12 +186,13 @@ namespace EntityChange
                 CompareByIndexer(originalList, currentList, t => t.Count, (t, i) => t[i]);
         }
 
-        private void CompareCollection(object original, object current, ICompareOptions options)
+        private void CompareCollection(object original, object current, IMemberOptions options)
         {
             var originalEnumerable = original as IEnumerable;
             var currentEnumerable = current as IEnumerable;
 
-            if (CheckForNull(originalEnumerable, currentEnumerable))
+            // both null, nothing to compare
+            if (originalEnumerable == null && currentEnumerable == null)
                 return;
 
             if (options?.CollectionComparison == CollectionComparison.ObjectEquality)
@@ -189,14 +205,11 @@ namespace EntityChange
             var originalArray = originalEnumerable?.Cast<object>().ToArray();
             var currentArray = currentEnumerable?.Cast<object>().ToArray();
 
-            if (CheckForNull(originalArray, currentArray))
-                return;
-
             CompareByIndexer(originalArray, currentArray, t => t.Length, (t, i) => t.GetValue(i));
         }
 
 
-        private void CompareValue(object original, object current, ICompareOptions options)
+        private void CompareValue(object original, object current, IMemberOptions options)
         {
             var compare = options?.Equality ?? Object.Equals;
             bool areEqual = compare(original, current);
@@ -208,10 +221,10 @@ namespace EntityChange
         }
 
 
-        private void CompareByEquality(IEnumerable original, IEnumerable current, ICompareOptions options)
+        private void CompareByEquality(IEnumerable original, IEnumerable current, IMemberOptions options)
         {
-            var originalList = original.Cast<object>().ToList();
-            var currentList = current.Cast<object>().ToList();
+            var originalList = original?.Cast<object>().ToList() ?? new List<object>();
+            var currentList = current?.Cast<object>().ToList() ?? new List<object>();
 
             var currentPath = CurrentPath();
             var currentName = CurrentName();
@@ -258,8 +271,8 @@ namespace EntityChange
 
             var currentPath = CurrentPath();
 
-            var orginalCount = countFactory(originalList);
-            var currentCount = countFactory(currentList);
+            var orginalCount = originalList != null ? countFactory(originalList) : 0;
+            var currentCount = currentList != null ? countFactory(currentList) : 0;
 
             int commonCount = Math.Min(orginalCount, currentCount);
 
@@ -322,8 +335,14 @@ namespace EntityChange
             if (valueFactory == null)
                 throw new ArgumentNullException(nameof(valueFactory));
 
-            var originalKeys = keysFactory(originalDictionary).Cast<object>().ToList();
-            var currentKeys = keysFactory(currentDictionary).Cast<object>().ToList();
+            var originalKeys = originalDictionary != null
+                ? keysFactory(originalDictionary).Cast<object>().ToList()
+                : new List<object>();
+
+            var currentKeys = currentDictionary != null 
+                ? keysFactory(currentDictionary).Cast<object>().ToList()
+                : new List<object>();
+
 
             var currentPath = CurrentPath();
 
@@ -381,28 +400,6 @@ namespace EntityChange
         }
 
 
-        private bool CheckForNull(object original, object current)
-        {
-            // both null, nothing to compare
-            if (original == null && current == null)
-                return true;
-
-            if (original == null)
-            {
-                CreateChange(ChangeOperation.Replace, null, current);
-                return true;
-            }
-
-            if (current == null)
-            {
-                CreateChange(ChangeOperation.Remove, original, null);
-                return true;
-            }
-
-            return false;
-        }
-
-
         private string CurrentPath()
         {
             return _pathStack
@@ -419,28 +416,46 @@ namespace EntityChange
             return string.Empty;
         }
 
-        private string CurrentDisplay()
+        private IMemberOptions CurrentMember()
         {
-            if (_displayStack.Count > 0)
-                return _displayStack.Peek();
-
-            if (_pathStack.Count > 0)
-                return _pathStack.Peek();
-
-            return string.Empty;
+            return _memberStack.Count > 0 
+                ? _memberStack.Peek() 
+                : null;
         }
 
         private void CreateChange(ChangeOperation operation, object original, object current, string path = null, string name = null)
         {
-            var c = new ChangeRecord();
-            c.PropertyName = name ?? CurrentName();
-            c.DisplayName = CurrentDisplay();
-            c.Path = path ?? CurrentPath();
-            c.Operation = operation;
-            c.OriginalValue = original;
-            c.CurrentValue = current;
+            var currentMember = CurrentMember();
+            var propertyName = name ?? CurrentName();
+            var displayName = currentMember.DisplayName ?? propertyName.ToSpacedWords();
+            var currentPath = path ?? CurrentPath();
+            var originalFormatted = FormatValue(original, currentMember.Formatter);
+            var currentFormatted = FormatValue(current, currentMember.Formatter);
 
-            _changes.Add(c);
+            var changeRecord = new ChangeRecord
+            {
+                PropertyName = propertyName,
+                DisplayName = displayName,
+                Path = currentPath,
+                Operation = operation,
+                OriginalValue = original,
+                CurrentValue = current,
+                OriginalFormatted = originalFormatted,
+                CurrentFormatted = currentFormatted
+            };
+
+            _changes.Add(changeRecord);
+        }
+
+        private string FormatValue(object value, Func<object, string> formatter)
+        {
+            if (value == null)
+                return string.Empty;
+
+            if (formatter != null)
+                return formatter(value);
+
+            return value.ToString();
         }
 
     }

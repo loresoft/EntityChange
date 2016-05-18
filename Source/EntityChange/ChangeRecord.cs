@@ -54,5 +54,21 @@ namespace EntityChange
         /// The current value.
         /// </value>
         public object CurrentValue { get; set; }
+
+        /// <summary>
+        /// Gets or sets the original value formatted as a <see cref="String"/>.
+        /// </summary>
+        /// <value>
+        /// The original value formatted as a <see cref="String"/>.
+        /// </value>
+        public string OriginalFormatted { get; set; }
+
+        /// <summary>
+        /// Gets or sets the current value formatted as a <see cref="String"/>.
+        /// </summary>
+        /// <value>
+        /// The current value formatted as a <see cref="String"/>.
+        /// </value>
+        public string CurrentFormatted { get; set; }
     }
 }

@@ -61,7 +61,7 @@
     <Compile Include="Fluent\MemberMappingBuilder.cs" />
     <Compile Include="HtmlFormatter.cs" />
     <Compile Include="IChangeFormatter.cs" />
-    <Compile Include="ICompareOptions.cs" />
+    <Compile Include="IMemberOptions.cs" />
     <Compile Include="IDictionaryWrapper.cs" />
     <Compile Include="IEntityProfile.cs" />
     <Compile Include="EntityProfile.cs" />
@@ -82,6 +82,7 @@
     <Compile Include="Reflection\ReflectionHelper.cs" />
     <Compile Include="Reflection\TypeAccessor.cs" />
     <Compile Include="StringEquality.cs" />
+    <Compile Include="StringFormatter.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

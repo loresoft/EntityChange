@@ -60,14 +60,6 @@ namespace EntityChange
         public TypeAccessor TypeAccessor { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see langword="delegate"/> to comparer two entities.
-        /// </summary>
-        /// <value>
-        /// The <see langword="delegate"/> to comparer two entities.
-        /// </value>
-        public Func<object, object, bool> Comparer { get; set; }
-
-        /// <summary>
         /// Gets the class mapped members.
         /// </summary>
         /// <value>

@@ -29,7 +29,7 @@ namespace EntityChange.Fluent
 
 
         /// <summary>
-        /// Ignore this property during data generation.
+        /// Ignore this property during entity comparison.
         /// </summary>
         /// <param name="value">if set to <c>true</c> this property will be ignored.</param>
         /// <returns>
@@ -42,12 +42,39 @@ namespace EntityChange.Fluent
         }
 
 
+        /// <summary>
+        /// Sets the member equality <see langword="delegate" />.
+        /// </summary>
+        /// <param name="equalityFactory">The member equality <see langword="delegate" />.</param>
+        /// <returns>
+        /// Fluent builder for an entity property.
+        /// </returns>
         public MemberMappingBuilder<TEntity, TProperty> Equality(Func<object, object, bool> equalityFactory)
         {
             MemberMapping.Equality = equalityFactory;
             return this;
         }
 
+        /// <summary>
+        /// Sets the member value string formatter <see langword="delegate" />.
+        /// </summary>
+        /// <param name="formatterFactory">The member value string formatter factory.</param>
+        /// <returns>
+        /// Fluent builder for an entity property.
+        /// </returns>
+        public MemberMappingBuilder<TEntity, TProperty> Formatter(Func<object, string> formatterFactory)
+        {
+            MemberMapping.Formatter = formatterFactory;
+            return this;
+        }
+
+        /// <summary>
+        /// sets the member display name.
+        /// </summary>
+        /// <param name="value">The display name.</param>
+        /// <returns>
+        /// Fluent builder for an entity property.
+        /// </returns>
         public MemberMappingBuilder<TEntity, TProperty> Display(string value)
         {
             MemberMapping.DisplayName = value;

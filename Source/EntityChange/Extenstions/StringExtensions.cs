@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace EntityChange.Extenstions
 {
+    /// <summary>
+    /// Extension methods for <see cref="String"/> type.
+    /// </summary>
     public static class StringExtensions
     {
         private static readonly Regex _splitNameRegex = new Regex(@"[\W_]+");
@@ -41,6 +44,11 @@ namespace EntityChange.Extenstions
             return string.Concat(buffer.Substring(0, keep - ellipsis.Length), ellipsis);
         }
 
+        /// <summary>
+        /// Normalizes the line endings.
+        /// </summary>
+        /// <param name="text">The text to normalize.</param>
+        /// <returns></returns>
         public static string NormalizeLineEndings(this string text)
         {
             if (string.IsNullOrEmpty(text))

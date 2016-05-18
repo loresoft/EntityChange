@@ -70,6 +70,7 @@
     <Compile Include="ConfigurationTests.cs" />
     <Compile Include="Models\Contact.cs" />
     <Compile Include="Models\ContactType.cs" />
+    <Compile Include="Models\DataType.cs" />
     <Compile Include="Models\EmailAddress.cs" />
     <Compile Include="Models\MailingAddress.cs" />
     <Compile Include="Models\Order.cs" />
@@ -87,6 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <Compile Include="StringFomatterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />

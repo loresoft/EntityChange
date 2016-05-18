@@ -32,7 +32,7 @@ namespace EntityChange
         /// <value>
         /// The operation add template.
         /// </value>
-        public string OperationAddTemplate { get; set; } = "<li>Added <span>{CurrentValue}</span> to <span>{DisplayName}</span></li>";
+        public string OperationAddTemplate { get; set; } = "<li>Added <span>{CurrentFormatted}</span> to <span>{DisplayName}</span></li>";
 
         /// <summary>
         /// Gets or sets the operation remove template.
@@ -40,7 +40,7 @@ namespace EntityChange
         /// <value>
         /// The operation remove template.
         /// </value>
-        public string OperationRemoveTemplate { get; set; } = "<li>Removed <span>{OriginalValue}</span> from <span>{DisplayName}</span></li>";
+        public string OperationRemoveTemplate { get; set; } = "<li>Removed <span>{OriginalFormatted}</span> from <span>{DisplayName}</span></li>";
 
         /// <summary>
         /// Gets or sets the operation replace template.
@@ -48,7 +48,7 @@ namespace EntityChange
         /// <value>
         /// The operation replace template.
         /// </value>
-        public string OperationReplaceTemplate { get; set; } = "<li>Changed <span>{DisplayName}</span> from <span>{OriginalValue}</span> to <span>{CurrentValue}</span></li>";
+        public string OperationReplaceTemplate { get; set; } = "<li>Changed <span>{DisplayName}</span> from <span>{OriginalFormatted}</span> to <span>{CurrentFormatted}</span></li>";
 
 
 

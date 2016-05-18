@@ -64,6 +64,44 @@ namespace EntityChange.Tests
         }
 
         [Fact]
+        public void CompareObjectValueFormatter()
+        {
+            var original = new Order
+            {
+                Id = Guid.NewGuid().ToString(),
+                OrderNumber = 1000,
+                Total = 10000,
+            };
+
+            var current = new Order
+            {
+                Id = original.Id,
+                OrderNumber = 1000,
+                Total = 11000,
+            };
+
+            var configuration = new Configuration();
+            configuration.Configure(config =>
+            {
+                config.Entity<Order>(e => {
+                    e.Property(p => p.Total).Formatter(StringFormatter.Currency);
+                });
+            });
+
+            var comparer = new EntityComparer(configuration);
+            var changes = comparer.Compare(original, current).ToList();
+
+            changes.Should().NotBeNull();
+            changes.Count.Should().Be(1);
+
+            changes[0].Path.Should().Be("Total");
+            changes[0].CurrentFormatted.Should().Be("$11,000.00");
+
+            WriteMarkdown(changes);
+
+        }
+
+        [Fact]
         public void CompareObjectNewPropertyTest()
         {
             var original = new Order
@@ -193,6 +231,7 @@ namespace EntityChange.Tests
 
             changes[0].Path.Should().Be("Id");
             changes[1].Path.Should().Be("BillingAddress");
+            changes[1].Operation.Should().Be(ChangeOperation.Replace);
             changes[2].Path.Should().Be("Total");
 
             WriteMarkdown(changes);
@@ -232,7 +271,7 @@ namespace EntityChange.Tests
 
             changes[0].Path.Should().Be("Id");
             changes[1].Path.Should().Be("BillingAddress");
-            changes[1].Operation.Should().Be(ChangeOperation.Remove);
+            changes[1].Operation.Should().Be(ChangeOperation.Replace);
             changes[2].Path.Should().Be("Total");
 
             WriteMarkdown(changes);
@@ -348,6 +387,18 @@ namespace EntityChange.Tests
             };
 
             var configuration = new Configuration();
+            configuration.Configure(config =>
+            {
+                config.Entity<Order>(e => {
+                    e.Property(p => p.Id);
+                    e.Collection(p => p.Items).ElementFormatter(v =>
+                    {
+                        var orderLine = v as OrderLine;
+                        return orderLine?.Sku;
+                    });
+                });
+            });
+
             var comparer = new EntityComparer(configuration);
             var changes = comparer.Compare(original, current).ToList();
 
@@ -355,8 +406,9 @@ namespace EntityChange.Tests
             changes.Count.Should().Be(3);
 
             changes[0].Path.Should().Be("Id");
-            changes[1].Path.Should().Be("Items");
-            changes[1].Operation.Should().Be(ChangeOperation.Replace);
+            changes[1].Path.Should().Be("Items[0]");
+            changes[1].CurrentFormatted.Should().Be("abc-123");
+            changes[1].Operation.Should().Be(ChangeOperation.Add);
             changes[2].Path.Should().Be("Total");
 
             WriteMarkdown(changes);
@@ -385,6 +437,18 @@ namespace EntityChange.Tests
             };
 
             var configuration = new Configuration();
+            configuration.Configure(config =>
+            {
+                config.Entity<Order>(e => {
+                    e.Property(p => p.Id);
+                    e.Collection(p => p.Items).ElementFormatter(v =>
+                    {
+                        var orderLine = v as OrderLine;
+                        return orderLine?.Sku;
+                    });
+                });
+            });
+
             var comparer = new EntityComparer(configuration);
             var changes = comparer.Compare(original, current).ToList();
 
@@ -392,9 +456,74 @@ namespace EntityChange.Tests
             changes.Count.Should().Be(3);
 
             changes[0].Path.Should().Be("Id");
-            changes[1].Path.Should().Be("Items");
+            changes[1].Path.Should().Be("Items[0]");
+            changes[1].OriginalFormatted.Should().Be("abc-123");
             changes[1].Operation.Should().Be(ChangeOperation.Remove);
             changes[2].Path.Should().Be("Total");
+
+            WriteMarkdown(changes);
+
+        }
+
+        [Fact]
+        public void CompareCollectionReplaceEmptyTest()
+        {
+            var original = new Order
+            {
+                Id = Guid.NewGuid().ToString(),
+                OrderNumber = 1000,
+                Total = 10000,
+            };
+
+            var current = new Order
+            {
+                Id = Guid.NewGuid().ToString(),
+                OrderNumber = 1000,
+                Total = 11000,
+                Items = new List<OrderLine>()
+            };
+
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
+            var changes = comparer.Compare(original, current).ToList();
+
+            changes.Should().NotBeNull();
+            changes.Count.Should().Be(2);
+
+            changes[0].Path.Should().Be("Id");
+            changes[1].Path.Should().Be("Total");
+
+            WriteMarkdown(changes);
+
+        }
+
+        [Fact]
+        public void CompareCollectionRemoveEmptyTest()
+        {
+            var original = new Order
+            {
+                Id = Guid.NewGuid().ToString(),
+                OrderNumber = 1000,
+                Total = 10000,
+                Items = new List<OrderLine>()
+            };
+
+            var current = new Order
+            {
+                Id = Guid.NewGuid().ToString(),
+                OrderNumber = 1000,
+                Total = 11000,
+            };
+
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
+            var changes = comparer.Compare(original, current).ToList();
+
+            changes.Should().NotBeNull();
+            changes.Count.Should().Be(2);
+
+            changes[0].Path.Should().Be("Id");
+            changes[1].Path.Should().Be("Total");
 
             WriteMarkdown(changes);
 
@@ -596,8 +725,8 @@ namespace EntityChange.Tests
             changes.Should().NotBeNull();
             changes.Count.Should().Be(1);
 
-            changes[0].Path.Should().Be("Data");
-            changes[0].Operation.Should().Be(ChangeOperation.Replace);
+            changes[0].Path.Should().Be("Data[Boost]");
+            changes[0].Operation.Should().Be(ChangeOperation.Add);
 
             WriteMarkdown(changes);
 
@@ -627,11 +756,59 @@ namespace EntityChange.Tests
             changes.Should().NotBeNull();
             changes.Count.Should().Be(1);
 
-            changes[0].Path.Should().Be("Data");
+            changes[0].Path.Should().Be("Data[Boost]");
             changes[0].Operation.Should().Be(ChangeOperation.Remove);
 
             WriteMarkdown(changes);
 
+        }
+
+        [Fact]
+        public void CompareDictionaryReplaceEmptyTest()
+        {
+            var original = new Contact
+            {
+                Id = Guid.NewGuid().ToString(),
+            };
+
+            var current = new Contact
+            {
+                Id = original.Id,
+                Data = new Dictionary<string, object>()
+            };
+
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
+            var changes = comparer.Compare(original, current).ToList();
+
+            changes.Should().NotBeNull();
+            changes.Count.Should().Be(0);
+
+            WriteMarkdown(changes);
+        }
+
+        [Fact]
+        public void CompareDictionaryRemoveEmptyTest()
+        {
+            var original = new Contact
+            {
+                Id = Guid.NewGuid().ToString(),
+                Data = new Dictionary<string, object>()
+            };
+
+            var current = new Contact
+            {
+                Id = original.Id,
+            };
+
+            var configuration = new Configuration();
+            var comparer = new EntityComparer(configuration);
+            var changes = comparer.Compare(original, current).ToList();
+
+            changes.Should().NotBeNull();
+            changes.Count.Should().Be(0);
+
+            WriteMarkdown(changes);
         }
 
 
@@ -755,6 +932,7 @@ namespace EntityChange.Tests
                 {
                     new EmailAddress { Address = "user@Business.com", Type = ContactType.Business },
                     new EmailAddress { Address = "user@gmail.com", Type = ContactType.Personal },
+                    new EmailAddress { Address = "user@home.com", Type = ContactType.Home },
                 },
                 MailingAddresses = new List<MailingAddress>
                 {
@@ -780,6 +958,15 @@ namespace EntityChange.Tests
                     e.Collection(p => p.Roles)
                         .CollectionComparison(CollectionComparison.ObjectEquality)
                         .ElementEquality(StringEquality.OrdinalIgnoreCase);
+                    e.Collection(p => p.EmailAddresses).ElementFormatter(v =>
+                    {
+                        var address = v as EmailAddress;
+                        return address?.Address;
+                    });
+                })
+                .Entity<EmailAddress>(e =>
+                {
+                    e.Property(p => p.Address).Display("Email Address");
                 })
             );
 
@@ -787,7 +974,7 @@ namespace EntityChange.Tests
             var changes = comparer.Compare(original, current).ToList();
 
             changes.Should().NotBeNull();
-            changes.Count.Should().Be(9);
+            changes.Count.Should().Be(10);
 
 
             WriteMarkdown(changes);

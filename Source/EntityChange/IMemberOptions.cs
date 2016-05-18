@@ -3,9 +3,9 @@ using System;
 namespace EntityChange
 {
     /// <summary>
-    /// An <see langword="interface"/> for comparison options
+    /// An <see langword="interface"/> for member options
     /// </summary>
-    public interface ICompareOptions
+    public interface IMemberOptions
     {
         /// <summary>
         /// Gets or sets the display name.
@@ -22,6 +22,14 @@ namespace EntityChange
         /// The equality <see langword="delegate"/>.
         /// </value>
         Func<object, object, bool> Equality { get; set; }
+
+        /// <summary>
+        /// Gets or sets the string formatter <see langword="delegate" />.
+        /// </summary>
+        /// <value>
+        /// The string formatter <see langword="delegate" />.
+        /// </value>
+        Func<object, string> Formatter { get; set; }
 
         /// <summary>
         /// Gets or sets the collection comparison.

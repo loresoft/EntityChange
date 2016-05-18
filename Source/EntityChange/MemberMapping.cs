@@ -6,7 +6,7 @@ namespace EntityChange
     /// <summary>
     /// Mapping information for a class member.
     /// </summary>
-    public class MemberMapping : ICompareOptions
+    public class MemberMapping : IMemberOptions
     {
         /// <summary>
         /// Gets or sets a value indicating whether the member is ignored.
@@ -40,6 +40,14 @@ namespace EntityChange
         /// The equality <see langword="delegate" />.
         /// </value>
         public Func<object, object, bool> Equality { get; set; }
+
+        /// <summary>
+        /// Gets or sets the member value string formatter <see langword="delegate" />.
+        /// </summary>
+        /// <value>
+        /// The string formatter <see langword="delegate" />.
+        /// </value>
+        public Func<object, string> Formatter { get; set; }
 
         /// <summary>
         /// Gets or sets the collection comparison.

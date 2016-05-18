@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace EntityChange.Tests.Models
 {
@@ -12,5 +13,27 @@ namespace EntityChange.Tests.Models
         public string State { get; set; }
         public string Zip { get; set; }
 
+
+        public override string ToString()
+        {
+            var b = new StringBuilder();
+            if (Address1 != null)
+                b.Append(Address1)
+                 .Append(", ");
+
+            if (City != null)
+                b.Append(City)
+                 .Append(", ");
+
+
+            if (State != null)
+                b.Append(State)
+                 .Append(" ");
+
+            if (Zip != null)
+                b.Append(Zip);
+
+            return b.ToString();
+        }
     }
 }
