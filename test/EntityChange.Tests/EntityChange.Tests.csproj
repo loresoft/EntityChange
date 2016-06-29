@@ -81,7 +81,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EntityChange\EntityChange.csproj">
+    <ProjectReference Include="..\..\src\EntityChange\EntityChange.csproj">
       <Project>{0258caa6-11bc-4a8b-84ae-ab31af240627}</Project>
       <Name>EntityChange</Name>
     </ProjectReference>
