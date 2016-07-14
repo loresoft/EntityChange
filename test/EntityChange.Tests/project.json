@@ -9,7 +9,7 @@
     "net451": {
       "dependencies": {
         "EntityChange": "2.0.0.0",
-        "FluentAssertions": "4.9.1",
+        "FluentAssertions": "4.11.0",
         "Microsoft.NETCore.Platforms": "1.0.1"
       }
     }
