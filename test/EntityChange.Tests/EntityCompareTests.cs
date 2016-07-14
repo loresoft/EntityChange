@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using EntityChange.Tests.Models;
 using FluentAssertions;
@@ -50,7 +51,7 @@ namespace EntityChange.Tests
 
             var configuration = new Configuration();
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(3);
@@ -89,7 +90,7 @@ namespace EntityChange.Tests
             });
 
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(1);
@@ -135,7 +136,7 @@ namespace EntityChange.Tests
 
             var configuration = new Configuration();
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(4);
@@ -183,7 +184,7 @@ namespace EntityChange.Tests
 
             var configuration = new Configuration();
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(4);
@@ -224,7 +225,7 @@ namespace EntityChange.Tests
 
             var configuration = new Configuration();
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(3);
@@ -264,7 +265,7 @@ namespace EntityChange.Tests
 
             var configuration = new Configuration();
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(3);
@@ -307,7 +308,7 @@ namespace EntityChange.Tests
 
             var configuration = new Configuration();
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(4);
@@ -350,7 +351,7 @@ namespace EntityChange.Tests
 
             var configuration = new Configuration();
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(4);
@@ -400,7 +401,7 @@ namespace EntityChange.Tests
             });
 
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(3);
@@ -450,7 +451,7 @@ namespace EntityChange.Tests
             });
 
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(3);
@@ -485,7 +486,7 @@ namespace EntityChange.Tests
 
             var configuration = new Configuration();
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(2);
@@ -517,7 +518,7 @@ namespace EntityChange.Tests
 
             var configuration = new Configuration();
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(2);
@@ -574,7 +575,7 @@ namespace EntityChange.Tests
             var comparer = new EntityComparer(configuration);
 
 
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(4);
@@ -615,7 +616,7 @@ namespace EntityChange.Tests
 
             var configuration = new Configuration();
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(2);
@@ -653,7 +654,7 @@ namespace EntityChange.Tests
 
             var configuration = new Configuration();
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(1);
@@ -689,7 +690,7 @@ namespace EntityChange.Tests
 
             var configuration = new Configuration();
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(1);
@@ -720,7 +721,7 @@ namespace EntityChange.Tests
 
             var configuration = new Configuration();
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(1);
@@ -751,7 +752,7 @@ namespace EntityChange.Tests
 
             var configuration = new Configuration();
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(1);
@@ -779,7 +780,7 @@ namespace EntityChange.Tests
 
             var configuration = new Configuration();
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(0);
@@ -803,7 +804,7 @@ namespace EntityChange.Tests
 
             var configuration = new Configuration();
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(0);
@@ -830,7 +831,7 @@ namespace EntityChange.Tests
 
             var configuration = new Configuration();
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(1);
@@ -859,7 +860,7 @@ namespace EntityChange.Tests
 
             var configuration = new Configuration();
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(1);
@@ -971,7 +972,7 @@ namespace EntityChange.Tests
             );
 
             var comparer = new EntityComparer(configuration);
-            var changes = comparer.Compare(original, current).ToList();
+            var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
             changes.Count.Should().Be(10);
@@ -982,7 +983,7 @@ namespace EntityChange.Tests
 
 
 
-        private void WriteMarkdown(IReadOnlyCollection<ChangeRecord> changes)
+        private void WriteMarkdown(ReadOnlyCollection<ChangeRecord> changes)
         {
             var formatter = new MarkdownFormatter();
             var markdown = formatter.Format(changes);

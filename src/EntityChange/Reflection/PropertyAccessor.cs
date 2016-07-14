@@ -9,12 +9,8 @@ namespace EntityChange.Reflection
     public class PropertyAccessor : MemberAccessor
     {
         private readonly PropertyInfo _propertyInfo;
-        private readonly string _name;
-        private readonly bool _hasGetter;
-        private readonly bool _hasSetter;
-        private readonly Type _memberType;
-        private readonly Lazy<LateBoundGet> _lateBoundGet;
-        private readonly Lazy<LateBoundSet> _lateBoundSet;
+        private readonly Lazy<Func<object, object>> _getter;
+        private readonly Lazy<Action<object, object>> _setter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PropertyAccessor"/> class.
@@ -22,63 +18,51 @@ namespace EntityChange.Reflection
         /// <param name="propertyInfo">The <see cref="PropertyInfo"/> instance to use for this accessor.</param>
         public PropertyAccessor(PropertyInfo propertyInfo)
         {
+            if (propertyInfo == null)
+                throw new ArgumentNullException(nameof(propertyInfo));
+
             _propertyInfo = propertyInfo;
-            _name = _propertyInfo.Name;
-            _memberType = _propertyInfo.PropertyType;
+            Name = _propertyInfo.Name;
+            MemberType = _propertyInfo.PropertyType;
 
-            _hasGetter = _propertyInfo.CanRead;
-            if (_hasGetter)
-                _lateBoundGet = new Lazy<LateBoundGet>(() => DelegateFactory.CreateGet(_propertyInfo));
+            HasGetter = _propertyInfo.CanRead;
+            _getter = new Lazy<Func<object, object>>(() => DelegateFactory.CreateGet(_propertyInfo));
 
-            _hasSetter = _propertyInfo.CanWrite;
-            if (_hasSetter)
-                _lateBoundSet = new Lazy<LateBoundSet>(() => DelegateFactory.CreateSet(_propertyInfo));
+            HasSetter = _propertyInfo.CanWrite;
+            _setter = new Lazy<Action<object, object>>(() => DelegateFactory.CreateSet(_propertyInfo));
         }
+
 
         /// <summary>
         /// Gets the type of the member.
         /// </summary>
         /// <value>The type of the member.</value>
-        public override Type MemberType
-        {
-            get { return _memberType; }
-        }
+        public override Type MemberType { get; }
 
         /// <summary>
         /// Gets the member info.
         /// </summary>
         /// <value>The member info.</value>
-        public override MemberInfo MemberInfo
-        {
-            get { return _propertyInfo; }
-        }
+        public override MemberInfo MemberInfo => _propertyInfo;
 
         /// <summary>
         /// Gets the name of the member.
         /// </summary>
         /// <value>The name of the member.</value>
-        public override string Name
-        {
-            get { return _name; }
-        }
+        public override string Name { get; }
 
         /// <summary>
         /// Gets a value indicating whether this member has getter.
         /// </summary>
         /// <value><c>true</c> if this member has getter; otherwise, <c>false</c>.</value>
-        public override bool HasGetter
-        {
-            get { return _hasGetter; }
-        }
+        public override bool HasGetter { get; }
 
         /// <summary>
         /// Gets a value indicating whether this member has setter.
         /// </summary>
         /// <value><c>true</c> if this member has setter; otherwise, <c>false</c>.</value>
-        public override bool HasSetter
-        {
-            get { return _hasSetter; }
-        }
+        public override bool HasSetter { get; }
+
 
         /// <summary>
         /// Returns the value of the member.
@@ -89,12 +73,12 @@ namespace EntityChange.Reflection
         /// </returns>
         public override object GetValue(object instance)
         {
-            if (_lateBoundGet == null || !HasGetter)
-                throw new InvalidOperationException(string.Format("Property '{0}' does not have a getter.", Name));
+            if (_getter == null || !HasGetter)
+                throw new InvalidOperationException($"Property '{Name}' does not have a getter.");
 
-            var get = _lateBoundGet.Value;
+            var get = _getter.Value;
             if (get == null)
-                throw new InvalidOperationException(string.Format("Property '{0}' does not have a getter.", Name));
+                throw new InvalidOperationException($"Property '{Name}' does not have a getter.");
 
             return get(instance);
         }
@@ -106,12 +90,12 @@ namespace EntityChange.Reflection
         /// <param name="value">The new value for this member.</param>
         public override void SetValue(object instance, object value)
         {
-            if (_lateBoundSet == null || !HasSetter)
-                throw new InvalidOperationException(string.Format("Property '{0}' does not have a setter.", Name));
+            if (_setter == null || !HasSetter)
+                throw new InvalidOperationException($"Property '{Name}' does not have a setter.");
 
-            var set = _lateBoundSet.Value;
+            var set = _setter.Value;
             if (set == null)
-                throw new InvalidOperationException(string.Format("Property '{0}' does not have a setter.", Name));
+                throw new InvalidOperationException($"Property '{Name}' does not have a setter.");
 
             set(instance, value);
         }

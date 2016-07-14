@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace EntityChange
 {
@@ -13,6 +14,6 @@ namespace EntityChange
         /// </summary>
         /// <param name="changes">The changes to format.</param>
         /// <returns>A string representing the <paramref name="changes"/>.</returns>
-        string Format(IReadOnlyCollection<ChangeRecord> changes);
+        string Format(ReadOnlyCollection<ChangeRecord> changes);
     }
 }

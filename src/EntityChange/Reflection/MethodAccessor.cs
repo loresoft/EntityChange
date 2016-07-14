@@ -12,9 +12,7 @@ namespace EntityChange.Reflection
     [DebuggerDisplay("Name: {Name}")]
     public class MethodAccessor : IMethodAccessor
     {
-        private readonly MethodInfo _methodInfo;
-        private readonly string _name;
-        private readonly Lazy<LateBoundMethod> _lateBoundMethod;
+        private readonly Lazy<Func<object, object[], object>> _invoker;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MethodAccessor"/> class.
@@ -22,18 +20,18 @@ namespace EntityChange.Reflection
         /// <param name="methodInfo">The method info.</param>
         public MethodAccessor(MethodInfo methodInfo)
         {
-            _methodInfo = methodInfo;
-            _name = methodInfo.Name;
-            _lateBoundMethod = new Lazy<LateBoundMethod>(() => DelegateFactory.CreateMethod(_methodInfo));
+            if (methodInfo == null)
+                throw new ArgumentNullException(nameof(methodInfo));
+
+            MethodInfo = methodInfo;
+            Name = methodInfo.Name;
+            _invoker = new Lazy<Func<object, object[], object>>(() => DelegateFactory.CreateMethod(MethodInfo));
         }
 
         /// <summary>
         /// Gets the method info.
         /// </summary>
-        public MethodInfo MethodInfo
-        {
-            get { return _methodInfo; }
-        }
+        public MethodInfo MethodInfo { get; }
 
         /// <summary>
         /// Gets the name of the member.
@@ -41,13 +39,10 @@ namespace EntityChange.Reflection
         /// <value>
         /// The name of the member.
         /// </value>
-        public string Name
-        {
-            get { return _name; }
-        }
+        public string Name { get; }
 
         /// <summary>
-        /// Invokes the method on the specified instance.
+        /// Invokes the method on the specified <paramref name="instance"/>.
         /// </summary>
         /// <param name="instance">The object on which to invoke the method. If a method is static, this argument is ignored.</param>
         /// <param name="arguments">An argument list for the invoked method.</param>
@@ -56,16 +51,22 @@ namespace EntityChange.Reflection
         /// </returns>
         public object Invoke(object instance, params object[] arguments)
         {
-            return _lateBoundMethod.Value.Invoke(instance, arguments);
+            return _invoker.Value.Invoke(instance, arguments);
         }
 
+        /// <summary>
+        /// Gets the method key using a hash code from the name and paremeter types.
+        /// </summary>
+        /// <param name="name">The name of the method.</param>
+        /// <param name="parameterTypes">The method parameter types.</param>
+        /// <returns>The method key</returns>
         internal static int GetKey(string name, IEnumerable<Type> parameterTypes)
         {
             unchecked
             {
-                int result = (name != null ? name.GetHashCode() : 0);
+                int result = name?.GetHashCode() ?? 0;
                 result = parameterTypes.Aggregate(result,
-                  (r, p) => (r * 397) ^ (p != null ? p.GetHashCode() : 0));
+                  (r, p) => (r * 397) ^ (p?.GetHashCode() ?? 0));
 
                 return result;
             }

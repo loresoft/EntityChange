@@ -2,27 +2,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading;
 
 namespace EntityChange.Reflection
 {
+    /// <summary>
+    /// Reflection helper methods
+    /// </summary>
     public static class ReflectionHelper
     {
-        private static readonly Type _stringType = typeof(string);
-        private static readonly Type _byteArrayType = typeof(byte[]);
-        private static readonly Type _nullableType = typeof(Nullable<>);
-        private static readonly Type _genericCollectionType = typeof(ICollection<>);
-        private static readonly Type _collectionType = typeof(ICollection);
-        private static readonly Type _genericListType = typeof(IList<>);
-        private static readonly Type _listType = typeof(IList);
-        private static readonly Type _genericSetType = typeof(ISet<>);
-        private static readonly Type _genericDictionaryType = typeof(IDictionary<,>);
-        private static readonly Type _dictionaryType = typeof(IDictionary);
-
         /// <summary>
         /// Extracts the property name from a property expression.
         /// </summary>
@@ -38,7 +28,7 @@ namespace EntityChange.Reflection
         public static string ExtractPropertyName<TValue>(Expression<Func<TValue>> propertyExpression)
         {
             if (propertyExpression == null)
-                throw new ArgumentNullException("propertyExpression");
+                throw new ArgumentNullException(nameof(propertyExpression));
 
             return ExtractPropertyName(propertyExpression.Body as MemberExpression);
         }
@@ -62,7 +52,7 @@ namespace EntityChange.Reflection
         public static string ExtractPropertyName<TSource, TValue>(Expression<Func<TSource, TValue>> propertyExpression)
         {
             if (propertyExpression == null)
-                throw new ArgumentNullException("propertyExpression");
+                throw new ArgumentNullException(nameof(propertyExpression));
 
             return ExtractPropertyName(propertyExpression.Body as MemberExpression);
         }
@@ -83,11 +73,8 @@ namespace EntityChange.Reflection
         ///   </exception>
         public static string ExtractPropertyName(MemberExpression memberExpression)
         {
-            var property = ExtractPropertyInfo(memberExpression);
-
-            var getMethod = property.GetGetMethod(true);
-            if (getMethod.IsStatic)
-                throw new ArgumentException("The referenced property is a static property.", "memberExpression");
+            if (memberExpression == null)
+                throw new ArgumentNullException(nameof(memberExpression));
 
             return memberExpression.Member.Name;
         }
@@ -108,7 +95,7 @@ namespace EntityChange.Reflection
         public static string ExtractColumnName<TValue>(Expression<Func<TValue>> propertyExpression)
         {
             if (propertyExpression == null)
-                throw new ArgumentNullException("propertyExpression");
+                throw new ArgumentNullException(nameof(propertyExpression));
 
             return ExtractColumnName(propertyExpression.Body as MemberExpression);
         }
@@ -132,7 +119,7 @@ namespace EntityChange.Reflection
         public static string ExtractColumnName<TSource, TValue>(Expression<Func<TSource, TValue>> propertyExpression)
         {
             if (propertyExpression == null)
-                throw new ArgumentNullException("propertyExpression");
+                throw new ArgumentNullException(nameof(propertyExpression));
 
             return ExtractColumnName(propertyExpression.Body as MemberExpression);
         }
@@ -155,47 +142,70 @@ namespace EntityChange.Reflection
         {
             var property = ExtractPropertyInfo(memberExpression);
 
-            var getMethod = property.GetGetMethod(true);
-            if (getMethod.IsStatic)
-                throw new ArgumentException("The referenced property is a static property.", "memberExpression");
+#if NET40
+            var display = Attribute.GetCustomAttribute(property, typeof(System.ComponentModel.DataAnnotations.DisplayAttribute)) as System.ComponentModel.DataAnnotations.DisplayAttribute;
+            if (!string.IsNullOrEmpty(display?.Name))
+                return display.Name;
+#else
+            var column = property.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.ColumnAttribute>();
+            if (!string.IsNullOrEmpty(column?.Name))
+                return column.Name;
 
-            string columnName = property.Name;
-            var display = Attribute.GetCustomAttribute(property, typeof(ColumnAttribute)) as ColumnAttribute;
+            var display = property.GetCustomAttribute<System.ComponentModel.DataAnnotations.DisplayAttribute>();
+            if (!string.IsNullOrEmpty(display?.Name))
+                return display.Name;
+#endif
 
-            if (display != null && !string.IsNullOrEmpty(display.Name))
-                columnName = display.Name;
-
-            return columnName;
+            return property.Name;
         }
 
 
+        /// <summary>
+        /// Extracts the <see cref="PropertyInfo"/> from the specified property expression.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="propertyExpression">The property expression.</param>
+        /// <returns></returns>
         public static PropertyInfo ExtractPropertyInfo<TValue>(Expression<Func<TValue>> propertyExpression)
         {
             if (propertyExpression == null)
-                throw new ArgumentNullException("propertyExpression");
+                throw new ArgumentNullException(nameof(propertyExpression));
 
             return ExtractPropertyInfo(propertyExpression.Body as MemberExpression);
         }
 
+        /// <summary>
+        /// Extracts the <see cref="PropertyInfo"/> from the specified property expression.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the source.</typeparam>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="propertyExpression">The property expression.</param>
+        /// <returns></returns>
         public static PropertyInfo ExtractPropertyInfo<TSource, TValue>(Expression<Func<TSource, TValue>> propertyExpression)
         {
             if (propertyExpression == null)
-                throw new ArgumentNullException("propertyExpression");
+                throw new ArgumentNullException(nameof(propertyExpression));
 
             return ExtractPropertyInfo(propertyExpression.Body as MemberExpression);
         }
 
+        /// <summary>
+        /// Extracts the <see cref="PropertyInfo"/> from the specified member expression.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns></returns>
         public static PropertyInfo ExtractPropertyInfo(MemberExpression memberExpression)
         {
             if (memberExpression == null)
-                throw new ArgumentException("The expression is not a member access expression.", "memberExpression");
+                throw new ArgumentException("The expression is not a member access expression.", nameof(memberExpression));
 
             var property = memberExpression.Member as PropertyInfo;
             if (property == null)
-                throw new ArgumentException("The member access expression does not access a property.", "memberExpression");
+                throw new ArgumentException("The member access expression does not access a property.", nameof(memberExpression));
 
             return property;
         }
+
 
         /// <summary>
         /// Gets the underlying type dealing with <see cref="Nullable"/>.
@@ -205,15 +215,18 @@ namespace EntityChange.Reflection
         public static Type GetUnderlyingType(this Type type)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
 
-            Type t = type;
-            bool isNullable = t.IsGenericType && (t.GetGenericTypeDefinition() == _nullableType);
+            var t = type;
+            var typeInfo = t.GetTypeInfo();
+
+            bool isNullable = typeInfo.IsGenericType && (t.GetGenericTypeDefinition() == typeof(Nullable<>));
             if (isNullable)
                 return Nullable.GetUnderlyingType(t);
 
             return t;
         }
+
 
         /// <summary>
         /// Determines whether the specified <paramref name="type"/> is a collection.
@@ -224,9 +237,14 @@ namespace EntityChange.Reflection
         /// </returns>
         public static bool IsCollection(this Type type)
         {
-            return type.GetInterfaces()
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            return type
+                .GetTypeInfo()
+                .GetInterfaces()
                 .Union(new[] { type })
-                .Any(x => x == _collectionType || (x.IsGenericType && x.GetGenericTypeDefinition() == _genericCollectionType));
+                .Any(x => x == typeof(ICollection) || (x.GetTypeInfo().IsGenericType && x.GetGenericTypeDefinition() == typeof(ICollection<>)));
         }
 
         /// <summary>
@@ -239,76 +257,20 @@ namespace EntityChange.Reflection
         /// </returns>
         public static bool IsCollection(this Type type, out Type elementType)
         {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
             elementType = type;
             var collectionType = type
+                .GetTypeInfo()
                 .GetInterfaces()
                 .Union(new[] { type })
-                .FirstOrDefault(t => t.IsGenericType && (t.GetGenericTypeDefinition() == _genericCollectionType));
+                .FirstOrDefault(t => t.GetTypeInfo().IsGenericType && (t.GetGenericTypeDefinition() == typeof(ICollection<>)));
 
             if (collectionType == null)
                 return false;
 
-            elementType = collectionType.GetGenericArguments().Single();
-            return true;
-        }
-        
-        /// <summary>
-        /// Determines whether the specified <paramref name="type"/> is a list.
-        /// </summary>
-        /// <param name="type">The type to check.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified <paramref name="type"/> is a list; otherwise, <c>false</c>.
-        /// </returns>
-        public static bool IsList(this Type type)
-        {
-            return type.GetInterfaces()
-                .Union(new[] { type })
-                .Any(x => x == _listType || (x.IsGenericType && x.GetGenericTypeDefinition() == _genericListType));
-        }
-
-        /// <summary>
-        /// Determines whether the specified <paramref name="type"/> is a list.
-        /// </summary>
-        /// <param name="type">The type to check.</param>
-        /// <param name="elementType">The Type of the generic element.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified <paramref name="type"/> is a list; otherwise, <c>false</c>.
-        /// </returns>
-        public static bool IsList(this Type type, out Type elementType)
-        {
-            elementType = type;
-            var collectionType = type
-                .GetInterfaces()
-                .Union(new[] { type })
-                .FirstOrDefault(t => t.IsGenericType && (t.GetGenericTypeDefinition() == _genericListType));
-
-            if (collectionType == null)
-                return false;
-
-            elementType = collectionType.GetGenericArguments().Single();
-            return true;
-        }
-        
-        /// <summary>
-        /// Determines whether the specified <paramref name="type"/> is a set.
-        /// </summary>
-        /// <param name="type">The type to check.</param>
-        /// <param name="elementType">The Type of the generic element.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified <paramref name="type"/> is a set; otherwise, <c>false</c>.
-        /// </returns>
-        public static bool IsSet(this Type type, out Type elementType)
-        {
-            elementType = type;
-            var collectionType = type
-                .GetInterfaces()
-                .Union(new[] { type })
-                .FirstOrDefault(t => t.IsGenericType && (t.GetGenericTypeDefinition() == _genericSetType));
-
-            if (collectionType == null)
-                return false;
-
-            elementType = collectionType.GetGenericArguments().Single();
+            elementType = collectionType.GetTypeInfo().GetGenericArguments().Single();
             return true;
         }
 
@@ -321,9 +283,14 @@ namespace EntityChange.Reflection
         /// </returns>
         public static bool IsDictionary(this Type type)
         {
-            return type.GetInterfaces()
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            return type
+                .GetTypeInfo()
+                .GetInterfaces()
                 .Union(new[] { type })
-                .Any(x => x == _dictionaryType || (x.IsGenericType && x.GetGenericTypeDefinition() == _genericDictionaryType));
+                .Any(x => x == typeof(IDictionary) || (x.GetTypeInfo().IsGenericType && x.GetGenericTypeDefinition() == typeof(IDictionary<,>)));
         }
 
         /// <summary>
@@ -337,23 +304,28 @@ namespace EntityChange.Reflection
         /// </returns>
         public static bool IsDictionary(this Type type, out Type keyType, out Type elementType)
         {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
             keyType = type;
             elementType = type;
 
             var collectionType = type
+                .GetTypeInfo()
                 .GetInterfaces()
                 .Union(new[] { type })
-                .FirstOrDefault(t => t.IsGenericType && (t.GetGenericTypeDefinition() == _genericDictionaryType));
+                .FirstOrDefault(t => t.GetTypeInfo().IsGenericType && (t.GetGenericTypeDefinition() == typeof(IDictionary<,>)));
 
             if (collectionType == null)
                 return false;
 
-            var arguments = collectionType.GetGenericArguments();
+            var arguments = collectionType.GetTypeInfo().GetGenericArguments();
             keyType = arguments.First();
             elementType = arguments.Skip(1).First();
 
             return true;
         }
+
 
         /// <summary>
         /// Attempts to coerce a value of one type into
@@ -385,24 +357,30 @@ namespace EntityChange.Reflection
         /// </remarks>
         public static object CoerceValue(Type desiredType, Type valueType, object value)
         {
+            if (desiredType == null)
+                throw new ArgumentNullException(nameof(desiredType));
+
+            if (valueType == null)
+                throw new ArgumentNullException(nameof(valueType));
+
             // types match, just copy value
             if (desiredType == valueType)
                 return value;
 
-            bool isNullable = desiredType.IsGenericType && (desiredType.GetGenericTypeDefinition() == _nullableType);
+            bool isNullable = desiredType.GetTypeInfo().IsGenericType && (desiredType.GetGenericTypeDefinition() == typeof(Nullable<>));
             if (isNullable)
             {
                 if (value == null)
                     return null;
-                if (_stringType == valueType && Convert.ToString(value) == String.Empty)
+                if (typeof(string) == valueType && Convert.ToString(value) == string.Empty)
                     return null;
             }
 
             desiredType = GetUnderlyingType(desiredType);
 
-            if ((desiredType.IsPrimitive || typeof(decimal) == desiredType)
-                && _stringType == valueType
-                && String.IsNullOrEmpty((string)value))
+            if ((desiredType.GetTypeInfo().IsPrimitive || typeof(decimal) == desiredType)
+                && typeof(string) == valueType
+                && string.IsNullOrEmpty((string)value))
                 return 0;
 
             if (value == null)
@@ -412,20 +390,20 @@ namespace EntityChange.Reflection
             if (typeof(Guid) == desiredType)
                 return new Guid(value.ToString());
 
-            if (desiredType.IsEnum && _stringType == valueType)
+            if (desiredType.GetTypeInfo().IsEnum && typeof(string) == valueType)
                 return Enum.Parse(desiredType, value.ToString(), true);
 
-            bool isBinary = desiredType.IsArray && _byteArrayType == desiredType;
+            bool isBinary = desiredType.IsArray && typeof(byte[]) == desiredType;
 
-            if (isBinary && _stringType == valueType)
+            if (isBinary && typeof(string) == valueType)
             {
                 byte[] bytes = Convert.FromBase64String((string)value);
                 return bytes;
             }
 
-            isBinary = valueType.IsArray && _byteArrayType == valueType;
+            isBinary = valueType.IsArray && typeof(byte[]) == valueType;
 
-            if (isBinary && _stringType == desiredType)
+            if (isBinary && typeof(string) == desiredType)
             {
                 byte[] bytes = (byte[])value;
                 return Convert.ToBase64String(bytes);
@@ -433,21 +411,22 @@ namespace EntityChange.Reflection
 
             try
             {
-                if (_stringType == desiredType)
+                if (typeof(string) == desiredType)
                     return value.ToString();
 
-                return Convert.ChangeType(value, desiredType, Thread.CurrentThread.CurrentCulture);
+                return Convert.ChangeType(value, desiredType);
             }
             catch
             {
 #if !SILVERLIGHT
-                TypeConverter converter = TypeDescriptor.GetConverter(desiredType);
-                if (converter != null && converter.CanConvertFrom(valueType))
+                var converter = TypeDescriptor.GetConverter(desiredType);
+                if (converter.CanConvertFrom(valueType))
                     return converter.ConvertFrom(value);
 #endif
                 throw;
             }
         }
+
 
         /// <summary>
         /// Determines whether the specified <paramref name="method"/> overrides a base method.
@@ -460,7 +439,7 @@ namespace EntityChange.Reflection
         public static bool IsOverriding(this MethodInfo method)
         {
             if (method == null)
-                throw new ArgumentNullException("method");
+                throw new ArgumentNullException(nameof(method));
 
             return method.DeclaringType != method.GetBaseDefinition().DeclaringType;
         }

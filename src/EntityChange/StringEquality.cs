@@ -37,6 +37,7 @@ namespace EntityChange
             return string.Equals(o, c, StringComparison.CurrentCultureIgnoreCase);
         }
 
+#if !NETSTANDARD1_0 && !NETSTANDARD1_6
         /// <summary>
         /// Determines whether the specified <paramref name="original"/> and <paramref name="current"/> 
         /// strings have the same value using <see cref="StringComparison.InvariantCulture"/> option.
@@ -66,6 +67,7 @@ namespace EntityChange
 
             return string.Equals(o, c, StringComparison.InvariantCultureIgnoreCase);
         }
+#endif
 
         /// <summary>
         /// Determines whether the specified <paramref name="original"/> and <paramref name="current"/> 

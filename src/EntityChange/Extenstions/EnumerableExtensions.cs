@@ -4,6 +4,9 @@ using System.Text;
 
 namespace EntityChange.Extenstions
 {
+    /// <summary>
+    /// Extension methods for <see cref="IEnumerable{T}"/>
+    /// </summary>
     public static class EnumerableExtensions
     {
         /// <summary>

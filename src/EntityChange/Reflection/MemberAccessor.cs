@@ -5,36 +5,41 @@ using System.Reflection;
 namespace EntityChange.Reflection
 {
     /// <summary>
-    /// A base class for member accessors.
+    /// A <see langword="base"/> class for member accessors.
     /// </summary>
     [DebuggerDisplay("Name: {Name}")]
     public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccessor>
     {
         /// <summary>
-        /// Gets the type of the member.
+        /// Gets the <see cref="Type"/> of the member.
         /// </summary>
-        /// <value>The type of the member.</value>
+        /// <value>The <see cref="Type"/> of the member.</value>
         public abstract Type MemberType { get; }
+
         /// <summary>
-        /// Gets the member info.
+        /// Gets the <see cref="MemberInfo"/> for the accessor.
         /// </summary>
         /// <value>The member info.</value>
         public abstract MemberInfo MemberInfo { get; }
+
         /// <summary>
         /// Gets the name of the member.
         /// </summary>
         /// <value>The name of the member.</value>
         public abstract string Name { get; }
+
         /// <summary>
         /// Gets a value indicating whether this member has getter.
         /// </summary>
         /// <value><c>true</c> if this member has getter; otherwise, <c>false</c>.</value>
         public abstract bool HasGetter { get; }
+
         /// <summary>
         /// Gets a value indicating whether this member has setter.
         /// </summary>
         /// <value><c>true</c> if this member has setter; otherwise, <c>false</c>.</value>
         public abstract bool HasSetter { get; }
+
 
         /// <summary>
         /// Returns the value of the member.
@@ -44,12 +49,14 @@ namespace EntityChange.Reflection
         /// The member value for the instance parameter.
         /// </returns>
         public abstract object GetValue(object instance);
+
         /// <summary>
         /// Sets the value of the member.
         /// </summary>
         /// <param name="instance">The object whose member value will be set.</param>
         /// <param name="value">The new value for this member.</param>
         public abstract void SetValue(object instance, object value);
+
 
         /// <summary>
         /// Determines whether the specified <see cref="IMemberAccessor"/> is equal to this instance.

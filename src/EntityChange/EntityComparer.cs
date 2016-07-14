@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using EntityChange.Extenstions;
-using EntityChange.Fluent;
 using EntityChange.Reflection;
 
 namespace EntityChange
@@ -53,13 +54,13 @@ namespace EntityChange
         /// <param name="original">The original entity.</param>
         /// <param name="current">The current entity.</param>
         /// <returns>A list of changes.</returns>
-        public IReadOnlyCollection<ChangeRecord> Compare<TEntity>(TEntity original, TEntity current)
+        public ReadOnlyCollection<ChangeRecord> Compare<TEntity>(TEntity original, TEntity current)
         {
             _changes.Clear();
             var type = typeof(TEntity);
 
             CompareType(type, original, current);
-            return _changes;
+            return _changes.AsReadOnly();
         }
 
 
@@ -75,14 +76,14 @@ namespace EntityChange
             if (type.IsArray)
                 CompareArray(original, current, options);
             else if (original is IDictionary || current is IDictionary)
-                CompareDictionary(original, current, options);
+                CompareDictionary(original, current);
             else if (type.IsDictionary(out keyType, out elementType))
-                CompareGenericDictionary(original, current, keyType, elementType, options);
+                CompareGenericDictionary(original, current, keyType, elementType);
             else if (original is IList || current is IList)
                 CompareList(original, current, options);
             else if (type.IsCollection())
                 CompareCollection(original, current, options);
-            else if (type.IsValueType || type == typeof(string))
+            else if (type.GetTypeInfo().IsValueType || type == typeof(string))
                 CompareValue(original, current, options);
             else
                 CompareObject(type, original, current);
@@ -129,7 +130,7 @@ namespace EntityChange
         }
 
 
-        private void CompareDictionary(object original, object current, IMemberOptions options)
+        private void CompareDictionary(object original, object current)
         {
             var originalDictionary = original as IDictionary;
             var currentDictionary = current as IDictionary;
@@ -141,7 +142,7 @@ namespace EntityChange
             CompareByKey(originalDictionary, currentDictionary, d => d.Keys, (d, k) => d[k]);
         }
 
-        private void CompareGenericDictionary(object original, object current, Type keyType, Type elementType, IMemberOptions options)
+        private void CompareGenericDictionary(object original, object current, Type keyType, Type elementType)
         {
             // TODO improve this, currently slow due to CreateInstance usage
             var t = typeof(DictionaryWrapper<,>).MakeGenericType(keyType, elementType);
@@ -211,7 +212,7 @@ namespace EntityChange
 
         private void CompareValue(object original, object current, IMemberOptions options)
         {
-            var compare = options?.Equality ?? Object.Equals;
+            var compare = options?.Equality ?? Equals;
             bool areEqual = compare(original, current);
 
             if (areEqual)
@@ -228,7 +229,7 @@ namespace EntityChange
 
             var currentPath = CurrentPath();
             var currentName = CurrentName();
-            var compare = options?.Equality ?? Object.Equals;
+            var compare = options?.Equality ?? Equals;
 
 
             _pathStack.Pop();

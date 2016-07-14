@@ -6,11 +6,17 @@ using System.Reflection;
 namespace EntityChange.Reflection
 {
     /// <summary>
-    /// A class for late bound operations on a type.
+    /// A class for late bound operations on a <see cref="Type"/>.
     /// </summary>
     public static class LateBinder
     {
+        /// <summary>
+        /// The default public flags
+        /// </summary>
         public const BindingFlags DefaultPublicFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
+        /// <summary>
+        /// The default non public flags
+        /// </summary>
         public const BindingFlags DefaultNonPublicFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
 
         /// <summary>
@@ -40,13 +46,14 @@ namespace EntityChange.Reflection
         public static IMethodAccessor FindMethod(Type type, string name, BindingFlags flags, params object[] arguments)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
+
             if (string.IsNullOrEmpty(name))
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
 
-            TypeAccessor typeAccessor = TypeAccessor.GetAccessor(type);
+            var typeAccessor = TypeAccessor.GetAccessor(type);
 
-            Type[] types = arguments
+            var types = arguments
               .Select(a => a?.GetType() ?? typeof(object))
               .ToArray();
 
@@ -70,10 +77,10 @@ namespace EntityChange.Reflection
         public static IMemberAccessor FindProperty<T>(Expression<Func<T>> propertyExpression)
         {
             if (propertyExpression == null)
-                throw new ArgumentNullException("propertyExpression");
+                throw new ArgumentNullException(nameof(propertyExpression));
 
-            TypeAccessor typeAccessor = TypeAccessor.GetAccessor(typeof(T));
-            return typeAccessor.FindProperty<T>(propertyExpression);
+            var typeAccessor = TypeAccessor.GetAccessor(typeof(T));
+            return typeAccessor.FindProperty(propertyExpression);
         }
 
         /// <summary>
@@ -101,12 +108,12 @@ namespace EntityChange.Reflection
         public static IMemberAccessor FindProperty(Type type, string name, BindingFlags flags)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
+
             if (string.IsNullOrEmpty(name))
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
 
             Type currentType = type;
-            TypeAccessor typeAccessor;
             IMemberAccessor memberAccessor = null;
 
             // support nested property
@@ -116,7 +123,7 @@ namespace EntityChange.Reflection
                 if (memberAccessor != null)
                     currentType = memberAccessor.MemberType;
 
-                typeAccessor = TypeAccessor.GetAccessor(currentType);
+                var typeAccessor = TypeAccessor.GetAccessor(currentType);
                 memberAccessor = typeAccessor.FindProperty(part, flags);
             }
 
@@ -148,12 +155,13 @@ namespace EntityChange.Reflection
         public static IMemberAccessor FindField(Type type, string name, BindingFlags flags)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
-            if (string.IsNullOrEmpty(name))
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(type));
 
-            TypeAccessor typeAccessor = TypeAccessor.GetAccessor(type);
-            IMemberAccessor memberAccessor = typeAccessor.FindField(name, flags);
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException(nameof(name));
+
+            var typeAccessor = TypeAccessor.GetAccessor(type);
+            var memberAccessor = typeAccessor.FindField(name, flags);
 
             return memberAccessor;
         }
@@ -183,12 +191,12 @@ namespace EntityChange.Reflection
         public static IMemberAccessor Find(Type type, string name, BindingFlags flags)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             if (string.IsNullOrEmpty(name))
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
 
-            TypeAccessor typeAccessor = TypeAccessor.GetAccessor(type);
-            IMemberAccessor memberAccessor = typeAccessor.Find(name, flags);
+            var typeAccessor = TypeAccessor.GetAccessor(type);
+            var memberAccessor = typeAccessor.Find(name, flags);
 
             return memberAccessor;
         }
@@ -216,15 +224,15 @@ namespace EntityChange.Reflection
         public static void SetProperty(object target, string name, object value, BindingFlags flags)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
+
             if (string.IsNullOrEmpty(name))
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
 
             Type rootType = target.GetType();
             Type currentType = rootType;
             object currentTarget = target;
 
-            TypeAccessor typeAccessor;
             IMemberAccessor memberAccessor = null;
 
             // support nested property
@@ -237,13 +245,12 @@ namespace EntityChange.Reflection
                     currentType = memberAccessor.MemberType;
                 }
 
-                typeAccessor = TypeAccessor.GetAccessor(currentType);
+                var typeAccessor = TypeAccessor.GetAccessor(currentType);
                 memberAccessor = typeAccessor.FindProperty(part, flags);
             }
 
             if (memberAccessor == null)
-                throw new InvalidOperationException(string.Format(
-                    "Could not find property '{0}' in type '{1}'.", name, rootType.Name));
+                throw new InvalidOperationException($"Could not find property '{name}' in type '{rootType.Name}'.");
 
             memberAccessor.SetValue(currentTarget, value);
         }
@@ -269,16 +276,16 @@ namespace EntityChange.Reflection
         public static void SetField(object target, string name, object value, BindingFlags flags)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
+
             if (string.IsNullOrEmpty(name))
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
 
             Type rootType = target.GetType();
             var memberAccessor = FindField(rootType, name, flags);
 
             if (memberAccessor == null)
-                throw new InvalidOperationException(string.Format(
-                    "Could not find field '{0}' in type '{1}'.", name, rootType.Name));
+                throw new InvalidOperationException($"Could not find field '{name}' in type '{rootType.Name}'.");
 
             memberAccessor.SetValue(target, value);
         }
@@ -304,16 +311,16 @@ namespace EntityChange.Reflection
         public static void Set(object target, string name, object value, BindingFlags flags)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
+
             if (string.IsNullOrEmpty(name))
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
 
             Type rootType = target.GetType();
             var memberAccessor = Find(rootType, name, flags);
 
             if (memberAccessor == null)
-                throw new InvalidOperationException(string.Format(
-                    "Could not find a property or field with a name of '{0}' in type '{1}'.", name, rootType.Name));
+                throw new InvalidOperationException($"Could not find a property or field with a name of '{name}' in type '{rootType.Name}'.");
 
             memberAccessor.SetValue(target, value);
         }
@@ -339,9 +346,10 @@ namespace EntityChange.Reflection
         public static object GetProperty(object target, string name, BindingFlags flags)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
+
             if (string.IsNullOrEmpty(name))
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
 
             Type rootType = target.GetType();
             Type currentType = rootType;
@@ -364,8 +372,7 @@ namespace EntityChange.Reflection
             }
 
             if (memberAccessor == null)
-                throw new InvalidOperationException(string.Format(
-                    "Could not find property '{0}' in type '{1}'.", name, rootType.Name));
+                throw new InvalidOperationException($"Could not find property '{name}' in type '{rootType.Name}'.");
 
             return memberAccessor.GetValue(currentTarget);
         }
@@ -391,15 +398,15 @@ namespace EntityChange.Reflection
         public static object GetField(object target, string name, BindingFlags flags)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
-            if (string.IsNullOrEmpty(name))
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(target));
 
-            Type rootType = target.GetType();
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException(nameof(name));
+
+            var rootType = target.GetType();
             var memberAccessor = FindField(rootType, name, flags);
             if (memberAccessor == null)
-                throw new InvalidOperationException(string.Format(
-                    "Could not find field '{0}' in type '{1}'.", name, rootType.Name));
+                throw new InvalidOperationException($"Could not find field '{name}' in type '{rootType.Name}'.");
 
             return memberAccessor.GetValue(target);
         }
@@ -425,15 +432,15 @@ namespace EntityChange.Reflection
         public static object Get(object target, string name, BindingFlags flags)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
-            if (string.IsNullOrEmpty(name))
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(target));
 
-            Type rootType = target.GetType();
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException(nameof(name));
+
+            var rootType = target.GetType();
             var memberAccessor = Find(rootType, name, flags);
             if (memberAccessor == null)
-                throw new InvalidOperationException(string.Format(
-                    "Could not find a property or field with a name of '{0}' in type '{1}'.", name, rootType.Name));
+                throw new InvalidOperationException($"Could not find a property or field with a name of '{name}' in type '{rootType.Name}'.");
 
             return memberAccessor.GetValue(target);
         }
@@ -446,28 +453,35 @@ namespace EntityChange.Reflection
         public static object CreateInstance(Type type)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
 
             var typeAccessor = TypeAccessor.GetAccessor(type);
             if (typeAccessor == null)
-                throw new InvalidOperationException(string.Format("Could not find constructor for {0}.", type.Name));
+                throw new InvalidOperationException($"Could not find constructor for {type.Name}.");
 
             return typeAccessor.Create();
         }
 
+        /// <summary>
+        /// Invokes the method with the spcified name and arguments.
+        /// </summary>
+        /// <param name="target">The target instance to call the method on.</param>
+        /// <param name="name">The name of the method.</param>
+        /// <param name="arguments">The method argument values.</param>
+        /// <returns>The returned results from the method call.</returns>
         public static object InvokeMethod(object target, string name, params object[] arguments)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
-            if (string.IsNullOrEmpty(name))
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(target));
 
-            Type rootType = target.GetType();
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException(nameof(name));
+
+            var rootType = target.GetType();
             var methodAccessor = FindMethod(rootType, name);
 
             if (methodAccessor == null)
-                throw new InvalidOperationException(string.Format(
-                    "Could not find method '{0}' in type '{1}'.", name, rootType.Name));
+                throw new InvalidOperationException($"Could not find method '{name}' in type '{rootType.Name}'.");
 
             return methodAccessor.Invoke(target, arguments);
 

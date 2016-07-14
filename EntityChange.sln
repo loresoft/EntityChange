@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityChange", "src\EntityChange\EntityChange.csproj", "{0258CAA6-11BC-4A8B-84AE-AB31AF240627}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityChange", "src\EntityChange\EntityChange.xproj", "{0258CAA6-11BC-4A8B-84AE-AB31AF240627}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityChange.Tests", "test\EntityChange.Tests\EntityChange.Tests.csproj", "{4E1DB351-5BCF-4283-8F14-CFDDFD2B9574}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityChange.Tests", "test\EntityChange.Tests\EntityChange.Tests.xproj", "{4E1DB351-5BCF-4283-8F14-CFDDFD2B9574}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

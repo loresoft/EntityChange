@@ -99,14 +99,14 @@ namespace EntityChange
                         continue;
 
                     // lookup display name
-                    var displayName = property.MemberInfo.GetCustomAttribute(typeof(DisplayNameAttribute), true) as DisplayNameAttribute;
+                    var displayName = property.MemberInfo.GetCustomAttribute<DisplayNameAttribute>(true);
                     if (displayName != null)
                     {
                         memberMapping.DisplayName = displayName.DisplayName;
                         continue;
                     }
 
-                    var display = property.MemberInfo.GetCustomAttribute(typeof(DisplayAttribute), true) as DisplayAttribute;
+                    var display = property.MemberInfo.GetCustomAttribute<DisplayAttribute>(true);
                     if (display != null)
                     {
                         memberMapping.DisplayName = display.Name;

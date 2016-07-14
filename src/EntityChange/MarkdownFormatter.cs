@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Collections.ObjectModel;
 using System.Text;
-using System.Threading.Tasks;
-using EntityChange.Extenstions;
 
 namespace EntityChange
 {
@@ -61,7 +59,7 @@ namespace EntityChange
         /// <returns>
         /// A string representing the <paramref name="changes" />.
         /// </returns>
-        public string Format(IReadOnlyCollection<ChangeRecord> changes)
+        public string Format(ReadOnlyCollection<ChangeRecord> changes)
         {
             var builder = new StringBuilder();
             builder.AppendLine(HeaderTemplate ?? string.Empty);

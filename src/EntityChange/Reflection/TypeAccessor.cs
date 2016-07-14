@@ -8,7 +8,7 @@ using System.Reflection;
 namespace EntityChange.Reflection
 {
     /// <summary>
-    /// A class holding all the accessors for a <see cref="Type"/>.
+    /// A class for accessing type reflection information.
     /// </summary>
     public class TypeAccessor
     {
@@ -17,8 +17,7 @@ namespace EntityChange.Reflection
         private readonly ConcurrentDictionary<int, IMethodAccessor> _methodCache = new ConcurrentDictionary<int, IMethodAccessor>();
         private readonly ConcurrentDictionary<int, IEnumerable<IMemberAccessor>> _propertyCache = new ConcurrentDictionary<int, IEnumerable<IMemberAccessor>>();
 
-        private readonly Lazy<LateBoundConstructor> _lateBoundConstructor;
-        private readonly Type _type;
+        private readonly Lazy<Func<object>> _constructor;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TypeAccessor"/> class.
@@ -26,18 +25,18 @@ namespace EntityChange.Reflection
         /// <param name="type">The <see cref="Type"/> this accessor is for.</param>
         public TypeAccessor(Type type)
         {
-            _type = type;
-            _lateBoundConstructor = new Lazy<LateBoundConstructor>(() => DelegateFactory.CreateConstructor(_type));
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            Type = type;
+            _constructor = new Lazy<Func<object>>(() => DelegateFactory.CreateConstructor(Type));
         }
 
         /// <summary>
         /// Gets the <see cref="Type"/> this accessor is for.
         /// </summary>
         /// <value>The <see cref="Type"/> this accessor is for.</value>
-        public Type Type
-        {
-            get { return _type; }
-        }
+        public Type Type { get; }
 
         /// <summary>
         /// Creates a new instance of accessors type.
@@ -45,25 +44,47 @@ namespace EntityChange.Reflection
         /// <returns>A new instance of accessors type.</returns>
         public object Create()
         {
-            var constructor = _lateBoundConstructor.Value;
+            var constructor = _constructor.Value;
             if (constructor == null)
-                throw new InvalidOperationException(string.Format("Could not find constructor for '{0}'.", Type.Name));
+                throw new InvalidOperationException($"Could not find constructor for '{Type.Name}'.");
 
             return constructor.Invoke();
         }
 
 
         #region Method
+        /// <summary>
+        /// Finds the method with the spcified <paramref name="name"/>.
+        /// </summary>
+        /// <param name="name">The name of the method.</param>
+        /// <returns>An <see cref="IMemberAccessor"/> for the method.</returns>
         public IMethodAccessor FindMethod(string name)
         {
             return FindMethod(name, Type.EmptyTypes);
         }
 
+        /// <summary>
+        /// Finds the method with the spcified <paramref name="name" />.
+        /// </summary>
+        /// <param name="name">The name of the method.</param>
+        /// <param name="parameterTypes">The method parameter types.</param>
+        /// <returns>
+        /// An <see cref="IMemberAccessor" /> for the method.
+        /// </returns>
         public IMethodAccessor FindMethod(string name, params Type[] parameterTypes)
         {
             return FindMethod(name, parameterTypes, BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance);
         }
 
+        /// <summary>
+        /// Finds the method with the spcified <paramref name="name" />.
+        /// </summary>
+        /// <param name="name">The name of the method.</param>
+        /// <param name="parameterTypes">The method parameter types.</param>
+        /// <param name="flags">The binding flags to search.</param>
+        /// <returns>
+        /// An <see cref="IMemberAccessor" /> for the method.
+        /// </returns>
         public IMethodAccessor FindMethod(string name, Type[] parameterTypes, BindingFlags flags)
         {
             int key = MethodAccessor.GetKey(name, parameterTypes);
@@ -79,19 +100,22 @@ namespace EntityChange.Reflection
         private static MethodInfo FindMethod(Type type, string name, Type[] parameterTypes, BindingFlags flags)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             if (name == null)
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
+
             if (parameterTypes == null)
                 parameterTypes = Type.EmptyTypes;
 
+            var typeInfo = type.GetTypeInfo();
+
             //first try full match
-            var methodInfo = type.GetMethod(name, flags, null, CallingConventions.Any, parameterTypes, null);
+            var methodInfo = typeInfo.GetMethod(name, parameterTypes);
             if (methodInfo != null)
                 return methodInfo;
 
             // next, get all that match by name
-            var methodsByName = type.GetMethods(flags)
+            var methodsByName = typeInfo.GetMethods(flags)
               .Where(m => m.Name == name)
               .ToList();
 
@@ -104,8 +128,8 @@ namespace EntityChange.Reflection
 
             // next, get all methods that match param count
             var methodsByParamCount = methodsByName
-              .Where(m => m.GetParameters().Length == parameterTypes.Length)
-              .ToList();
+                .Where(m => m.GetParameters().Length == parameterTypes.Length)
+                .ToList();
 
             // if only one matches with same param count, return it
             if (methodsByParamCount.Count == 1)
@@ -118,13 +142,14 @@ namespace EntityChange.Reflection
             foreach (var info in methodsByParamCount)
             {
                 var paramTypes = info.GetParameters()
-                  .Select(p => p.ParameterType)
-                  .ToArray();
+                    .Select(p => p.ParameterType)
+                    .ToArray();
 
                 // unsure which way IsAssignableFrom should be checked?
                 int count = paramTypes
-                  .Where((t, i) => t.IsAssignableFrom(parameterTypes[i]))
-                  .Count();
+                    .Select(t => t.GetTypeInfo())
+                    .Where((t, i) => t.IsAssignableFrom(parameterTypes[i]))
+                    .Count();
 
                 if (count <= matchCount)
                     continue;
@@ -169,13 +194,16 @@ namespace EntityChange.Reflection
         private IMemberAccessor CreateAccessor(string name, BindingFlags flags)
         {
             // first try property
-            PropertyInfo property = FindProperty(Type, name, flags);
+            var property = FindProperty(Type, name, flags);
             if (property != null)
                 return CreateAccessor(property);
 
             // next try field
-            FieldInfo field = FindField(Type, name, flags);
-            return field == null ? null : CreateAccessor(field);
+            var field = FindField(Type, name, flags);
+            if (field != null)
+                return CreateAccessor(field);
+
+            return null;
         }
         #endregion
 
@@ -205,18 +233,24 @@ namespace EntityChange.Reflection
 
         private IMemberAccessor CreateColumnAccessor(string name, BindingFlags flags)
         {
+            var typeInfo = Type.GetTypeInfo();
+
             // first try GetProperty
-            PropertyInfo property = Type.GetProperty(name, flags);
+            var property = typeInfo.GetProperty(name, flags);
             if (property != null)
                 return CreateAccessor(property);
 
             // if not found, search
-            foreach (var p in Type.GetProperties(flags))
+            foreach (var p in typeInfo.GetProperties(flags))
             {
                 if (p.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
                     return CreateAccessor(p);
 
-#if !NET40
+#if NET40
+                var displayAttribute = Attribute.GetCustomAttribute(p, typeof(System.ComponentModel.DataAnnotations.DisplayAttribute)) as System.ComponentModel.DataAnnotations.DisplayAttribute;
+                if (displayAttribute != null && (name.Equals(displayAttribute.Name, StringComparison.OrdinalIgnoreCase) || name.Equals(displayAttribute.ShortName, StringComparison.OrdinalIgnoreCase)))
+                    return CreateAccessor(p);
+#else
                 // try ColumnAttribute
                 var columnAttribute = p.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.ColumnAttribute>();
                 if (columnAttribute != null && name.Equals(columnAttribute.Name, StringComparison.OrdinalIgnoreCase))
@@ -224,15 +258,7 @@ namespace EntityChange.Reflection
 
                 // try DisplayAttribute
                 var displayAttribute = p.GetCustomAttribute<System.ComponentModel.DataAnnotations.DisplayAttribute>();
-                if (displayAttribute != null &&
-                    (name.Equals(displayAttribute.Name, StringComparison.OrdinalIgnoreCase)
-                    || name.Equals(displayAttribute.ShortName, StringComparison.OrdinalIgnoreCase)))
-                    return CreateAccessor(p);
-#else
-                var displayAttribute = Attribute.GetCustomAttribute(p, typeof(DisplayAttribute)) as DisplayAttribute;
-                if (displayAttribute != null &&
-                    (name.Equals(displayAttribute.Name, StringComparison.OrdinalIgnoreCase)
-                    || name.Equals(displayAttribute.ShortName, StringComparison.OrdinalIgnoreCase)))
+                if (displayAttribute != null && (name.Equals(displayAttribute.Name, StringComparison.OrdinalIgnoreCase) || name.Equals(displayAttribute.ShortName, StringComparison.OrdinalIgnoreCase)))
                     return CreateAccessor(p);
 #endif
             }
@@ -257,7 +283,7 @@ namespace EntityChange.Reflection
         public IMemberAccessor FindProperty<T>(Expression<Func<T>> propertyExpression)
         {
             if (propertyExpression == null)
-                throw new ArgumentNullException("propertyExpression");
+                throw new ArgumentNullException(nameof(propertyExpression));
 
             return FindProperty(propertyExpression.Body as MemberExpression);
         }
@@ -281,36 +307,13 @@ namespace EntityChange.Reflection
         public IMemberAccessor FindProperty<TSource, TValue>(Expression<Func<TSource, TValue>> propertyExpression)
         {
             if (propertyExpression == null)
-                throw new ArgumentNullException("propertyExpression");
+                throw new ArgumentNullException(nameof(propertyExpression));
 
             return FindProperty(propertyExpression.Body as MemberExpression);
         }
 
-        private IMemberAccessor FindProperty(MemberExpression memberExpression)
-        {
-            if (memberExpression == null)
-            {
-                throw new ArgumentException("The expression is not a member access expression.", "memberExpression");
-            }
-
-            var property = memberExpression.Member as PropertyInfo;
-            if (property == null)
-            {
-                throw new ArgumentException("The member access expression does not access a property.", "memberExpression");
-            }
-
-            var getMethod = property.GetGetMethod(true);
-            if (getMethod.IsStatic)
-            {
-                throw new ArgumentException("The referenced property is a static property.", "memberExpression");
-            }
-
-            var accessor = CreateAccessor(property);
-            return accessor;
-        }
-
         /// <summary>
-        /// Searches for the public property with the specified name.
+        /// Searches for the <see langword="public"/> property with the specified <paramref name="name"/>.
         /// </summary>
         /// <param name="name">The name of the property to find.</param>
         /// <returns>An <see cref="IMemberAccessor"/> instance for the property if found; otherwise <c>null</c>.</returns>
@@ -341,6 +344,9 @@ namespace EntityChange.Reflection
         /// </returns>
         public IMemberAccessor GetAccessor(PropertyInfo propertyInfo)
         {
+            if (propertyInfo == null)
+                throw new ArgumentNullException(nameof(propertyInfo));
+
             return _memberCache.GetOrAdd(propertyInfo.Name, n => CreateAccessor(propertyInfo));
         }
 
@@ -365,7 +371,8 @@ namespace EntityChange.Reflection
         {
             return _propertyCache.GetOrAdd((int)flags, k =>
             {
-                var properties = Type.GetProperties(flags);
+                var typeInfo = Type.GetTypeInfo();
+                var properties = typeInfo.GetProperties(flags);
                 return properties.Select(GetAccessor);
             });
         }
@@ -376,20 +383,40 @@ namespace EntityChange.Reflection
             return info == null ? null : CreateAccessor(info);
         }
 
+        private IMemberAccessor FindProperty(MemberExpression memberExpression)
+        {
+            if (memberExpression == null)
+                throw new ArgumentException("The expression is not a member access expression.", nameof(memberExpression));
+
+            var property = memberExpression.Member as PropertyInfo;
+            if (property == null)
+                throw new ArgumentException("The member access expression does not access a property.", nameof(memberExpression));
+
+            var getMethod = property.GetGetMethod(true);
+            if (getMethod.IsStatic)
+                throw new ArgumentException("The referenced property is a static property.", nameof(memberExpression));
+
+            var accessor = CreateAccessor(property);
+            return accessor;
+        }
+
         private static PropertyInfo FindProperty(Type type, string name, BindingFlags flags)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
-            if (name == null)
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(type));
 
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
+
+            var typeInfo = type.GetTypeInfo();
             // first try GetProperty
-            PropertyInfo property = type.GetProperty(name, flags);
+            var property = typeInfo.GetProperty(name, flags);
             if (property != null)
                 return property;
 
             // if not found, search while ignoring case
-            property = type.GetProperties(flags)
+            property = typeInfo
+                .GetProperties(flags)
                 .FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
             return property;
@@ -427,6 +454,13 @@ namespace EntityChange.Reflection
             return _memberCache.GetOrAdd(name, n => CreateFieldAccessor(n, flags));
         }
 
+        /// <summary>
+        /// Gets the <see cref="IMemberAccessor"/> for the specified <see cref="FieldInfo"/>.
+        /// </summary>
+        /// <param name="fieldInfo">The <see cref="FieldInfo"/> to get the <see cref="IMemberAccessor"/> for.</param>
+        /// <returns>
+        /// An <see cref="IMemberAccessor"/> instance for the property.
+        /// </returns>
         public IMemberAccessor GetAccessor(FieldInfo fieldInfo)
         {
             return _memberCache.GetOrAdd(fieldInfo.Name, n => CreateAccessor(fieldInfo));
@@ -434,24 +468,28 @@ namespace EntityChange.Reflection
 
         private IMemberAccessor CreateFieldAccessor(string name, BindingFlags flags)
         {
-            FieldInfo info = FindField(Type, name, flags);
+            var info = FindField(Type, name, flags);
             return info == null ? null : CreateAccessor(info);
         }
 
         private static FieldInfo FindField(Type type, string name, BindingFlags flags)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
+
             if (name == null)
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
 
             // first try GetField
-            var field = type.GetField(name, flags);
+            var typeInfo = type.GetTypeInfo();
+            var field = typeInfo.GetField(name, flags);
             if (field != null)
                 return field;
 
             // if not found, search while ignoring case
-            return type.GetFields(flags).FirstOrDefault(f => f.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            return typeInfo
+                .GetFields(flags)
+                .FirstOrDefault(f => f.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
 
         private static IMemberAccessor CreateAccessor(FieldInfo fieldInfo)
