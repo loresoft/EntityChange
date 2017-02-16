@@ -64,7 +64,7 @@
                 ReplacementText="&quot;version&quot;: &quot;$(PackageVersion)&quot;," />
 
     <FileUpdate Files="%(VersionFiles.Identity)"
-                Regex="&quot;FluentRest&quot;: &quot;$(AssemblyVersion)&quot;,"
+                Regex="&quot;EntityChange&quot;: &quot;$(AssemblyVersion)&quot;,"
                 ReplacementText="&quot;FluentRest&quot;: &quot;$(PackageVersion)&quot;," />
   </Target>
 
