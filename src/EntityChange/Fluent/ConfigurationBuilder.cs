@@ -74,6 +74,18 @@ namespace EntityChange.Fluent
             where TProfile : IEntityProfile, new()
         {
             var profile = new TProfile();
+            return Profile(profile);
+        }
+
+        /// <summary>
+        /// Add the specified <paramref name="profile" /> to the configuration
+        /// </summary>
+        /// <param name="profile">The profile to add to the configuration.</param>
+        /// <returns>
+        /// A fluent builder to configure comparison.
+        /// </returns>
+        public ConfigurationBuilder Profile(IEntityProfile profile)
+        {
             var type = profile.EntityType;
             var classMapping = GetClassMap(type);
 

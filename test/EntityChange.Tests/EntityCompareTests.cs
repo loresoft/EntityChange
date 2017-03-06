@@ -84,7 +84,8 @@ namespace EntityChange.Tests
             var configuration = new Configuration();
             configuration.Configure(config =>
             {
-                config.Entity<Order>(e => {
+                config.Entity<Order>(e =>
+                {
                     e.Property(p => p.Total).Formatter(StringFormatter.Currency);
                 });
             });
@@ -390,7 +391,8 @@ namespace EntityChange.Tests
             var configuration = new Configuration();
             configuration.Configure(config =>
             {
-                config.Entity<Order>(e => {
+                config.Entity<Order>(e =>
+                {
                     e.Property(p => p.Id);
                     e.Collection(p => p.Items).ElementFormatter(v =>
                     {
@@ -440,7 +442,8 @@ namespace EntityChange.Tests
             var configuration = new Configuration();
             configuration.Configure(config =>
             {
-                config.Entity<Order>(e => {
+                config.Entity<Order>(e =>
+                {
                     e.Property(p => p.Id);
                     e.Collection(p => p.Items).ElementFormatter(v =>
                     {
