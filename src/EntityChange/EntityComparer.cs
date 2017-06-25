@@ -108,7 +108,7 @@ namespace EntityChange
             }
 
             var classMapping = Configuration.GetMapping(type);
-            foreach (var memberMapping in classMapping.Members)
+            foreach (var memberMapping in classMapping.Members.Where(member => !member.Ignored))
             {
                 var accessor = memberMapping.MemberAccessor;
 
