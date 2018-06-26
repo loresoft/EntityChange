@@ -984,6 +984,54 @@ namespace EntityChange.Tests
             WriteMarkdown(changes);
         }
 
+        [Fact]
+        public void ComparenNestedObjectsPathsTest()
+        {
+            var node = new TreeNode
+            {
+                Name = "Root",
+                nodes = new List<TreeNode>
+                {
+                    new TreeNode
+                    {
+                        Name = "Level 1",
+                        nodes = new List<TreeNode>
+                        {
+                            new TreeNode
+                            {
+                                Name = "Level 2"
+                            }
+                        }
+                    }
+                }
+            };
+
+            var node2 = new TreeNode
+            {
+                Name = "Root",
+                nodes = new List<TreeNode>
+                {
+                    new TreeNode
+                    {
+                        Name = "Level 1",
+                        nodes = new List<TreeNode>
+                        {
+                            new TreeNode
+                            {
+                                Name = "Level 3"
+                            }
+                        }
+                    }
+                }
+            };
+
+            EntityComparer entityComparer = new EntityComparer();
+            var changes = entityComparer.Compare(node, node2);
+
+            changes.Should().NotBeEmpty();
+            changes.First().Path.Should().Be("nodes[0].nodes[0].Name");
+        }
+
 
 
         private void WriteMarkdown(ReadOnlyCollection<ChangeRecord> changes)

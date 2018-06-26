@@ -270,7 +270,7 @@ namespace EntityChange
             if (valueFactory == null)
                 throw new ArgumentNullException(nameof(valueFactory));
 
-            var currentPath = CurrentPath();
+            var currentPath = _pathStack.Peek();
 
             var orginalCount = originalList != null ? countFactory(originalList) : 0;
             var currentCount = currentList != null ? countFactory(currentList) : 0;
