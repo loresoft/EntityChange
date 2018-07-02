@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,11 @@ namespace EntityChange.Tests
 {
     public class StringFomatterTests
     {
+        public StringFomatterTests()
+        {
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
+        }
+
         [Fact]
         public void NumberFormat()
         {
@@ -41,7 +47,4 @@ namespace EntityChange.Tests
             formatted.Should().Be("$100,042.00");
         }
     }
-
-
-
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using EntityChange.Tests.Models;
 using FluentAssertions;
@@ -16,6 +17,7 @@ namespace EntityChange.Tests
         public EntityCompareTests(ITestOutputHelper output)
         {
             _output = output;
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
         }
 
         [Fact]
@@ -61,7 +63,6 @@ namespace EntityChange.Tests
             changes[2].Path.Should().Be("Total");
 
             WriteMarkdown(changes);
-
         }
 
         [Fact]
@@ -100,7 +101,6 @@ namespace EntityChange.Tests
             changes[0].CurrentFormatted.Should().Be("$11,000.00");
 
             WriteMarkdown(changes);
-
         }
 
         [Fact]
@@ -148,7 +148,6 @@ namespace EntityChange.Tests
             changes[3].Path.Should().Be("Total");
 
             WriteMarkdown(changes);
-
         }
 
         [Fact]
@@ -197,7 +196,6 @@ namespace EntityChange.Tests
             changes[3].Path.Should().Be("Total");
 
             WriteMarkdown(changes);
-
         }
 
         [Fact]
@@ -237,7 +235,6 @@ namespace EntityChange.Tests
             changes[2].Path.Should().Be("Total");
 
             WriteMarkdown(changes);
-
         }
 
         [Fact]
@@ -277,9 +274,7 @@ namespace EntityChange.Tests
             changes[2].Path.Should().Be("Total");
 
             WriteMarkdown(changes);
-
         }
-
 
         [Fact]
         public void CompareCollectionAddItemTest()
@@ -321,7 +316,6 @@ namespace EntityChange.Tests
             changes[3].Path.Should().Be("Total");
 
             WriteMarkdown(changes);
-
         }
 
         [Fact]
@@ -364,7 +358,6 @@ namespace EntityChange.Tests
             changes[3].Path.Should().Be("Total");
 
             WriteMarkdown(changes);
-
         }
 
         [Fact]
@@ -415,7 +408,6 @@ namespace EntityChange.Tests
             changes[2].Path.Should().Be("Total");
 
             WriteMarkdown(changes);
-
         }
 
         [Fact]
@@ -466,7 +458,6 @@ namespace EntityChange.Tests
             changes[2].Path.Should().Be("Total");
 
             WriteMarkdown(changes);
-
         }
 
         [Fact]
@@ -498,7 +489,6 @@ namespace EntityChange.Tests
             changes[1].Path.Should().Be("Total");
 
             WriteMarkdown(changes);
-
         }
 
         [Fact]
@@ -530,7 +520,6 @@ namespace EntityChange.Tests
             changes[1].Path.Should().Be("Total");
 
             WriteMarkdown(changes);
-
         }
 
         [Fact]
@@ -577,7 +566,6 @@ namespace EntityChange.Tests
             );
             var comparer = new EntityComparer(configuration);
 
-
             var changes = comparer.Compare(original, current);
 
             changes.Should().NotBeNull();
@@ -589,9 +577,7 @@ namespace EntityChange.Tests
             changes[3].Path.Should().Be("Items[1].UnitPrice");
 
             WriteMarkdown(changes);
-
         }
-
 
         [Fact]
         public void CompareDictionaryTest()
@@ -605,7 +591,6 @@ namespace EntityChange.Tests
                     { "Path", "./home" }
                 }
             };
-
 
             var current = new Contact
             {
@@ -630,7 +615,6 @@ namespace EntityChange.Tests
             changes[1].Operation.Should().Be(ChangeOperation.Replace);
 
             WriteMarkdown(changes);
-
         }
 
         [Fact]
@@ -666,7 +650,6 @@ namespace EntityChange.Tests
             changes[0].Operation.Should().Be(ChangeOperation.Add);
 
             WriteMarkdown(changes);
-
         }
 
         [Fact]
@@ -702,7 +685,6 @@ namespace EntityChange.Tests
             changes[0].Operation.Should().Be(ChangeOperation.Remove);
 
             WriteMarkdown(changes);
-
         }
 
         [Fact]
@@ -733,7 +715,6 @@ namespace EntityChange.Tests
             changes[0].Operation.Should().Be(ChangeOperation.Add);
 
             WriteMarkdown(changes);
-
         }
 
         [Fact]
@@ -764,7 +745,6 @@ namespace EntityChange.Tests
             changes[0].Operation.Should().Be(ChangeOperation.Remove);
 
             WriteMarkdown(changes);
-
         }
 
         [Fact]
@@ -815,7 +795,6 @@ namespace EntityChange.Tests
             WriteMarkdown(changes);
         }
 
-
         [Fact]
         public void CompareSetAddItemTest()
         {
@@ -824,7 +803,6 @@ namespace EntityChange.Tests
                 Id = Guid.NewGuid().ToString(),
                 Categories = new HashSet<string> { "Person", "Owner" },
             };
-
 
             var current = new Contact
             {
@@ -854,7 +832,6 @@ namespace EntityChange.Tests
                 Categories = new HashSet<string> { "Person", "Owner", "Blah" },
             };
 
-
             var current = new Contact
             {
                 Id = original.Id,
@@ -873,7 +850,6 @@ namespace EntityChange.Tests
 
             WriteMarkdown(changes);
         }
-
 
         [Fact]
         public void CompareComplexCompareTest()
@@ -914,7 +890,6 @@ namespace EntityChange.Tests
                     new PhoneNumber { Number ="888-555-1212", Type = ContactType.Business }
                 }
             };
-
 
             var current = new Contact
             {
@@ -980,7 +955,6 @@ namespace EntityChange.Tests
             changes.Should().NotBeNull();
             changes.Count.Should().Be(10);
 
-
             WriteMarkdown(changes);
         }
 
@@ -1032,8 +1006,6 @@ namespace EntityChange.Tests
             changes.First().Path.Should().Be("nodes[0].nodes[0].Name");
         }
 
-
-
         private void WriteMarkdown(ReadOnlyCollection<ChangeRecord> changes)
         {
             var formatter = new MarkdownFormatter();
@@ -1042,7 +1014,4 @@ namespace EntityChange.Tests
             _output.WriteLine(markdown);
         }
     }
-
-
-
 }
