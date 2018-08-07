@@ -428,10 +428,10 @@ namespace EntityChange
         {
             var currentMember = CurrentMember();
             var propertyName = name ?? CurrentName();
-            var displayName = currentMember.DisplayName ?? propertyName.ToSpacedWords();
+            var displayName = currentMember?.DisplayName ?? propertyName.ToSpacedWords();
             var currentPath = path ?? CurrentPath();
-            var originalFormatted = FormatValue(original, currentMember.Formatter);
-            var currentFormatted = FormatValue(current, currentMember.Formatter);
+            var originalFormatted = FormatValue(original, currentMember?.Formatter);
+            var currentFormatted = FormatValue(current, currentMember?.Formatter);
 
             var changeRecord = new ChangeRecord
             {
