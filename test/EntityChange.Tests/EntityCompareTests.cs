@@ -1031,9 +1031,23 @@ namespace EntityChange.Tests
             changes.Should().NotBeEmpty();
             changes.First().Path.Should().Be("nodes[0].nodes[0].Name");
         }
+        
+        [Fact]
+        public void CompareValueTypeRootElementsTest()
+        {
+            int original = 1;
+            int current = 2;
+            
+            var entityComparer = new EntityComparer();
+            var changes = entityComparer.Compare(original, current);
+            
+            changes.Should().NotBeEmpty();
 
-
-
+            ChangeRecord changeRecord = changes.First();
+            changeRecord.OriginalValue.Should().Be(1);
+            changeRecord.CurrentValue.Should().Be(2);
+        }
+        
         private void WriteMarkdown(ReadOnlyCollection<ChangeRecord> changes)
         {
             var formatter = new MarkdownFormatter();
