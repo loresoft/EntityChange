@@ -270,7 +270,7 @@ namespace EntityChange
             if (valueFactory == null)
                 throw new ArgumentNullException(nameof(valueFactory));
 
-            var currentPath = _pathStack.Peek();
+            var currentPath = CurrentPath();
 
             var orginalCount = originalList != null ? countFactory(originalList) : 0;
             var currentCount = currentList != null ? countFactory(currentList) : 0;
@@ -343,10 +343,9 @@ namespace EntityChange
             var currentKeys = currentDictionary != null 
                 ? keysFactory(currentDictionary).Cast<object>().ToList()
                 : new List<object>();
-
-
+            
             var currentPath = CurrentPath();
-
+            
             // compare common keys
             var commonKeys = originalKeys.Intersect(currentKeys).ToList();
             _pathStack.Pop();
@@ -428,10 +427,10 @@ namespace EntityChange
         {
             var currentMember = CurrentMember();
             var propertyName = name ?? CurrentName();
-            var displayName = currentMember.DisplayName ?? propertyName.ToSpacedWords();
+            var displayName = currentMember?.DisplayName ?? propertyName.ToSpacedWords();
             var currentPath = path ?? CurrentPath();
-            var originalFormatted = FormatValue(original, currentMember.Formatter);
-            var currentFormatted = FormatValue(current, currentMember.Formatter);
+            var originalFormatted = FormatValue(original, currentMember?.Formatter);
+            var currentFormatted = FormatValue(current, currentMember?.Formatter);
 
             var changeRecord = new ChangeRecord
             {
