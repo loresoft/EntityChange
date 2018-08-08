@@ -1048,6 +1048,21 @@ namespace EntityChange.Tests
             changeRecord.CurrentValue.Should().Be(2);
         }
         
+        [Fact]
+        public void CompareArrayRootElementsTest()
+        {
+            TreeNode[] original = new TreeNode[] { new TreeNode { Name = "Level 1" } };
+            TreeNode[] current = new TreeNode[] { };
+
+            EntityComparer entityComparer = new EntityComparer();
+            ReadOnlyCollection<ChangeRecord> changes = entityComparer.Compare(original, current);
+
+            changes.Should().NotBeEmpty();
+
+            ChangeRecord changeRecord = changes.First();
+            changeRecord.Path.Should().Be("[0]");
+        }
+        
         private void WriteMarkdown(ReadOnlyCollection<ChangeRecord> changes)
         {
             var formatter = new MarkdownFormatter();
