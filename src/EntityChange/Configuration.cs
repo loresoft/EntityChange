@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using EntityChange.Extenstions;
+using EntityChange.Extensions;
 using EntityChange.Fluent;
 using EntityChange.Reflection;
 

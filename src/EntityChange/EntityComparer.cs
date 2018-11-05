@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using EntityChange.Extenstions;
+using EntityChange.Extensions;
 using EntityChange.Reflection;
 
 namespace EntityChange

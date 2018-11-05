@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace EntityChange.Extenstions
+namespace EntityChange.Extensions
 {
     /// <summary>
     /// Extension methods for <see cref="String"/> type.

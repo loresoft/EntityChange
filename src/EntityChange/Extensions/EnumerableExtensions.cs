@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace EntityChange.Extenstions
+namespace EntityChange.Extensions
 {
     /// <summary>
     /// Extension methods for <see cref="IEnumerable{T}"/>
