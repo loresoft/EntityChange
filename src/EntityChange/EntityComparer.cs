@@ -12,7 +12,7 @@ namespace EntityChange
     /// <summary>
     /// A class to compare two entities generating a change list. 
     /// </summary>
-    public class EntityComparer
+    public class EntityComparer : IEntityComparer
     {
         private readonly Stack<string> _pathStack;
         private readonly Stack<IMemberOptions> _memberStack;
