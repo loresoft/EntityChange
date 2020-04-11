@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="coverage.opencover.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\EntityChange\EntityChange.csproj" />
   </ItemGroup>
 
