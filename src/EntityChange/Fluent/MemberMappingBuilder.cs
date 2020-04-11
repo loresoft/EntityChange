@@ -41,7 +41,6 @@ namespace EntityChange.Fluent
             return this;
         }
 
-
         /// <summary>
         /// Sets the member equality <see langword="delegate" />.
         /// </summary>
@@ -49,12 +48,16 @@ namespace EntityChange.Fluent
         /// <returns>
         /// Fluent builder for an entity property.
         /// </returns>
-        public MemberMappingBuilder<TEntity, TProperty> Equality(Func<object, object, bool> equalityFactory)
+        public MemberMappingBuilder<TEntity, TProperty> Equality(Func<TProperty, TProperty, bool> equalityFactory)
         {
-            MemberMapping.Equality = equalityFactory;
+            if (equalityFactory == null)
+                MemberMapping.Equality = null;
+            else
+                MemberMapping.Equality = (left, right) => equalityFactory((TProperty)left, (TProperty)right);
+
             return this;
         }
-
+        
         /// <summary>
         /// Sets the member value string formatter <see langword="delegate" />.
         /// </summary>
@@ -62,12 +65,16 @@ namespace EntityChange.Fluent
         /// <returns>
         /// Fluent builder for an entity property.
         /// </returns>
-        public MemberMappingBuilder<TEntity, TProperty> Formatter(Func<object, string> formatterFactory)
+        public MemberMappingBuilder<TEntity, TProperty> Formatter(Func<TProperty, string> formatterFactory)
         {
-            MemberMapping.Formatter = formatterFactory;
+            if (formatterFactory == null)
+                MemberMapping.Formatter = null;
+            else
+                MemberMapping.Formatter = v => formatterFactory((TProperty)v);
+
             return this;
         }
-
+        
         /// <summary>
         /// sets the member display name.
         /// </summary>

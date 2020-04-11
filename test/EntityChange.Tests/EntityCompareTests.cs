@@ -87,7 +87,7 @@ namespace EntityChange.Tests
             {
                 config.Entity<Order>(e =>
                 {
-                    e.Property(p => p.Total).Formatter(StringFormatter.Currency);
+                    e.Property(p => p.Total).Formatter(d => d.ToString("C"));
                 });
             });
 
