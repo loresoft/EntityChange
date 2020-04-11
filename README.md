@@ -6,6 +6,8 @@ Library to compare two entity object graphs detecting changes
 
 [![NuGet Version](https://img.shields.io/nuget/v/EntityChange.svg?style=flat-square)](https://www.nuget.org/packages/EntityChange/)
 
+[![Coverage Status](https://coveralls.io/repos/github/loresoft/EntityChange/badge.svg?branch=master)](https://coveralls.io/github/loresoft/EntityChange?branch=master)
+
 ## Download
 
 The EntityChange library is available on nuget.org via package name `EntityChange`.

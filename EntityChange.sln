@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{F7DD2C1D
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
 		build\common.props = build\common.props
+		README.md = README.md
 		build\sourcelink.props = build\sourcelink.props
 		build\version.props = build\version.props
 	EndProjectSection
