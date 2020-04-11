@@ -9,8 +9,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{F7DD2C1D-4D44-4972-8E2A-102F8B60B3E6}"
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
-		bootstrap.cmd = bootstrap.cmd
-		Master.proj = Master.proj
+		build\common.props = build\common.props
+		build\sourcelink.props = build\sourcelink.props
+		build\version.props = build\version.props
 	EndProjectSection
 EndProject
 Global
