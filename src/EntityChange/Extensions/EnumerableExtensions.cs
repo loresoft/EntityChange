@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace EntityChange.Extensions
@@ -37,6 +38,40 @@ namespace EntityChange.Extensions
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Compares the specified existing and current lists returning the delta between them.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the item.</typeparam>
+        /// <param name="existing">The existing list of items.</param>
+        /// <param name="current">The new and current list of items.</param>
+        /// <param name="comparer">The comparer the <see cref="IEqualityComparer{T}"/> used to compare the items.</param>
+        /// <returns>The <see cref="Delta{TItem}"/> result of two lists.</returns>
+        /// <exception cref="ArgumentNullException">when <paramref name="existing"/> or <paramref name="current"/> lists are null.</exception>
+        public static Delta<TItem> DeltaCompare<TItem>(this IEnumerable<TItem> existing, IEnumerable<TItem> current, IEqualityComparer<TItem> comparer = null)
+        {
+            if (existing == null)
+                throw new ArgumentNullException(nameof(existing));
+
+            if (current == null)
+                throw new ArgumentNullException(nameof(current));
+
+            if (comparer == null) 
+                comparer = EqualityComparer<TItem>.Default;
+
+            var existingList = existing.ToList();
+            var currentList = current.ToList();
+
+            var matched = existingList.Intersect(currentList, comparer);
+            var created = currentList.Except(existingList, comparer);
+            var deleted = existingList.Except(currentList, comparer);
+
+            return new Delta<TItem>
+            {
+                Created = created,
+                Deleted = deleted,
+                Matched = matched
+            };
+        }
     }
 
 }
