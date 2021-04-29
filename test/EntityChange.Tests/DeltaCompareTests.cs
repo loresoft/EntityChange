@@ -62,11 +62,49 @@ namespace EntityChange.Tests
             delta.Matched.Should().HaveCount(2);
         }
 
+        [Fact]
+        public void CompareUserRole()
+        {
+            var existing = new List<UserRole>
+            {
+                new UserRole {UserName = "Name1", RoleName = "Role1"},
+                new UserRole {UserName = "Name1", RoleName = "Role2"},
+                new UserRole {UserName = "Name1", RoleName = "Role3"},
+            };
+
+            var current = new List<UserRole>
+            {
+                new UserRole {UserName = "Name1", RoleName = "Role2"},
+                new UserRole {UserName = "Name1", RoleName = "Role3"},
+                new UserRole {UserName = "Name1", RoleName = "Role4"},
+            };
+
+            var comparer = KeyEqualityComparer<UserRole, Tuple<string, string>>.Create(p => new Tuple<string, string>(p.UserName, p.RoleName));
+            var delta = existing.DeltaCompare(current, comparer);
+            delta.Should().NotBeNull();
+
+            delta.Created.Should().NotBeNullOrEmpty();
+            delta.Created.Should().HaveCount(1);
+
+            delta.Deleted.Should().NotBeNullOrEmpty();
+            delta.Deleted.Should().HaveCount(1);
+
+            delta.Matched.Should().NotBeNullOrEmpty();
+            delta.Matched.Should().HaveCount(2);
+
+        }
 
         public class User
         {
             public Guid Id { get; set; }
             public string Name { get; set; }
         }
+
+        public class UserRole
+        {
+            public string UserName { get; set; }
+            public string RoleName { get; set; }
+        }
+
     }
 }
