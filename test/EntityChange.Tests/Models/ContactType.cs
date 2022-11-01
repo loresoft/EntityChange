@@ -1,13 +1,10 @@
-﻿using System;
+﻿namespace EntityChange.Tests.Models;
 
-namespace EntityChange.Tests.Models
+public enum ContactType
 {
-    public enum ContactType
-    {
-        Home,
-        Business,
-        Personal,
-        Mobile
+    Home,
+    Business,
+    Personal,
+    Mobile
 
-    }
 }

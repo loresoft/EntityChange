@@ -1,19 +1,16 @@
-using System;
+namespace EntityChange;
 
-namespace EntityChange
+/// <summary>
+/// The type of collection comparison.
+/// </summary>
+public enum CollectionComparison
 {
     /// <summary>
-    /// The type of collection comparison.
+    /// Compare collection by index position.
     /// </summary>
-    public enum CollectionComparison
-    {
-        /// <summary>
-        /// Compare collection by index position.
-        /// </summary>
-        CollectionIndexer,
-        /// <summary>
-        /// Compare collection by element equality.
-        /// </summary>
-        ObjectEquality
-    }
+    CollectionIndexer,
+    /// <summary>
+    /// Compare collection by element equality.
+    /// </summary>
+    ObjectEquality
 }

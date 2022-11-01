@@ -1,10 +1,7 @@
-﻿using System;
+﻿namespace EntityChange.Tests.Models;
 
-namespace EntityChange.Tests.Models
+public enum Status
 {
-    public enum Status
-    {
-        New,
-        Verified
-    }
+    New,
+    Verified
 }

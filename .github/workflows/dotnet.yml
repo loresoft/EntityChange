@@ -37,6 +37,9 @@ jobs:
     - name: Build Project
       run: 'dotnet build --no-restore --configuration Release -p:Version="${{env.BUILD_VERSION}}" -p:InformationalVersion="${{env.BUILD_INFORMATION}}"'
 
+    - name: Run Tests
+      run: 'dotnet test --no-build --collect:"XPlat Code Coverage"'
+
     - name: Create Packages
       run: 'dotnet pack --configuration Release --include-symbols --include-source --no-build --no-restore --output "${{env.BUILD_PATH}}"'
 

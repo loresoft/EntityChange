@@ -1,10 +1,7 @@
-using System;
+namespace EntityChange.Tests.Models;
 
-namespace EntityChange.Tests.Models
+public class EmailAddress
 {
-    public class EmailAddress
-    {
-        public ContactType Type { get; set; }
-        public string Address { get; set; }
-    }
+    public ContactType Type { get; set; }
+    public string Address { get; set; }
 }
