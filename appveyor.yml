@@ -19,17 +19,11 @@ dotnet_csproj:
 
 configuration: Release
 
-install:
-  - dotnet tool install --global coveralls.net
-
 build_script:
   - dotnet pack EntityChange.sln --configuration Release --include-symbols --include-source
 
 test_script:
   - dotnet test EntityChange.sln --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[xunit*]*"
-
-after_test:
-  - csmacnz.coveralls --useRelativePaths --multiple --input "opencover=test\EntityChange.Tests\coverage.opencover.xml"
 
 artifacts:
 - path: artifacts\*.*nupkg
