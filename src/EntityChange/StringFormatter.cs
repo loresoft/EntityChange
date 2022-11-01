@@ -15,7 +15,7 @@ public static class StringFormatter
         if (value == null)
             return null;
 
-        if (!(value is IConvertible))
+        if (value is not IConvertible)
             return value.ToString();
 
         var d = Convert.ToDecimal(value);
@@ -32,11 +32,11 @@ public static class StringFormatter
         if (value == null)
             return null;
 
-        if (!(value is IConvertible))
+        if (value is not IConvertible)
             return value.ToString();
 
         var d = Convert.ToDecimal(value);
-        return d.ToString("N");
+        return d.ToString("N2");
     }
 
 
@@ -50,7 +50,7 @@ public static class StringFormatter
         if (value == null)
             return null;
 
-        if (!(value is IConvertible))
+        if (value is not IConvertible)
             return value.ToString();
 
         var d = Convert.ToDateTime(value);
@@ -67,7 +67,7 @@ public static class StringFormatter
         if (value == null)
             return null;
 
-        if (!(value is IConvertible))
+        if (value is not IConvertible)
             return value.ToString();
 
         var d = Convert.ToDateTime(value);
@@ -84,7 +84,7 @@ public static class StringFormatter
         if (value == null)
             return null;
 
-        if (!(value is IConvertible))
+        if (value is not IConvertible)
             return value.ToString();
 
         var d = Convert.ToDateTime(value);
@@ -101,7 +101,7 @@ public static class StringFormatter
         if (value == null)
             return null;
 
-        if (!(value is IConvertible))
+        if (value is not IConvertible)
             return value.ToString();
 
         var d = Convert.ToDateTime(value);
@@ -118,7 +118,7 @@ public static class StringFormatter
         if (value == null)
             return null;
 
-        if (!(value is IConvertible))
+        if (value is not IConvertible)
             return value.ToString();
 
         var d = Convert.ToDateTime(value);
@@ -135,7 +135,7 @@ public static class StringFormatter
         if (value == null)
             return null;
 
-        if (!(value is IConvertible))
+        if (value is not IConvertible)
             return value.ToString();
 
         var d = Convert.ToDateTime(value);
@@ -152,7 +152,7 @@ public static class StringFormatter
         if (value == null)
             return null;
 
-        if (!(value is IConvertible))
+        if (value is not IConvertible)
             return value.ToString();
 
         var d = Convert.ToDateTime(value);
@@ -169,7 +169,7 @@ public static class StringFormatter
         if (value == null)
             return null;
 
-        if (!(value is IConvertible))
+        if (value is not IConvertible)
             return value.ToString();
 
         var d = Convert.ToDateTime(value);
