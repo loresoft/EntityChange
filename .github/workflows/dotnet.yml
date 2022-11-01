@@ -45,7 +45,7 @@ jobs:
 
     - name: Upload Package Artifact
       if: success()
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: Packages
         path: '${{env.BUILD_PATH}}'
