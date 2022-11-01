@@ -2,11 +2,9 @@
 
 Library to compare two entity object graphs detecting changes
 
-[![Build status](https://ci.appveyor.com/api/projects/status/69cj4wn5o3vlmigm?svg=true)](https://ci.appveyor.com/project/LoreSoft/entitychange)
+[![Build Project](https://github.com/loresoft/EntityChange/actions/workflows/dotnet.yml/badge.svg)](https://github.com/loresoft/EntityChange/actions/workflows/dotnet.yml)
 
 [![NuGet Version](https://img.shields.io/nuget/v/EntityChange.svg?style=flat-square)](https://www.nuget.org/packages/EntityChange/)
-
-[![Coverage Status](https://coveralls.io/repos/github/loresoft/EntityChange/badge.svg?branch=master)](https://coveralls.io/github/loresoft/EntityChange?branch=master)
 
 ## Download
 
@@ -18,14 +16,6 @@ To install EntityChange, run the following command in the Package Manager Consol
 
 More information about NuGet package available at
 <https://nuget.org/packages/EntityChange>
-
-## Development Builds
-
-
-Development builds are available on the myget.org feed.  A development build is promoted to the main NuGet feed when it's determined to be stable.
-
-In your Package Manager settings add the following package source for development builds:
-<http://www.myget.org/F/loresoft/>
 
 ## Features
 
