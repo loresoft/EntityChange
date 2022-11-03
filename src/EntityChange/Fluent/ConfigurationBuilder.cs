@@ -1,4 +1,4 @@
-﻿using EntityChange.Reflection;
+using EntityChange.Reflection;
 
 namespace EntityChange.Fluent;
 
@@ -85,11 +85,7 @@ public class ConfigurationBuilder
     /// </returns>
     public ConfigurationBuilder Profile(IEntityProfile profile)
     {
-        var type = profile.EntityType;
-        var classMapping = GetClassMap(type);
-
-        profile.Register(classMapping);
-
+        Configuration.Register(profile);
         return this;
     }
 

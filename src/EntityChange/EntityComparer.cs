@@ -28,7 +28,7 @@ public class EntityComparer : IEntityComparer
     /// <param name="configuration">The configuration.</param>
     public EntityComparer(Configuration configuration)
     {
-        Configuration = configuration;
+        Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         _changes = new List<ChangeRecord>();
         _pathStack = new Stack<string>();
         _memberStack = new Stack<IMemberOptions>();

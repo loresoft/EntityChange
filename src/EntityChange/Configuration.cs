@@ -27,6 +27,20 @@ public class Configuration
     }
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="Configuration"/> class.
+    /// </summary>
+    /// <param name="profiles">The profiles.</param>
+    /// <exception cref="System.ArgumentNullException">profiles</exception>
+    public Configuration(IEnumerable<IEntityProfile> profiles) : this()
+    {
+        if (profiles == null)
+            throw new ArgumentNullException(nameof(profiles));
+
+        foreach (var profile in profiles)
+            Register(profile);
+    }
+
+    /// <summary>
     /// Gets or sets a value indicating whether to automatic map properties of the class by default.
     /// </summary>
     /// <value>
@@ -41,7 +55,6 @@ public class Configuration
     /// The mapped class definitions.
     /// </value>
     public ConcurrentDictionary<Type, EntityMapping> Mapping { get; }
-
 
     /// <summary>
     /// Configures the comparison with specified fluent <paramref name="builder"/>.
@@ -60,8 +73,7 @@ public class Configuration
     /// <returns><see cref="EntityMapping"/> for the specified type.</returns>
     public EntityMapping GetMapping(Type type)
     {
-        var mapping = Mapping
-            .GetOrAdd(type, t => new EntityMapping(TypeAccessor.GetAccessor(t)) { AutoMap = AutoMap });
+        var mapping = GetClassMap(type);
 
         if (mapping.Mapped)
             return mapping;
@@ -119,6 +131,34 @@ public class Configuration
 
             return mapping;
         }
+    }
+
+    /// <summary>
+    /// Registers the specified profile to the configuration.
+    /// </summary>
+    /// <param name="profile">The profile.</param>
+    /// <returns></returns>
+    public Configuration Register(IEntityProfile profile)
+    {
+        var type = profile.EntityType;
+        var classMapping = GetClassMap(type);
+
+        profile.Register(classMapping);
+
+        return this;
+    }
+
+
+    private EntityMapping GetClassMap(Type type)
+    {
+        var classMapping = Mapping.GetOrAdd(type, t =>
+        {
+            var typeAccessor = TypeAccessor.GetAccessor(t);
+            var mapping = new EntityMapping(typeAccessor) { AutoMap = AutoMap };
+            return mapping;
+        });
+
+        return classMapping;
     }
 
 
