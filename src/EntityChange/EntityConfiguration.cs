@@ -13,25 +13,26 @@ namespace EntityChange;
 /// <summary>
 /// A class defining the configuration.
 /// </summary>
-public class Configuration
+public class EntityConfiguration
+    : IEntityConfiguration
 {
-    private static readonly Lazy<Configuration> _current = new(() => new Configuration());
+    private static readonly Lazy<EntityConfiguration> _current = new(() => new EntityConfiguration());
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Configuration"/> class.
+    /// Initializes a new instance of the <see cref="EntityConfiguration"/> class.
     /// </summary>
-    public Configuration()
+    public EntityConfiguration()
     {
         Mapping = new ConcurrentDictionary<Type, EntityMapping>();
         AutoMap = true;
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Configuration"/> class.
+    /// Initializes a new instance of the <see cref="EntityConfiguration"/> class.
     /// </summary>
     /// <param name="profiles">The profiles.</param>
     /// <exception cref="System.ArgumentNullException">profiles</exception>
-    public Configuration(IEnumerable<IEntityProfile> profiles) : this()
+    public EntityConfiguration(IEnumerable<IEntityProfile> profiles) : this()
     {
         if (profiles == null)
             throw new ArgumentNullException(nameof(profiles));
@@ -138,7 +139,7 @@ public class Configuration
     /// </summary>
     /// <param name="profile">The profile.</param>
     /// <returns></returns>
-    public Configuration Register(IEntityProfile profile)
+    public EntityConfiguration Register(IEntityProfile profile)
     {
         var type = profile.EntityType;
         var classMapping = GetClassMap(type);
@@ -169,5 +170,5 @@ public class Configuration
     /// The default configuration.
     /// </value>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public static Configuration Default => _current.Value;
+    public static EntityConfiguration Default => _current.Value;
 }

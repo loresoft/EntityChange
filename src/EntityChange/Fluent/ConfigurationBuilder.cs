@@ -11,7 +11,7 @@ public class ConfigurationBuilder
     /// Initializes a new instance of the <see cref="ConfigurationBuilder"/> class.
     /// </summary>
     /// <param name="configuration">The configuration to update.</param>
-    public ConfigurationBuilder(Configuration configuration)
+    public ConfigurationBuilder(EntityConfiguration configuration)
     {
         Configuration = configuration;
     }
@@ -23,7 +23,7 @@ public class ConfigurationBuilder
     /// <value>
     /// The current configuration.
     /// </value>
-    public Configuration Configuration { get; }
+    public EntityConfiguration Configuration { get; }
 
     /// <summary>
     /// Sets a value indicating whether to automatic map properties of the entity by default

@@ -18,7 +18,7 @@ public class EntityComparer : IEntityComparer
     /// <summary>
     /// Initializes a new instance of the <see cref="EntityComparer"/> class.
     /// </summary>
-    public EntityComparer() : this(Configuration.Default)
+    public EntityComparer() : this(EntityConfiguration.Default)
     {
     }
 
@@ -26,7 +26,7 @@ public class EntityComparer : IEntityComparer
     /// Initializes a new instance of the <see cref="EntityComparer"/> class.
     /// </summary>
     /// <param name="configuration">The configuration.</param>
-    public EntityComparer(Configuration configuration)
+    public EntityComparer(IEntityConfiguration configuration)
     {
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         _changes = new List<ChangeRecord>();
@@ -41,7 +41,7 @@ public class EntityComparer : IEntityComparer
     /// <value>
     /// The generator configuration.
     /// </value>
-    public Configuration Configuration { get; }
+    public IEntityConfiguration Configuration { get; }
 
 
     /// <summary>
@@ -418,7 +418,12 @@ public class EntityComparer : IEntityComparer
             : null;
     }
 
-    private void CreateChange(ChangeOperation operation, object original, object current, string path = null, string name = null)
+    private void CreateChange(
+        ChangeOperation operation,
+        object original,
+        object current,
+        string path = null,
+        string name = null)
     {
         var currentMember = CurrentMember();
         var propertyName = name ?? CurrentName();
@@ -436,7 +441,7 @@ public class EntityComparer : IEntityComparer
             OriginalValue = original,
             CurrentValue = current,
             OriginalFormatted = originalFormatted,
-            CurrentFormatted = currentFormatted
+            CurrentFormatted = currentFormatted,
         };
 
         _changes.Add(changeRecord);

@@ -54,18 +54,18 @@ public class ChangeRecord
     public object CurrentValue { get; set; }
 
     /// <summary>
-    /// Gets or sets the original value formatted as a <see cref="String"/>.
+    /// Gets or sets the original value formatted as a <see cref="string"/>.
     /// </summary>
     /// <value>
-    /// The original value formatted as a <see cref="String"/>.
+    /// The original value formatted as a <see cref="string"/>.
     /// </value>
     public string OriginalFormatted { get; set; }
 
     /// <summary>
-    /// Gets or sets the current value formatted as a <see cref="String"/>.
+    /// Gets or sets the current value formatted as a <see cref="string"/>.
     /// </summary>
     /// <value>
-    /// The current value formatted as a <see cref="String"/>.
+    /// The current value formatted as a <see cref="string"/>.
     /// </value>
     public string CurrentFormatted { get; set; }
 }

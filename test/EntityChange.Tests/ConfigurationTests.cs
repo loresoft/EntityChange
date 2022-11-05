@@ -14,7 +14,7 @@ public class ConfigurationTests
     [Fact]
     public void SimpleConfigureTest()
     {
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var builder = new ConfigurationBuilder(configuration);
 
         builder.Entity<Order>(e =>
@@ -38,7 +38,7 @@ public class ConfigurationTests
     [Fact]
     public void AutoMapDefaultOffTest()
     {
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var builder = new ConfigurationBuilder(configuration);
         builder.AutoMap(false);
         builder.Entity<EmailAddress>(e => e.AutoMap());
@@ -60,7 +60,7 @@ public class ConfigurationTests
     [Fact]
     public void AutoMapDefaultOnTest()
     {
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var builder = new ConfigurationBuilder(configuration);
         builder.Entity<Order>(e => e.AutoMap(false));
 

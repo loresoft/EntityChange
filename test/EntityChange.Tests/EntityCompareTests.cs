@@ -53,7 +53,7 @@ public class EntityCompareTests
             }
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var comparer = new EntityComparer(configuration);
         var changes = comparer.Compare(original, current);
 
@@ -84,7 +84,7 @@ public class EntityCompareTests
             Total = 11000,
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         configuration.Configure(config =>
         {
             config.Entity<Order>(e =>
@@ -137,7 +137,7 @@ public class EntityCompareTests
             }
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var comparer = new EntityComparer(configuration);
         var changes = comparer.Compare(original, current);
 
@@ -184,7 +184,7 @@ public class EntityCompareTests
             }
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var comparer = new EntityComparer(configuration);
         var changes = comparer.Compare(original, current);
 
@@ -224,7 +224,7 @@ public class EntityCompareTests
             }
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var comparer = new EntityComparer(configuration);
         var changes = comparer.Compare(original, current);
 
@@ -263,7 +263,7 @@ public class EntityCompareTests
             Total = 11000
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var comparer = new EntityComparer(configuration);
         var changes = comparer.Compare(original, current);
 
@@ -304,7 +304,7 @@ public class EntityCompareTests
             }
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var comparer = new EntityComparer(configuration);
         var changes = comparer.Compare(original, current);
 
@@ -346,7 +346,7 @@ public class EntityCompareTests
             }
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var comparer = new EntityComparer(configuration);
         var changes = comparer.Compare(original, current);
 
@@ -383,7 +383,7 @@ public class EntityCompareTests
             }
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         configuration.Configure(config =>
         {
             config.Entity<Order>(e =>
@@ -433,7 +433,7 @@ public class EntityCompareTests
             Total = 11000,
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         configuration.Configure(config =>
         {
             config.Entity<Order>(e =>
@@ -480,7 +480,7 @@ public class EntityCompareTests
             Items = new List<OrderLine>()
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var comparer = new EntityComparer(configuration);
         var changes = comparer.Compare(original, current);
 
@@ -511,7 +511,7 @@ public class EntityCompareTests
             Total = 11000,
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var comparer = new EntityComparer(configuration);
         var changes = comparer.Compare(original, current);
 
@@ -547,7 +547,7 @@ public class EntityCompareTests
             }
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         configuration.Configure(config => config
             .Entity<Order>(e =>
             {
@@ -604,7 +604,7 @@ public class EntityCompareTests
             }
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var comparer = new EntityComparer(configuration);
         var changes = comparer.Compare(original, current);
 
@@ -641,7 +641,7 @@ public class EntityCompareTests
             }
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var comparer = new EntityComparer(configuration);
         var changes = comparer.Compare(original, current);
 
@@ -676,7 +676,7 @@ public class EntityCompareTests
             }
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var comparer = new EntityComparer(configuration);
         var changes = comparer.Compare(original, current);
 
@@ -706,7 +706,7 @@ public class EntityCompareTests
             }
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var comparer = new EntityComparer(configuration);
         var changes = comparer.Compare(original, current);
 
@@ -736,7 +736,7 @@ public class EntityCompareTests
             Id = original.Id,
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var comparer = new EntityComparer(configuration);
         var changes = comparer.Compare(original, current);
 
@@ -763,7 +763,7 @@ public class EntityCompareTests
             Data = new Dictionary<string, object>()
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var comparer = new EntityComparer(configuration);
         var changes = comparer.Compare(original, current);
 
@@ -787,7 +787,7 @@ public class EntityCompareTests
             Id = original.Id,
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var comparer = new EntityComparer(configuration);
         var changes = comparer.Compare(original, current);
 
@@ -812,7 +812,7 @@ public class EntityCompareTests
             Categories = new HashSet<string> { "Person", "Owner", "Blah" },
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var comparer = new EntityComparer(configuration);
         var changes = comparer.Compare(original, current);
 
@@ -840,7 +840,7 @@ public class EntityCompareTests
             Categories = new HashSet<string> { "Person", "Owner" },
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         var comparer = new EntityComparer(configuration);
         var changes = comparer.Compare(original, current);
 
@@ -931,7 +931,7 @@ public class EntityCompareTests
             }
         };
 
-        var configuration = new Configuration();
+        var configuration = new EntityConfiguration();
         configuration.Configure(config => config
             .Entity<Contact>(e =>
             {
