@@ -7,7 +7,6 @@ namespace EntityChange.Reflection;
 /// </summary>
 public class PropertyAccessor : MemberAccessor
 {
-    private readonly PropertyInfo _propertyInfo;
     private readonly Lazy<Func<object, object>> _getter;
     private readonly Lazy<Action<object, object>> _setter;
 
@@ -15,20 +14,19 @@ public class PropertyAccessor : MemberAccessor
     /// Initializes a new instance of the <see cref="PropertyAccessor"/> class.
     /// </summary>
     /// <param name="propertyInfo">The <see cref="PropertyInfo"/> instance to use for this accessor.</param>
-    public PropertyAccessor(PropertyInfo propertyInfo)
+    public PropertyAccessor(PropertyInfo propertyInfo) : base(propertyInfo)
     {
         if (propertyInfo == null)
             throw new ArgumentNullException(nameof(propertyInfo));
 
-        _propertyInfo = propertyInfo;
-        Name = _propertyInfo.Name;
-        MemberType = _propertyInfo.PropertyType;
+        Name = propertyInfo.Name;
+        MemberType = propertyInfo.PropertyType;
 
-        HasGetter = _propertyInfo.CanRead;
-        _getter = new Lazy<Func<object, object>>(() => DelegateFactory.CreateGet(_propertyInfo));
+        HasGetter = propertyInfo.CanRead;
+        _getter = new Lazy<Func<object, object>>(() => ExpressionFactory.CreateGet(propertyInfo));
 
-        HasSetter = _propertyInfo.CanWrite;
-        _setter = new Lazy<Action<object, object>>(() => DelegateFactory.CreateSet(_propertyInfo));
+        HasSetter = propertyInfo.CanWrite;
+        _setter = new Lazy<Action<object, object>>(() => ExpressionFactory.CreateSet(propertyInfo));
     }
 
 
@@ -37,12 +35,6 @@ public class PropertyAccessor : MemberAccessor
     /// </summary>
     /// <value>The type of the member.</value>
     public override Type MemberType { get; }
-
-    /// <summary>
-    /// Gets the member info.
-    /// </summary>
-    /// <value>The member info.</value>
-    public override MemberInfo MemberInfo => _propertyInfo;
 
     /// <summary>
     /// Gets the name of the member.

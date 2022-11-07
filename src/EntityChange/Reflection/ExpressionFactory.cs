@@ -63,13 +63,16 @@ internal static class ExpressionFactory
         if (type == null)
             throw new ArgumentNullException(nameof(type));
 
-        var constructorInfo = type.GetTypeInfo().GetConstructor(Type.EmptyTypes);
+        var typeInfo = type.GetTypeInfo();
+
+
+        var constructorInfo = typeInfo.GetConstructor(Type.EmptyTypes);
         if (constructorInfo == null)
             throw new ArgumentException("Could not find constructor for type.", nameof(type));
 
         var instanceCreate = Expression.New(constructorInfo);
 
-        var instanceCreateCast = type.GetTypeInfo().IsValueType
+        var instanceCreateCast = typeInfo.IsValueType
             ? Expression.Convert(instanceCreate, typeof(object))
             : Expression.TypeAs(instanceCreate, typeof(object));
 
@@ -90,13 +93,7 @@ internal static class ExpressionFactory
         var declaringType = propertyInfo.DeclaringType;
         var getMethod = propertyInfo.GetGetMethod(true);
 
-        UnaryExpression instanceCast;
-        if (getMethod.IsStatic)
-            instanceCast = null;
-        else if (declaringType.GetTypeInfo().IsValueType)
-            instanceCast = Expression.Convert(instance, declaringType);
-        else
-            instanceCast = Expression.TypeAs(instance, declaringType);
+        var instanceCast = CreateCast(instance, declaringType, getMethod.IsStatic);
 
         var call = Expression.Call(instanceCast, getMethod);
         var valueCast = Expression.TypeAs(call, typeof(object));
@@ -113,14 +110,7 @@ internal static class ExpressionFactory
         var instance = Expression.Parameter(typeof(object), "instance");
         var declaringType = fieldInfo.DeclaringType;
 
-        // value as T is slightly faster than (T)value, so if it's not a value type, use that
-        UnaryExpression instanceCast;
-        if (fieldInfo.IsStatic)
-            instanceCast = null;
-        else if (declaringType.GetTypeInfo().IsValueType)
-            instanceCast = Expression.Convert(instance, declaringType);
-        else
-            instanceCast = Expression.TypeAs(instance, declaringType);
+        var instanceCast = CreateCast(instance, declaringType, fieldInfo.IsStatic);
 
         var fieldAccess = Expression.Field(instanceCast, fieldInfo);
         var valueCast = Expression.TypeAs(fieldAccess, typeof(object));
@@ -144,20 +134,8 @@ internal static class ExpressionFactory
         var propertyType = propertyInfo.PropertyType;
         var setMethod = propertyInfo.GetSetMethod(true);
 
-        // value as T is slightly faster than (T)value, so if it's not a value type, use that
-        UnaryExpression instanceCast;
-        if (setMethod.IsStatic)
-            instanceCast = null;
-        else if (declaringType.GetTypeInfo().IsValueType)
-            instanceCast = Expression.Convert(instance, declaringType);
-        else
-            instanceCast = Expression.TypeAs(instance, declaringType);
-
-        UnaryExpression valueCast;
-        if (propertyType.GetTypeInfo().IsValueType)
-            valueCast = Expression.Convert(value, propertyType);
-        else
-            valueCast = Expression.TypeAs(value, propertyType);
+        var instanceCast = CreateCast(instance, declaringType, setMethod.IsStatic);
+        var valueCast = CreateCast(value, propertyType, false);
 
         var call = Expression.Call(instanceCast, setMethod, valueCast);
         var parameters = new[] { instance, value };
@@ -177,21 +155,8 @@ internal static class ExpressionFactory
         var declaringType = fieldInfo.DeclaringType;
         var fieldType = fieldInfo.FieldType;
 
-        // value as T is slightly faster than (T)value, so if it's not a value type, use that
-        UnaryExpression instanceCast;
-        if (fieldInfo.IsStatic)
-            instanceCast = null;
-        else if (declaringType.GetTypeInfo().IsValueType)
-            instanceCast = Expression.Convert(instance, declaringType);
-        else
-            instanceCast = Expression.TypeAs(instance, declaringType);
-
-        UnaryExpression valueCast;
-        if (fieldType.GetTypeInfo().IsValueType)
-            valueCast = Expression.Convert(value, fieldType);
-        else
-            valueCast = Expression.TypeAs(value, fieldType);
-
+        var instanceCast = CreateCast(instance, declaringType, fieldInfo.IsStatic);
+        var valueCast = CreateCast(value, fieldType, false);
 
         var member = Expression.Field(instanceCast, fieldInfo);
         var assign = Expression.Assign(member, valueCast);
@@ -200,5 +165,18 @@ internal static class ExpressionFactory
 
         var lambda = Expression.Lambda<Action<object, object>>(assign, parameters);
         return lambda.Compile();
+    }
+
+
+    private static UnaryExpression CreateCast(ParameterExpression instance, Type declaringType, bool isStatic)
+    {
+        if (isStatic)
+            return null;
+
+        // value as T is slightly faster than (T)value, so if it's not a value type, use that
+        if (declaringType.GetTypeInfo().IsValueType)
+            return Expression.Convert(instance, declaringType);
+        else
+            return Expression.TypeAs(instance, declaringType);
     }
 }

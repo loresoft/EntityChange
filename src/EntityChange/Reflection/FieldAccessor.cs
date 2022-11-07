@@ -7,7 +7,6 @@ namespace EntityChange.Reflection;
 /// </summary>
 public class FieldAccessor : MemberAccessor
 {
-    private readonly FieldInfo _fieldInfo;
     private readonly Lazy<Func<object, object>> _getter;
     private readonly Lazy<Action<object, object>> _setter;
 
@@ -15,21 +14,20 @@ public class FieldAccessor : MemberAccessor
     /// Initializes a new instance of the <see cref="FieldAccessor"/> class.
     /// </summary>
     /// <param name="fieldInfo">The <see cref="FieldInfo"/> instance to use for this accessor.</param>
-    public FieldAccessor(FieldInfo fieldInfo)
+    public FieldAccessor(FieldInfo fieldInfo) : base(fieldInfo)
     {
         if (fieldInfo == null)
             throw new ArgumentNullException(nameof(fieldInfo));
 
-        _fieldInfo = fieldInfo;
         Name = fieldInfo.Name;
         MemberType = fieldInfo.FieldType;
 
-        _getter = new Lazy<Func<object, object>>(() => DelegateFactory.CreateGet(_fieldInfo));
+        _getter = new Lazy<Func<object, object>>(() => ExpressionFactory.CreateGet(fieldInfo));
         HasGetter = true;
 
         bool isReadonly = !fieldInfo.IsInitOnly && !fieldInfo.IsLiteral;
         if (!isReadonly)
-            _setter = new Lazy<Action<object, object>>(() => DelegateFactory.CreateSet(_fieldInfo));
+            _setter = new Lazy<Action<object, object>>(() => ExpressionFactory.CreateSet(fieldInfo));
 
         HasSetter = !isReadonly;
     }
@@ -39,12 +37,6 @@ public class FieldAccessor : MemberAccessor
     /// </summary>
     /// <value>The type of the member.</value>
     public override Type MemberType { get; }
-
-    /// <summary>
-    /// Gets the member info.
-    /// </summary>
-    /// <value>The member info.</value>
-    public override MemberInfo MemberInfo => _fieldInfo;
 
     /// <summary>
     /// Gets the name of the member.

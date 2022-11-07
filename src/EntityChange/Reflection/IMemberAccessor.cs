@@ -3,7 +3,7 @@
 /// <summary>
 /// An <see langword="interface"/> for late binding member accessors.
 /// </summary>
-public interface IMemberAccessor : IMemberInfo
+public interface IMemberAccessor : IMemberInformation
 {
     /// <summary>
     /// Returns the value of the member.

@@ -22,7 +22,7 @@ public class MethodAccessor : IMethodAccessor
 
         MethodInfo = methodInfo;
         Name = methodInfo.Name;
-        _invoker = new Lazy<Func<object, object[], object>>(() => DelegateFactory.CreateMethod(MethodInfo));
+        _invoker = new Lazy<Func<object, object[], object>>(() => ExpressionFactory.CreateMethod(MethodInfo));
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-﻿namespace EntityChange.Fluent;
+namespace EntityChange.Fluent;
 
 /// <summary>
 /// Fluent builder for an entity property.
@@ -55,7 +55,7 @@ public class MemberMappingBuilder<TEntity, TProperty>
 
         return this;
     }
-    
+
     /// <summary>
     /// Sets the member value string formatter <see langword="delegate" />.
     /// </summary>
@@ -72,7 +72,7 @@ public class MemberMappingBuilder<TEntity, TProperty>
 
         return this;
     }
-    
+
     /// <summary>
     /// sets the member display name.
     /// </summary>
@@ -85,4 +85,21 @@ public class MemberMappingBuilder<TEntity, TProperty>
         MemberMapping.DisplayName = value;
         return this;
     }
+
+    /// <summary>
+    /// sets the member display name using the specified factory.
+    /// </summary>
+    /// <param name="displayFactory">The display factory.</param>
+    /// <returns>
+    /// Fluent builder for an entity property.
+    /// </returns>
+    public MemberMappingBuilder<TEntity, TProperty> Display(Func<MemberMapping, string> displayFactory)
+    {
+        if (displayFactory == null)
+            MemberMapping.DisplayName = null;
+        else
+            MemberMapping.DisplayName = displayFactory(MemberMapping);
+        return this;
+    }
+
 }

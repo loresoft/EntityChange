@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace EntityChange.Reflection;
@@ -9,6 +11,27 @@ namespace EntityChange.Reflection;
 [DebuggerDisplay("Name: {Name}")]
 public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccessor>
 {
+    private readonly Lazy<ColumnAttribute> _columnAttribute;
+    private readonly Lazy<KeyAttribute> _keyAttribute;
+    private readonly Lazy<NotMappedAttribute> _notMappedAttribute;
+    private readonly Lazy<DatabaseGeneratedAttribute> _databaseGeneratedAttribute;
+    private readonly Lazy<ConcurrencyCheckAttribute> _concurrencyCheckAttribute;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MemberAccessor"/> class.
+    /// </summary>
+    protected MemberAccessor(MemberInfo memberInfo)
+    {
+        MemberInfo = memberInfo ?? throw new ArgumentNullException(nameof(memberInfo));
+
+        _columnAttribute = new Lazy<ColumnAttribute>(() => MemberInfo.GetCustomAttribute<ColumnAttribute>(true));
+        _keyAttribute = new Lazy<KeyAttribute>(() => MemberInfo.GetCustomAttribute<KeyAttribute>(true));
+        _notMappedAttribute = new Lazy<NotMappedAttribute>(() => MemberInfo.GetCustomAttribute<NotMappedAttribute>(true));
+        _databaseGeneratedAttribute = new Lazy<DatabaseGeneratedAttribute>(() => MemberInfo.GetCustomAttribute<DatabaseGeneratedAttribute>(true));
+        _concurrencyCheckAttribute = new Lazy<ConcurrencyCheckAttribute>(() => MemberInfo.GetCustomAttribute<ConcurrencyCheckAttribute>(true));
+    }
+
+
     /// <summary>
     /// Gets the <see cref="Type"/> of the member.
     /// </summary>
@@ -19,7 +42,7 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
     /// Gets the <see cref="MemberInfo"/> for the accessor.
     /// </summary>
     /// <value>The member info.</value>
-    public abstract MemberInfo MemberInfo { get; }
+    public MemberInfo MemberInfo { get; }
 
     /// <summary>
     /// Gets the name of the member.
@@ -38,6 +61,47 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
     /// </summary>
     /// <value><c>true</c> if this member has setter; otherwise, <c>false</c>.</value>
     public abstract bool HasSetter { get; }
+
+    /// <summary>
+    /// Gets the database column name that a property is mapped to
+    /// </summary>
+    /// <value>
+    /// The database column name that a property is mapped to
+    /// </value>
+    public string Column => _columnAttribute.Value?.Name ?? Name;
+
+    /// <summary>
+    /// Gets a value indicating that this property is the unique identify for the entity
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if this instance is key; otherwise, <c>false</c>.
+    /// </value>
+    public bool IsKey => _keyAttribute.Value != null;
+
+    /// <summary>
+    /// Gets a value indicating that this property is the unique identify for the entity
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if this property is key; otherwise, <c>false</c>.
+    /// </value>
+    public bool IsNotMapped => _notMappedAttribute.Value != null;
+
+    /// <summary>
+    /// Gets a value indicating that this property participates in optimistic concurrency check
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if this property participates in optimistic concurrency check; otherwise, <c>false</c>.
+    /// </value>
+    public bool IsConcurrencyCheck => _concurrencyCheckAttribute.Value != null;
+
+    /// <summary>
+    /// Gets a value indicating that this property is database generated
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if this property is database generated; otherwise, <c>false</c>.
+    /// </value>
+    public bool IsDatabaseGenerated => _databaseGeneratedAttribute.Value != null
+        && _databaseGeneratedAttribute.Value.DatabaseGeneratedOption != DatabaseGeneratedOption.None;
 
 
     /// <summary>
@@ -75,11 +139,11 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
     }
 
     /// <summary>
-    /// Determines whether the specified <see cref="System.Object"/> is equal to this instance.
+    /// Determines whether the specified <see cref="object"/> is equal to this instance.
     /// </summary>
-    /// <param name="obj">The <see cref="System.Object"/> to compare with this instance.</param>
+    /// <param name="obj">The <see cref="object"/> to compare with this instance.</param>
     /// <returns>
-    /// 	<c>true</c> if the specified <see cref="System.Object"/> is equal to this instance; otherwise, <c>false</c>.
+    /// 	<c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
     public override bool Equals(object obj)
     {
