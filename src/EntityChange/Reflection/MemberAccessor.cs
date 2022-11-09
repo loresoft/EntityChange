@@ -16,6 +16,7 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
     private readonly Lazy<NotMappedAttribute> _notMappedAttribute;
     private readonly Lazy<DatabaseGeneratedAttribute> _databaseGeneratedAttribute;
     private readonly Lazy<ConcurrencyCheckAttribute> _concurrencyCheckAttribute;
+    private readonly Lazy<ForeignKeyAttribute> _foreignKeyAttribute;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MemberAccessor"/> class.
@@ -29,6 +30,7 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
         _notMappedAttribute = new Lazy<NotMappedAttribute>(() => MemberInfo.GetCustomAttribute<NotMappedAttribute>(true));
         _databaseGeneratedAttribute = new Lazy<DatabaseGeneratedAttribute>(() => MemberInfo.GetCustomAttribute<DatabaseGeneratedAttribute>(true));
         _concurrencyCheckAttribute = new Lazy<ConcurrencyCheckAttribute>(() => MemberInfo.GetCustomAttribute<ConcurrencyCheckAttribute>(true));
+        _foreignKeyAttribute = new Lazy<ForeignKeyAttribute>(() => MemberInfo.GetCustomAttribute<ForeignKeyAttribute>(true));
     }
 
 
@@ -103,6 +105,13 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
     public bool IsDatabaseGenerated => _databaseGeneratedAttribute.Value != null
         && _databaseGeneratedAttribute.Value.DatabaseGeneratedOption != DatabaseGeneratedOption.None;
 
+    /// <summary>
+    /// Gets a value indicating the name of the associated navigation property or associated foreign key(s)
+    /// </summary>
+    /// <value>
+    ///   A value indicating the name of the associated navigation property or associated foreign key(s)
+    /// </value>
+    public string ForeignKey => _foreignKeyAttribute.Value?.Name;
 
     /// <summary>
     /// Returns the value of the member.

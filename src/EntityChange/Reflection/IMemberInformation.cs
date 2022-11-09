@@ -66,6 +66,14 @@ public interface IMemberInformation
     bool IsConcurrencyCheck { get; }
 
     /// <summary>
+    /// Gets a value indicating the name of the associated navigation property or associated foreign key(s)
+    /// </summary>
+    /// <value>
+    ///   A value indicating the name of the associated navigation property or associated foreign key(s)
+    /// </value>
+    string ForeignKey { get; }
+
+    /// <summary>
     /// Gets a value indicating whether this member has getter.
     /// </summary>
     /// <value>
