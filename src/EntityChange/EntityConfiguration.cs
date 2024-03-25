@@ -83,7 +83,7 @@ public class EntityConfiguration
         if (!autoMap)
             return mapping;
 
-        // thread-safe initialization 
+        // thread-safe initialization
         lock (mapping.SyncRoot)
         {
             if (mapping.Mapped)

@@ -31,9 +31,10 @@ jobs:
     - name: Install .NET Core
       uses: actions/setup-dotnet@v3
       with:
-          dotnet-version: | 
+          dotnet-version: |
                 6.0.x
                 7.0.x
+                8.0.x
 
     - name: Restore Dependencies
       run: dotnet restore
@@ -44,7 +45,7 @@ jobs:
     - name: Run Test
       run: dotnet test --configuration Release --collect:"XPlat Code Coverage" --settings coverlet.runsettings
 
-    - name: Generate Coverage 
+    - name: Generate Coverage
       uses: danielpalme/ReportGenerator-GitHub-Action@5.1.23
       with:
         reports: '${{github.workspace}}/test/*/TestResults/*/coverage.info'
