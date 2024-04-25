@@ -4,6 +4,8 @@ Library to compare two entity object graphs detecting changes
 
 [![Build Project](https://github.com/loresoft/EntityChange/actions/workflows/dotnet.yml/badge.svg)](https://github.com/loresoft/EntityChange/actions/workflows/dotnet.yml)
 
+[![Coverage Status](https://coveralls.io/repos/github/loresoft/EntityChange/badge.svg)](https://coveralls.io/github/loresoft/EntityChange)
+
 [![NuGet Version](https://img.shields.io/nuget/v/EntityChange.svg?style=flat-square)](https://www.nuget.org/packages/EntityChange/)
 
 ## Download
