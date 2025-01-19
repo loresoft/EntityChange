@@ -7,7 +7,7 @@ using EntityChange.Reflection;
 namespace EntityChange;
 
 /// <summary>
-/// A class to compare two entities generating a change list. 
+/// A class to compare two entities generating a change list.
 /// </summary>
 public class EntityComparer : IEntityComparer
 {
@@ -54,6 +54,9 @@ public class EntityComparer : IEntityComparer
     public IReadOnlyList<ChangeRecord> Compare<TEntity>(TEntity original, TEntity current)
     {
         _changes.Clear();
+        _pathStack.Clear();
+        _memberStack.Clear();
+
         var type = typeof(TEntity);
 
         CompareType(type, original, current);
@@ -427,10 +430,10 @@ public class EntityComparer : IEntityComparer
     {
         var currentMember = CurrentMember();
         var propertyName = name ?? CurrentName();
-        var displayName = currentMember.DisplayName ?? propertyName.ToSpacedWords();
+        var displayName = currentMember?.DisplayName ?? propertyName.ToSpacedWords();
         var currentPath = path ?? CurrentPath();
-        var originalFormatted = FormatValue(original, currentMember.Formatter);
-        var currentFormatted = FormatValue(current, currentMember.Formatter);
+        var originalFormatted = FormatValue(original, currentMember?.Formatter);
+        var currentFormatted = FormatValue(current, currentMember?.Formatter);
 
         var changeRecord = new ChangeRecord
         {
