@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 using EntityChange.Tests.Models;
@@ -1092,6 +1093,34 @@ public class EntityCompareTests
 
         ChangeRecord changeRecord = changes.First();
         changeRecord.Path.Should().Be("[0]");
+    }
+
+    [Fact]
+    public async Task CompareAbstract()
+    {
+        var obj1 = new Consumer()
+        {
+            SomeProperty = new ConcreteClass()
+            {
+                Id = 1,
+                SomeString = "Test1"
+            }
+        };
+        var obj2 = new Consumer()
+        {
+            SomeProperty = new ConcreteClass()
+            {
+                Id = 2,
+                SomeString = "Test2"
+            }
+        };
+
+        var comparer = new EntityComparer();
+        var changes = comparer.Compare(obj1, obj2);
+
+        changes.Should().NotBeEmpty();
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     private void WriteMarkdown(IReadOnlyList<ChangeRecord> changes)

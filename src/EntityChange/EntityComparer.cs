@@ -115,7 +115,11 @@ public class EntityComparer : IEntityComparer
             var currentValue = accessor.GetValue(current);
 
             var propertyName = accessor.Name;
-            var propertyType = accessor.MemberType.GetUnderlyingType();
+
+            // using value type to support abstracts
+            var propertyType = originalValue?.GetType()
+                ?? currentValue?.GetType()
+                ?? accessor.MemberType.GetUnderlyingType();
 
             _memberStack.Push(memberMapping);
             _pathStack.PushProperty(propertyName);

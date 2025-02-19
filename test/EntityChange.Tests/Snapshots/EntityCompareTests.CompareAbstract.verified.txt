@@ -1,0 +1,22 @@
+﻿[
+  {
+    PropertyName: SomeString,
+    DisplayName: Some String,
+    Path: SomeProperty.SomeString,
+    Operation: Replace,
+    OriginalValue: Test1,
+    CurrentValue: Test2,
+    OriginalFormatted: Test1,
+    CurrentFormatted: Test2
+  },
+  {
+    PropertyName: Id,
+    DisplayName: Id,
+    Path: SomeProperty.Id,
+    Operation: Replace,
+    OriginalValue: 1,
+    CurrentValue: 2,
+    OriginalFormatted: 1,
+    CurrentFormatted: 2
+  }
+]
