@@ -1,4 +1,4 @@
-﻿namespace EntityChange.Fluent;
+namespace EntityChange.Fluent;
 
 /// <summary>
 /// Fluent builder for an entity property.
@@ -14,7 +14,7 @@ public class CollectionMappingBuilder<TEntity, TProperty>
     /// <param name="memberMapping">The member mapping.</param>
     public CollectionMappingBuilder(MemberMapping memberMapping)
     {
-        MemberMapping = memberMapping;
+        MemberMapping = memberMapping ?? throw new ArgumentNullException(nameof(memberMapping));
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ public class CollectionMappingBuilder<TEntity, TProperty>
     /// <returns>
     /// Fluent builder for a collection property.
     /// </returns>
-    public CollectionMappingBuilder<TEntity, TProperty> ElementEquality(Func<object, object, bool> equalityFactory)
+    public CollectionMappingBuilder<TEntity, TProperty> ElementEquality(Func<object?, object?, bool> equalityFactory)
     {
         MemberMapping.Equality = equalityFactory;
         return this;
@@ -60,7 +60,7 @@ public class CollectionMappingBuilder<TEntity, TProperty>
     /// <returns>
     /// Fluent builder for a collection property.
     /// </returns>
-    public CollectionMappingBuilder<TEntity, TProperty> ElementFormatter(Func<object, string> formatterFactory)
+    public CollectionMappingBuilder<TEntity, TProperty> ElementFormatter(Func<object?, string?> formatterFactory)
     {
         MemberMapping.Formatter = formatterFactory;
         return this;

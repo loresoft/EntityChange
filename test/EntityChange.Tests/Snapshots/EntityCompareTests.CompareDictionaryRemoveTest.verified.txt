@@ -1,6 +1,6 @@
 ﻿[
   {
-    PropertyName: Data,
+    PropertyName: Data[Boost],
     DisplayName: Data,
     Path: Data[Boost],
     Operation: Remove,

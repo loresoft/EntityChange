@@ -1,6 +1,5 @@
+using System.Reflection;
 using System.Text;
-
-using EntityChange.Reflection;
 
 namespace EntityChange;
 
@@ -18,102 +17,86 @@ public static class NameFormatter
     /// <example>
     /// <code>
     /// var o = new { First = "John", Last = "Doe" };
-    /// string result = NameFormatter.Format("Full Name: {First} {Last}", o);
+    /// string result = NameFormatter.FormatName("Full Name: {First} {Last}", o);
     /// </code>
     /// </example>
-    public static string Format(string format, object source)
+    public static string FormatName(this string format, object source)
     {
         if (format == null)
             throw new ArgumentNullException(nameof(format));
 
+        if (format.Length == 0)
+            return string.Empty;
+
         var result = new StringBuilder(format.Length * 2);
+        var expression = new StringBuilder();
 
-        using (var reader = new StringReader(format))
+        var e = format.GetEnumerator();
+        while (e.MoveNext())
         {
-            var expression = new StringBuilder();
-
-            var state = State.OutsideExpression;
-            do
+            var ch = e.Current;
+            if (ch == '{')
             {
-                int c = -1;
-                switch (state)
+                // start expression block, continue till closing char
+                while (true)
                 {
-                    case State.OutsideExpression:
-                        c = reader.Read();
-                        switch (c)
-                        {
-                            case -1:
-                                state = State.End;
-                                break;
-                            case '{':
-                                state = State.OnOpenBracket;
-                                break;
-                            case '}':
-                                state = State.OnCloseBracket;
-                                break;
-                            default:
-                                result.Append((char)c);
-                                break;
-                        }
+                    // end of format string without closing expression
+                    if (!e.MoveNext())
+                        throw new FormatException();
+
+                    ch = e.Current;
+                    if (ch == '}')
+                    {
+                        // close expression block, evaluate expression and add to result
+                        var value = Evaluate(source, expression.ToString());
+                        if (value is not null)
+                            result.Append(value);
+
+                        // reset expression buffer
+                        expression.Length = 0;
                         break;
-                    case State.OnOpenBracket:
-                        c = reader.Read();
-                        switch (c)
-                        {
-                            case -1:
-                                throw new FormatException();
-                            case '{':
-                                result.Append('{');
-                                state = State.OutsideExpression;
-                                break;
-                            default:
-                                expression.Append((char)c);
-                                state = State.InsideExpression;
-                                break;
-                        }
+                    }
+                    if (ch == '{')
+                    {
+                        // double expression start, add to result
+                        result.Append(ch);
                         break;
-                    case State.InsideExpression:
-                        c = reader.Read();
-                        switch (c)
-                        {
-                            case -1:
-                                throw new FormatException();
-                            case '}':
-                                string value = Evaluate(source, expression.ToString());
-                                result.Append(value);
-                                expression.Length = 0;
-                                state = State.OutsideExpression;
-                                break;
-                            default:
-                                expression.Append((char)c);
-                                break;
-                        }
-                        break;
-                    case State.OnCloseBracket:
-                        c = reader.Read();
-                        switch (c)
-                        {
-                            case '}':
-                                result.Append('}');
-                                state = State.OutsideExpression;
-                                break;
-                            default:
-                                throw new FormatException();
-                        }
-                        break;
-                    default:
-                        throw new InvalidOperationException("Invalid state.");
+                    }
+
+                    // add to expression buffer
+                    expression.Append(ch);
                 }
-            } while (state != State.End);
+            }
+            else if (ch == '}')
+            {
+                // close expression char without having started one
+                if (!e.MoveNext() || e.Current != '}')
+                    throw new FormatException();
+
+                // double expression close, add to result
+                result.Append('}');
+            }
+            else
+            {
+                // normal char, add to result
+                result.Append(ch);
+            }
         }
 
         return result.ToString();
     }
 
-    private static string Evaluate(object source, string expression)
+    private static string? Evaluate(object? source, string expression)
     {
-        string format = "";
+        if (source is null)
+            return string.Empty;
 
+        if (string.IsNullOrEmpty(expression))
+            throw new ArgumentException($"'{nameof(expression)}' cannot be null or empty.", nameof(expression));
+
+        string? format = null;
+
+        // support format string {0:d}
         int colonIndex = expression.IndexOf(':');
         if (colonIndex > 0)
         {
@@ -121,25 +104,73 @@ public static class NameFormatter
             expression = expression.Substring(0, colonIndex);
         }
 
-        try
+        // better way to support more dictionary generics?
+        if (source is IDictionary<string, string> stringDictionary)
         {
-            var value = LateBinder.GetProperty(source, expression) ?? string.Empty;
-            return string.IsNullOrEmpty(format)
-                ? value.ToString()
-                : string.Format("{0:" + format + "}", value);
+            stringDictionary.TryGetValue(expression, out var value);
+            return FormatValue(value, format);
         }
-        catch (InvalidOperationException ex)
+        else if (source is IDictionary<string, object> objectDictionary)
         {
-            throw new FormatException("One of the identified items was in an invalid format.", ex);
+            objectDictionary.TryGetValue(expression, out var value);
+            return FormatValue(value, format);
+        }
+        else if (source is System.Collections.IDictionary dictionary)
+        {
+            var value = dictionary[expression];
+            return FormatValue(value, format);
+        }
+        else
+        {
+            var value = GetValue(source, expression);
+            return FormatValue(value, format);
         }
     }
 
-    private enum State
+    private static object? GetValue(object? target, string name)
     {
-        OutsideExpression,
-        OnOpenBracket,
-        InsideExpression,
-        OnCloseBracket,
-        End
+        if (target is null)
+            return null;
+
+        if (string.IsNullOrEmpty(name))
+            throw new ArgumentException($"'{nameof(name)}' cannot be null or empty.", nameof(name));
+
+        var currentType = target.GetType();
+        var currentTarget = target;
+
+        PropertyInfo? property = null;
+
+        // optimization if no nested property
+        if (!name.Contains('.'))
+        {
+            property = currentType.GetRuntimeProperty(name);
+            return property?.GetValue(currentTarget);
+        }
+
+        // support nested property
+        foreach (var part in name.Split('.'))
+        {
+            if (property is not null)
+            {
+                // pending property, get value and type
+                currentTarget = property.GetValue(currentTarget);
+                currentType = property.PropertyType;
+            }
+
+            property = currentType.GetRuntimeProperty(part);
+        }
+
+        // return last property
+        return property?.GetValue(currentTarget);
+    }
+
+    private static string? FormatValue<T>(T? value, string? format)
+    {
+        if (value is null)
+            return string.Empty;
+
+        return string.IsNullOrEmpty(format)
+          ? value.ToString()
+          : string.Format("{0:" + format + "}", value);
     }
 }

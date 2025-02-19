@@ -36,7 +36,7 @@ internal class DictionaryWrapper<TKey, TValue> : IDictionaryWrapper
     /// </summary>
     /// <param name="key">The dictionary key.</param>
     /// <returns>The value for the specified <paramref name="key"/></returns>
-    public object GetValue(object key)
+    public object? GetValue(object key)
     {
         _dictionary.TryGetValue((TKey)key, out var value);
 

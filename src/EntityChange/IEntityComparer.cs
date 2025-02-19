@@ -1,7 +1,7 @@
 namespace EntityChange;
 
 /// <summary>
-/// A interface to compare two entities generating a change list. 
+/// A interface to compare two entities generating a change list.
 /// </summary>
 public interface IEntityComparer
 {
@@ -12,5 +12,5 @@ public interface IEntityComparer
     /// <param name="original">The original entity.</param>
     /// <param name="current">The current entity.</param>
     /// <returns>A list of changes.</returns>
-    IReadOnlyList<ChangeRecord> Compare<TEntity>(TEntity original, TEntity current);
+    IReadOnlyList<ChangeRecord> Compare<TEntity>(TEntity? original, TEntity? current);
 }

@@ -10,19 +10,12 @@ public class EntityMapping
     /// <summary>
     /// Initializes a new instance of the <see cref="EntityMapping"/> class.
     /// </summary>
-    public EntityMapping()
-    {
-        Members = new List<MemberMapping>();
-        SyncRoot = new object();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="EntityMapping"/> class.
-    /// </summary>
     /// <param name="typeAccessor">The type accessor.</param>
-    public EntityMapping(TypeAccessor typeAccessor) : this()
+    public EntityMapping(TypeAccessor typeAccessor)
     {
         TypeAccessor = typeAccessor;
+        Members = new List<MemberMapping>();
+        SyncRoot = new object();
     }
 
     /// <summary>

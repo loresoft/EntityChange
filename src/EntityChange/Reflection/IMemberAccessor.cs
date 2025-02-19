@@ -1,4 +1,6 @@
-﻿namespace EntityChange.Reflection;
+#nullable disable
+
+namespace EntityChange.Reflection;
 
 /// <summary>
 /// An <see langword="interface"/> for late binding member accessors.

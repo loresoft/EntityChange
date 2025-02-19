@@ -1,7 +1,7 @@
-﻿namespace EntityChange;
+namespace EntityChange;
 
 /// <summary>
-/// An <see langword="interface"/> for entity comparision profiles.
+/// An <see langword="interface"/> for entity comparison profiles.
 /// </summary>
 public interface IEntityProfile
 {
@@ -12,7 +12,7 @@ public interface IEntityProfile
     /// The type of the entity.
     /// </value>
     Type EntityType { get; }
-    
+
     /// <summary>
     /// Registers the specified class mapping.
     /// </summary>

@@ -11,7 +11,7 @@ namespace EntityChange;
 /// </summary>
 public class EntityComparer : IEntityComparer
 {
-    private readonly Stack<string> _pathStack;
+    private readonly PathStack _pathStack;
     private readonly Stack<IMemberOptions> _memberStack;
     private readonly List<ChangeRecord> _changes;
 
@@ -29,9 +29,10 @@ public class EntityComparer : IEntityComparer
     public EntityComparer(IEntityConfiguration configuration)
     {
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        _changes = new List<ChangeRecord>();
-        _pathStack = new Stack<string>();
-        _memberStack = new Stack<IMemberOptions>();
+
+        _changes = [];
+        _pathStack = new();
+        _memberStack = [];
     }
 
 
@@ -51,7 +52,7 @@ public class EntityComparer : IEntityComparer
     /// <param name="original">The original entity.</param>
     /// <param name="current">The current entity.</param>
     /// <returns>A list of changes.</returns>
-    public IReadOnlyList<ChangeRecord> Compare<TEntity>(TEntity original, TEntity current)
+    public IReadOnlyList<ChangeRecord> Compare<TEntity>(TEntity? original, TEntity? current)
     {
         _changes.Clear();
         _pathStack.Clear();
@@ -60,14 +61,15 @@ public class EntityComparer : IEntityComparer
         var type = typeof(TEntity);
 
         CompareType(type, original, current);
+
         return _changes;
     }
 
 
-    private void CompareType(Type type, object original, object current, IMemberOptions options = null)
+    private void CompareType(Type type, object? original, object? current, IMemberOptions? options = null)
     {
         // both null, nothing to compare
-        if (original == null && current == null)
+        if (original is null && current is null)
             return;
 
         if (type.IsArray)
@@ -86,19 +88,19 @@ public class EntityComparer : IEntityComparer
             CompareObject(type, original, current);
     }
 
-    private void CompareObject(Type type, object original, object current)
+    private void CompareObject(Type type, object? original, object? current)
     {
         // both null, nothing to compare
-        if (original == null && current == null)
+        if (original is null && current is null)
             return;
 
-        if (original == null)
+        if (original is null)
         {
             CreateChange(ChangeOperation.Replace, null, current);
             return;
         }
 
-        if (current == null)
+        if (current is null)
         {
             CreateChange(ChangeOperation.Replace, original, null);
             return;
@@ -113,84 +115,84 @@ public class EntityComparer : IEntityComparer
             var currentValue = accessor.GetValue(current);
 
             var propertyName = accessor.Name;
-
-            _pathStack.Push(propertyName);
-            _memberStack.Push(memberMapping);
-
             var propertyType = accessor.MemberType.GetUnderlyingType();
 
+            _memberStack.Push(memberMapping);
+            _pathStack.PushProperty(propertyName);
             CompareType(propertyType, originalValue, currentValue, memberMapping);
-
-            _memberStack.Pop();
             _pathStack.Pop();
+            _memberStack.TryPop(out _);
         }
     }
 
 
-    private void CompareDictionary(object original, object current)
+    private void CompareDictionary(object? original, object? current)
     {
         var originalDictionary = original as IDictionary;
         var currentDictionary = current as IDictionary;
 
         // both null, nothing to compare
-        if (originalDictionary == null && currentDictionary == null)
+        if (originalDictionary is null && currentDictionary is null)
             return;
 
-        CompareByKey(originalDictionary, currentDictionary, d => d.Keys, (d, k) => d[k]);
+        CompareByKey(originalDictionary, currentDictionary, static d => d.Keys, static (d, k) => d[k]);
     }
 
-    private void CompareGenericDictionary(object original, object current, Type keyType, Type elementType)
+    private void CompareGenericDictionary(object? original, object? current, Type keyType, Type elementType)
     {
+        // both null, nothing to compare
+        if (original is null && current is null)
+            return;
+
         // TODO improve this, currently slow due to CreateInstance usage
         var t = typeof(DictionaryWrapper<,>).MakeGenericType(keyType, elementType);
         var o = Activator.CreateInstance(t, original) as IDictionaryWrapper;
         var c = Activator.CreateInstance(t, current) as IDictionaryWrapper;
 
-        // both null, nothing to compare
-        if (o == null && c == null)
+        if (o is null && c is null)
             return;
 
-        CompareByKey(o, c, d => d.GetKeys(), (d, k) => d.GetValue(k));
+        CompareByKey(o, c, static d => d.GetKeys(), static (d, k) => d.GetValue(k));
     }
 
 
-    private void CompareArray(object original, object current, IMemberOptions options)
+    private void CompareArray(object? original, object? current, IMemberOptions? options)
     {
         var originalArray = original as Array;
         var currentArray = current as Array;
 
         // both null, nothing to compare
-        if (originalArray == null && currentArray == null)
+        if (originalArray is null && currentArray is null)
             return;
 
         if (options?.CollectionComparison == CollectionComparison.ObjectEquality)
             CompareByEquality(originalArray, currentArray, options);
         else
-            CompareByIndexer(originalArray, currentArray, t => t.Length, (t, i) => t.GetValue(i));
+            CompareByIndexer(originalArray, currentArray, static t => t.Length, static (t, i) => t.GetValue(i));
     }
 
-    private void CompareList(object original, object current, IMemberOptions options)
+    private void CompareList(object? original, object? current, IMemberOptions? options)
     {
         var originalList = original as IList;
         var currentList = current as IList;
 
         // both null, nothing to compare
-        if (originalList == null && currentList == null)
+        if (originalList is null && currentList is null)
             return;
 
         if (options?.CollectionComparison == CollectionComparison.ObjectEquality)
             CompareByEquality(originalList, currentList, options);
         else
-            CompareByIndexer(originalList, currentList, t => t.Count, (t, i) => t[i]);
+            CompareByIndexer(originalList, currentList, static t => t.Count, static (t, i) => t[i]);
     }
 
-    private void CompareCollection(object original, object current, IMemberOptions options)
+    private void CompareCollection(object? original, object? current, IMemberOptions? options)
     {
         var originalEnumerable = original as IEnumerable;
         var currentEnumerable = current as IEnumerable;
 
         // both null, nothing to compare
-        if (originalEnumerable == null && currentEnumerable == null)
+        if (originalEnumerable is null && currentEnumerable is null)
             return;
 
         if (options?.CollectionComparison == CollectionComparison.ObjectEquality)
@@ -203,11 +205,11 @@ public class EntityComparer : IEntityComparer
         var originalArray = originalEnumerable?.Cast<object>().ToArray();
         var currentArray = currentEnumerable?.Cast<object>().ToArray();
 
-        CompareByIndexer(originalArray, currentArray, t => t.Length, (t, i) => t.GetValue(i));
+        CompareByIndexer(originalArray, currentArray, static t => t.Length, static (t, i) => t.GetValue(i));
     }
 
 
-    private void CompareValue(object original, object current, IMemberOptions options)
+    private void CompareValue(object? original, object? current, IMemberOptions? options)
     {
         var compare = options?.Equality ?? Equals;
         bool areEqual = compare(original, current);
@@ -219,27 +221,21 @@ public class EntityComparer : IEntityComparer
     }
 
 
-    private void CompareByEquality(IEnumerable original, IEnumerable current, IMemberOptions options)
+    private void CompareByEquality(IEnumerable? original, IEnumerable? current, IMemberOptions? options)
     {
-        var originalList = original?.Cast<object>().ToList() ?? new List<object>();
-        var currentList = current?.Cast<object>().ToList() ?? new List<object>();
+        var originalList = original?.Cast<object>().ToList() ?? [];
+        var currentList = current?.Cast<object>().ToList() ?? [];
 
-        var currentPath = CurrentPath();
-        var currentName = CurrentName();
         var compare = options?.Equality ?? Equals;
-
-
-        _pathStack.Pop();
         for (int index = 0; index < currentList.Count; index++)
         {
-            string p = $"{currentPath}[{index}]";
-
             var v = currentList[index];
             var o = originalList.FirstOrDefault(f => compare(f, v));
+
             if (o == null)
             {
                 // added item
-                CreateChange(ChangeOperation.Add, null, v, p, currentName);
+                CreateChange(ChangeOperation.Add, null, v);
                 continue;
             }
 
@@ -248,26 +244,22 @@ public class EntityComparer : IEntityComparer
 
             var t = o.GetType();
 
-            _pathStack.Push(p);
+            _pathStack.PushIndex(index);
             CompareType(t, o, v, options);
             _pathStack.Pop();
         }
-        _pathStack.Push(currentPath);
-
 
         // removed items
         foreach (var v in originalList)
             CreateChange(ChangeOperation.Remove, v, null);
     }
 
-    private void CompareByIndexer<T>(T originalList, T currentList, Func<T, int> countFactory, Func<T, int, object> valueFactory)
+    private void CompareByIndexer<T>(T? originalList, T? currentList, Func<T, int> countFactory, Func<T, int, object?> valueFactory)
     {
         if (countFactory == null)
             throw new ArgumentNullException(nameof(countFactory));
         if (valueFactory == null)
             throw new ArgumentNullException(nameof(valueFactory));
-
-        var currentPath = _pathStack.Peek();
 
         var originalCount = originalList != null ? countFactory(originalList) : 0;
         var currentCount = currentList != null ? countFactory(currentList) : 0;
@@ -277,27 +269,24 @@ public class EntityComparer : IEntityComparer
         // compare common items
         if (commonCount > 0)
         {
-            _pathStack.Pop();
             for (int i = 0; i < commonCount; i++)
             {
-                string p = $"{currentPath}[{i}]";
-                var o = valueFactory(originalList, i);
-                var v = valueFactory(currentList, i);
+                var o = originalList != null ? valueFactory(originalList, i) : null;
+                var v = currentList != null ? valueFactory(currentList, i) : null;
 
                 // skip nulls
-                if (o == null && v == null)
+                if (o is null && v is null)
                     continue;
 
                 // get dictionary value type
-                var t = o?.GetType() ?? v.GetType();
+                var t = o?.GetType() ?? v?.GetType();
+                if (t is null)
+                    continue;
 
-                _pathStack.Push(p);
-
+                _pathStack.PushIndex(i);
                 CompareType(t, o, v);
-
                 _pathStack.Pop();
             }
-            _pathStack.Push(currentPath);
         }
 
         // added items
@@ -305,10 +294,11 @@ public class EntityComparer : IEntityComparer
         {
             for (int i = commonCount; i < currentCount; i++)
             {
-                string p = $"{currentPath}[{i}]";
-                var v = valueFactory(currentList, i);
+                var v = currentList != null ? valueFactory(currentList, i) : null;
 
-                CreateChange(ChangeOperation.Add, null, v, p);
+                _pathStack.PushIndex(i);
+                CreateChange(ChangeOperation.Add, null, v);
+                _pathStack.Pop();
             }
         }
 
@@ -317,104 +307,72 @@ public class EntityComparer : IEntityComparer
         {
             for (int i = commonCount; i < originalCount; i++)
             {
-                string p = $"{currentPath}[{i}]";
-                var v = valueFactory(originalList, i);
+                var v = originalList != null ? valueFactory(originalList, i) : null;
 
-                CreateChange(ChangeOperation.Remove, v, null, p);
+                _pathStack.PushIndex(i);
+                CreateChange(ChangeOperation.Remove, v, null);
+                _pathStack.Pop();
             }
         }
-
     }
 
-    private void CompareByKey<T>(T originalDictionary, T currentDictionary, Func<T, IEnumerable> keysFactory, Func<T, object, object> valueFactory)
+    private void CompareByKey<T>(T? originalDictionary, T? currentDictionary, Func<T, IEnumerable> keysFactory, Func<T, object, object?> valueFactory)
     {
         if (keysFactory == null)
             throw new ArgumentNullException(nameof(keysFactory));
         if (valueFactory == null)
             throw new ArgumentNullException(nameof(valueFactory));
 
-        var originalKeys = originalDictionary != null
-            ? keysFactory(originalDictionary).Cast<object>().ToList()
-            : new List<object>();
-
-        var currentKeys = currentDictionary != null
-            ? keysFactory(currentDictionary).Cast<object>().ToList()
-            : new List<object>();
-
-
-        var currentPath = CurrentPath();
+        List<object> originalKeys = originalDictionary != null ? [.. keysFactory(originalDictionary).Cast<object>()] : [];
+        List<object> currentKeys = currentDictionary != null ? [.. keysFactory(currentDictionary).Cast<object>()] : [];
 
         // compare common keys
         var commonKeys = originalKeys.Intersect(currentKeys).ToList();
-        _pathStack.Pop();
         foreach (var key in commonKeys)
         {
-            string k = key.ToString();
-            string p = $"{currentPath}[{k}]";
-
             // safe to use indexer because keys are common
-            var o = valueFactory(originalDictionary, key);
-            var v = valueFactory(currentDictionary, key);
+            var o = originalDictionary != null ? valueFactory(originalDictionary, key) : null;
+            var v = currentDictionary != null ? valueFactory(currentDictionary, key) : null;
 
             // skip nulls
-            if (o == null && v == null)
+            if (o is null && v is null)
                 continue;
 
             // get dictionary value type
-            var t = o?.GetType() ?? v.GetType();
+            var t = o?.GetType() ?? v?.GetType();
+            if (t is null)
+                continue;
 
-            // adjust path for dictionary
-            _pathStack.Push(p);
-
+            _pathStack.PushKey(key);
             CompareType(t, o, v);
-
-            // restore path
             _pathStack.Pop();
         }
-        _pathStack.Push(currentPath);
 
         // new key changes
         var addedKeys = currentKeys.Except(originalKeys).ToList();
         foreach (var key in addedKeys)
         {
-            string k = key.ToString();
-            string p = $"{currentPath}[{k}]";
-            var v = valueFactory(currentDictionary, key);
+            var v = currentDictionary != null ? valueFactory(currentDictionary, key) : null;
 
-            CreateChange(ChangeOperation.Add, null, v, p);
+            _pathStack.PushKey(key);
+            CreateChange(ChangeOperation.Add, null, v);
+            _pathStack.Pop();
         }
 
         // removed key changes
         var removedKeys = originalKeys.Except(currentKeys).ToList();
         foreach (var key in removedKeys)
         {
-            string k = key.ToString();
-            string p = $"{currentPath}[{k}]";
-            var v = valueFactory(originalDictionary, key);
+            var v = originalDictionary != null ? valueFactory(originalDictionary, key) : null;
 
-            CreateChange(ChangeOperation.Remove, v, null, p);
+            _pathStack.PushKey(key);
+            CreateChange(ChangeOperation.Remove, v, null);
+            _pathStack.Pop();
         }
-
     }
 
 
-    private string CurrentPath()
-    {
-        return _pathStack
-            .ToArray()
-            .Reverse()
-            .ToDelimitedString(".");
-    }
-
-    private string CurrentName()
-    {
-        if (_pathStack.Count > 0)
-            return _pathStack.Peek();
-
-        return string.Empty;
-    }
-
-    private IMemberOptions CurrentMember()
+    private IMemberOptions? CurrentMember()
     {
         return _memberStack.Count > 0
             ? _memberStack.Peek()
@@ -423,15 +381,13 @@ public class EntityComparer : IEntityComparer
 
     private void CreateChange(
         ChangeOperation operation,
-        object original,
-        object current,
-        string path = null,
-        string name = null)
+        object? original,
+        object? current)
     {
         var currentMember = CurrentMember();
-        var propertyName = name ?? CurrentName();
-        var displayName = currentMember?.DisplayName ?? propertyName.ToSpacedWords();
-        var currentPath = path ?? CurrentPath();
+        var propertyName = _pathStack.CurrentName();
+        var displayName = currentMember?.DisplayName ?? propertyName.ToTitle();
+        var currentPath = _pathStack.ToString();
         var originalFormatted = FormatValue(original, currentMember?.Formatter);
         var currentFormatted = FormatValue(current, currentMember?.Formatter);
 
@@ -450,15 +406,14 @@ public class EntityComparer : IEntityComparer
         _changes.Add(changeRecord);
     }
 
-    private string FormatValue(object value, Func<object, string> formatter)
+    private static string FormatValue(object? value, Func<object?, string?>? formatter)
     {
-        if (value == null)
+        if (value is null)
             return string.Empty;
 
-        if (formatter != null)
-            return formatter(value);
+        if (formatter is not null)
+            return formatter(value) ?? string.Empty;
 
-        return value.ToString();
+        return value?.ToString() ?? string.Empty;
     }
-
 }

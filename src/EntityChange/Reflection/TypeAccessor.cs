@@ -1,4 +1,6 @@
-﻿using System.Collections.Concurrent;
+#nullable disable
+
+using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -314,7 +316,7 @@ public class TypeAccessor
     /// An <see cref="IMemberAccessor"/> instance for the property if found; otherwise <c>null</c>.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown if the <paramref name="propertyExpression"/> is null.</exception>
-    ///   
+    ///
     /// <exception cref="ArgumentException">Thrown when the expression is:<br/>
     /// Not a <see cref="MemberExpression"/><br/>
     /// The <see cref="MemberExpression"/> does not represent a property.<br/>

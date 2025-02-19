@@ -13,7 +13,7 @@ public class ConfigurationBuilder
     /// <param name="configuration">The configuration to update.</param>
     public ConfigurationBuilder(EntityConfiguration configuration)
     {
-        Configuration = configuration;
+        Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
 
 
@@ -49,7 +49,7 @@ public class ConfigurationBuilder
     /// <exception cref="ArgumentNullException">The <paramref name="builder"/> parameter is <see langword="null" />.</exception>
     public ConfigurationBuilder Entity<TEntity>(Action<EntityMappingBuilder<TEntity>> builder)
     {
-        if (builder == null)
+        if (builder is null)
             throw new ArgumentNullException(nameof(builder));
 
         var type = typeof(TEntity);
@@ -85,6 +85,9 @@ public class ConfigurationBuilder
     /// </returns>
     public ConfigurationBuilder Profile(IEntityProfile profile)
     {
+        if (profile is null)
+            throw new ArgumentNullException(nameof(profile));
+
         Configuration.Register(profile);
         return this;
     }
@@ -92,14 +95,11 @@ public class ConfigurationBuilder
 
     private EntityMapping GetClassMap(Type type)
     {
-        var classMapping = Configuration.Mapping.GetOrAdd(type, t =>
+        return Configuration.Mapping.GetOrAdd(type, t =>
         {
             var typeAccessor = TypeAccessor.GetAccessor(t);
-            var mapping = new EntityMapping(typeAccessor) { AutoMap = Configuration.AutoMap };
-            return mapping;
+            return new EntityMapping(typeAccessor) { AutoMap = Configuration.AutoMap };
         });
-
-        return classMapping;
     }
 
 }

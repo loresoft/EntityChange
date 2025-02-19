@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace EntityChange;
 
 /// <summary>
@@ -10,9 +12,9 @@ public static class StringFormatter
     /// </summary>
     /// <param name="value">The value to format.</param>
     /// <returns></returns>
-    public static string Currency(object value)
+    public static string? Currency(object? value)
     {
-        if (value == null)
+        if (value is null)
             return null;
 
         if (value is not IConvertible)
@@ -27,9 +29,9 @@ public static class StringFormatter
     /// </summary>
     /// <param name="value">The value to format.</param>
     /// <returns></returns>
-    public static string Number(object value)
+    public static string? Number(object? value)
     {
-        if (value == null)
+        if (value is null)
             return null;
 
         if (value is not IConvertible)
@@ -45,9 +47,9 @@ public static class StringFormatter
     /// </summary>
     /// <param name="value">The value to format.</param>
     /// <returns></returns>
-    public static string ShortDate(object value)
+    public static string? ShortDate(object? value)
     {
-        if (value == null)
+        if (value is null)
             return null;
 
         if (value is not IConvertible)
@@ -62,9 +64,9 @@ public static class StringFormatter
     /// </summary>
     /// <param name="value">The value to format.</param>
     /// <returns></returns>
-    public static string LongDate(object value)
+    public static string? LongDate(object? value)
     {
-        if (value == null)
+        if (value is null)
             return null;
 
         if (value is not IConvertible)
@@ -79,9 +81,9 @@ public static class StringFormatter
     /// </summary>
     /// <param name="value">The value to format.</param>
     /// <returns></returns>
-    public static string FullDateShortTime(object value)
+    public static string? FullDateShortTime(object? value)
     {
-        if (value == null)
+        if (value is null)
             return null;
 
         if (value is not IConvertible)
@@ -96,9 +98,9 @@ public static class StringFormatter
     /// </summary>
     /// <param name="value">The value to format.</param>
     /// <returns></returns>
-    public static string FullDateLongTime(object value)
+    public static string? FullDateLongTime(object? value)
     {
-        if (value == null)
+        if (value is null)
             return null;
 
         if (value is not IConvertible)
@@ -113,9 +115,9 @@ public static class StringFormatter
     /// </summary>
     /// <param name="value">The value to format.</param>
     /// <returns></returns>
-    public static string GeneralDateShortTime(object value)
+    public static string? GeneralDateShortTime(object? value)
     {
-        if (value == null)
+        if (value is null)
             return null;
 
         if (value is not IConvertible)
@@ -130,9 +132,9 @@ public static class StringFormatter
     /// </summary>
     /// <param name="value">The value to format.</param>
     /// <returns></returns>
-    public static string GeneralDateLongTime(object value)
+    public static string? GeneralDateLongTime(object? value)
     {
-        if (value == null)
+        if (value is null)
             return null;
 
         if (value is not IConvertible)
@@ -147,9 +149,9 @@ public static class StringFormatter
     /// </summary>
     /// <param name="value">The value to format.</param>
     /// <returns></returns>
-    public static string ShortTime(object value)
+    public static string? ShortTime(object? value)
     {
-        if (value == null)
+        if (value is null)
             return null;
 
         if (value is not IConvertible)
@@ -164,9 +166,9 @@ public static class StringFormatter
     /// </summary>
     /// <param name="value">The value to format.</param>
     /// <returns></returns>
-    public static string LongTime(object value)
+    public static string? LongTime(object? value)
     {
-        if (value == null)
+        if (value is null)
             return null;
 
         if (value is not IConvertible)

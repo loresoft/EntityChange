@@ -19,7 +19,7 @@
     CurrentFormatted: user@gmail.com
   },
   {
-    PropertyName: EmailAddresses,
+    PropertyName: EmailAddresses[2],
     DisplayName: Email Addresses,
     Path: EmailAddresses[2],
     CurrentValue: {
@@ -69,7 +69,7 @@
     CurrentFormatted: 800-555-1212
   },
   {
-    PropertyName: Categories,
+    PropertyName: Categories[2],
     DisplayName: Categories,
     Path: Categories[2],
     CurrentValue: Blah,

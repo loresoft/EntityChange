@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+#nullable disable
+
+using System.Reflection;
 
 namespace EntityChange.Reflection;
 

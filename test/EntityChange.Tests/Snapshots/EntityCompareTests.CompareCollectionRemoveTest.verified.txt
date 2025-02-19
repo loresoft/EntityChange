@@ -10,7 +10,7 @@
     CurrentFormatted: Guid_2
   },
   {
-    PropertyName: Items,
+    PropertyName: Items[0],
     DisplayName: Items,
     Path: Items[0],
     Operation: Remove,

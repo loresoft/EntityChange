@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Linq.Expressions;
 
 namespace EntityChange.Fluent;
@@ -23,7 +23,7 @@ public class EntityMappingBuilder<TEntity>
     /// <param name="entityMapping">The class mapping.</param>
     public EntityMappingBuilder(EntityMapping entityMapping)
     {
-        EntityMapping = entityMapping;
+        EntityMapping = entityMapping ?? throw new ArgumentNullException(nameof(entityMapping));
     }
 
     /// <summary>
@@ -32,7 +32,7 @@ public class EntityMappingBuilder<TEntity>
     /// <value>
     /// The class mapping.
     /// </value>
-    public EntityMapping EntityMapping { get; protected set; }
+    public EntityMapping EntityMapping { get; protected set; } = null!;
 
 
     /// <summary>
@@ -60,16 +60,14 @@ public class EntityMappingBuilder<TEntity>
         var memberMapping = EntityMapping.Members.Find(m => m.MemberAccessor.MemberInfo == propertyAccessor.MemberInfo);
         if (memberMapping == null)
         {
-            memberMapping = new MemberMapping();
-            memberMapping.MemberAccessor = propertyAccessor;
-
+            memberMapping = new MemberMapping(propertyAccessor);
             EntityMapping.Members.Add(memberMapping);
         }
 
         var builder = new MemberMappingBuilder<TEntity, TProperty>(memberMapping);
         return builder;
     }
-    
+
     /// <summary>
     /// Start a fluent configuration for the specified <paramref name="collection"/>.
     /// </summary>
@@ -84,8 +82,7 @@ public class EntityMappingBuilder<TEntity>
         var memberMapping = EntityMapping.Members.Find(m => m.MemberAccessor.MemberInfo == propertyAccessor.MemberInfo);
         if (memberMapping == null)
         {
-            memberMapping = new MemberMapping();
-            memberMapping.MemberAccessor = propertyAccessor;
+            memberMapping = new MemberMapping(propertyAccessor);
 
             EntityMapping.Members.Add(memberMapping);
         }

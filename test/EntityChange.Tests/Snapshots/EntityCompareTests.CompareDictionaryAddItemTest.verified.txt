@@ -1,6 +1,6 @@
 ﻿[
   {
-    PropertyName: Data,
+    PropertyName: Data[Path],
     DisplayName: Data,
     Path: Data[Path],
     CurrentValue: ./home,

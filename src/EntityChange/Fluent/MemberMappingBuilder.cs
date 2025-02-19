@@ -46,12 +46,15 @@ public class MemberMappingBuilder<TEntity, TProperty>
     /// <returns>
     /// Fluent builder for an entity property.
     /// </returns>
-    public MemberMappingBuilder<TEntity, TProperty> Equality(Func<TProperty, TProperty, bool> equalityFactory)
+    public MemberMappingBuilder<TEntity, TProperty> Equality(Func<TProperty?, TProperty?, bool> equalityFactory)
     {
         if (equalityFactory == null)
             MemberMapping.Equality = null;
         else
-            MemberMapping.Equality = (left, right) => equalityFactory((TProperty)left, (TProperty)right);
+            MemberMapping.Equality = (left, right) => equalityFactory(
+                left is not null ? (TProperty)left : default,
+                right is not null ? (TProperty)right : default
+            );
 
         return this;
     }
@@ -63,12 +66,12 @@ public class MemberMappingBuilder<TEntity, TProperty>
     /// <returns>
     /// Fluent builder for an entity property.
     /// </returns>
-    public MemberMappingBuilder<TEntity, TProperty> Formatter(Func<TProperty, string> formatterFactory)
+    public MemberMappingBuilder<TEntity, TProperty> Formatter(Func<TProperty?, string?> formatterFactory)
     {
         if (formatterFactory == null)
             MemberMapping.Formatter = null;
         else
-            MemberMapping.Formatter = v => formatterFactory((TProperty)v);
+            MemberMapping.Formatter = v => formatterFactory(v is not null ? (TProperty)v : default);
 
         return this;
     }
@@ -80,7 +83,7 @@ public class MemberMappingBuilder<TEntity, TProperty>
     /// <returns>
     /// Fluent builder for an entity property.
     /// </returns>
-    public MemberMappingBuilder<TEntity, TProperty> Display(string value)
+    public MemberMappingBuilder<TEntity, TProperty> Display(string? value)
     {
         MemberMapping.DisplayName = value;
         return this;
@@ -93,7 +96,7 @@ public class MemberMappingBuilder<TEntity, TProperty>
     /// <returns>
     /// Fluent builder for an entity property.
     /// </returns>
-    public MemberMappingBuilder<TEntity, TProperty> Display(Func<MemberMapping, string> displayFactory)
+    public MemberMappingBuilder<TEntity, TProperty> Display(Func<MemberMapping, string?> displayFactory)
     {
         if (displayFactory == null)
             MemberMapping.DisplayName = null;

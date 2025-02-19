@@ -18,5 +18,5 @@ internal interface IDictionaryWrapper
     /// </summary>
     /// <param name="key">The dictionary key.</param>
     /// <returns>The value for the specified <paramref name="key"/></returns>
-    object GetValue(object key);
+    object? GetValue(object key);
 }

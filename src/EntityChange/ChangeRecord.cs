@@ -11,7 +11,7 @@ public class ChangeRecord
     /// <value>
     /// The name of the property that was changed.
     /// </value>
-    public string PropertyName { get; set; }
+    public string? PropertyName { get; set; }
 
     /// <summary>
     /// Gets or sets the display name for the changed property.
@@ -19,7 +19,7 @@ public class ChangeRecord
     /// <value>
     /// The display name for the changed property.
     /// </value>
-    public string DisplayName { get; set; }
+    public string? DisplayName { get; set; }
 
     /// <summary>
     /// Gets or sets the object graph change path.
@@ -27,7 +27,7 @@ public class ChangeRecord
     /// <value>
     /// The object graph change path.
     /// </value>
-    public string Path { get; set; }
+    public string? Path { get; set; }
 
     /// <summary>
     /// Gets or sets the type of change operation.
@@ -43,7 +43,7 @@ public class ChangeRecord
     /// <value>
     /// The original value.
     /// </value>
-    public object OriginalValue { get; set; }
+    public object? OriginalValue { get; set; }
 
     /// <summary>
     /// Gets or sets the current value.
@@ -51,7 +51,7 @@ public class ChangeRecord
     /// <value>
     /// The current value.
     /// </value>
-    public object CurrentValue { get; set; }
+    public object? CurrentValue { get; set; }
 
     /// <summary>
     /// Gets or sets the original value formatted as a <see cref="string"/>.
@@ -59,7 +59,7 @@ public class ChangeRecord
     /// <value>
     /// The original value formatted as a <see cref="string"/>.
     /// </value>
-    public string OriginalFormatted { get; set; }
+    public string? OriginalFormatted { get; set; }
 
     /// <summary>
     /// Gets or sets the current value formatted as a <see cref="string"/>.
@@ -67,5 +67,5 @@ public class ChangeRecord
     /// <value>
     /// The current value formatted as a <see cref="string"/>.
     /// </value>
-    public string CurrentFormatted { get; set; }
+    public string? CurrentFormatted { get; set; }
 }

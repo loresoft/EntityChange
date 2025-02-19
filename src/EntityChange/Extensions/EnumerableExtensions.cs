@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace EntityChange.Extensions;
 
 /// <summary>
@@ -10,30 +8,29 @@ public static class EnumerableExtensions
     /// <summary>
     /// Converts an IEnumerable of values to a delimited string.
     /// </summary>
-    /// <typeparam name="T">The type of objects to delimit.</typeparam>
-    /// <param name="values">The IEnumerable of values to convert.</param>
-    /// <param name="delimiter">The string delimiter.</param>
-    /// <param name="escapeDelimiter">A delegate used to escape the delimiter contained in the value.</param>
+    /// <typeparam name="T">
+    /// The type of objects to delimit.
+    /// </typeparam>
+    /// <param name="values">
+    /// The IEnumerable string values to convert.
+    /// </param>
+    /// <param name="delimiter">
+    /// The delimiter.
+    /// </param>
     /// <returns>
     /// A delimited string of the values.
     /// </returns>
-    public static string ToDelimitedString<T>(this IEnumerable<T> values, string delimiter = ",", Func<string, string> escapeDelimiter = null)
-    {
-        var sb = new StringBuilder();
-        foreach (var value in values)
-        {
-            if (sb.Length > 0)
-                sb.Append(delimiter);
+    public static string ToDelimitedString<T>(this IEnumerable<T?> values, string? delimiter = ",")
+        => string.Join(delimiter ?? ",", values);
 
-            var v = value?.ToString() ?? string.Empty;
-            if (escapeDelimiter != null)
-                v = escapeDelimiter(v);
-
-            sb.Append(v);
-        }
-
-        return sb.ToString();
-    }
+    /// <summary>
+    /// Converts an IEnumerable of values to a delimited string.
+    /// </summary>
+    /// <param name="values">The IEnumerable string values to convert.</param>
+    /// <param name="delimiter">The delimiter.</param>
+    /// <returns>A delimited string of the values.</returns>
+    public static string ToDelimitedString(this IEnumerable<string?> values, string? delimiter = ",")
+        => string.Join(delimiter ?? ",", values);
 
     /// <summary>
     /// Compares the specified existing and current lists returning the delta between them.
@@ -44,16 +41,15 @@ public static class EnumerableExtensions
     /// <param name="comparer">The comparer the <see cref="IEqualityComparer{T}"/> used to compare the items.</param>
     /// <returns>The <see cref="Delta{TItem}"/> result of two lists.</returns>
     /// <exception cref="ArgumentNullException">when <paramref name="existing"/> or <paramref name="current"/> lists are null.</exception>
-    public static Delta<TItem> DeltaCompare<TItem>(this IEnumerable<TItem> existing, IEnumerable<TItem> current, IEqualityComparer<TItem> comparer = null)
+    public static Delta<TItem> DeltaCompare<TItem>(this IEnumerable<TItem> existing, IEnumerable<TItem> current, IEqualityComparer<TItem>? comparer = null)
     {
-        if (existing == null)
+        if (existing is null)
             throw new ArgumentNullException(nameof(existing));
 
-        if (current == null)
+        if (current is null)
             throw new ArgumentNullException(nameof(current));
 
-        if (comparer == null)
-            comparer = EqualityComparer<TItem>.Default;
+        comparer ??= EqualityComparer<TItem>.Default;
 
         var existingList = existing.ToList();
         var currentList = current.ToList();
@@ -70,4 +66,3 @@ public static class EnumerableExtensions
         };
     }
 }
-

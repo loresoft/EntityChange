@@ -7,6 +7,11 @@ namespace EntityChange;
 /// </summary>
 public class MemberMapping : IMemberOptions
 {
+    public MemberMapping(IMemberAccessor memberAccessor)
+    {
+        MemberAccessor = memberAccessor ?? throw new ArgumentNullException(nameof(memberAccessor));
+    }
+
     /// <summary>
     /// Gets or sets a value indicating whether the member is ignored.
     /// </summary>
@@ -21,7 +26,7 @@ public class MemberMapping : IMemberOptions
     /// <value>
     /// The member accessor.
     /// </value>
-    public IMemberAccessor MemberAccessor { get; set; }
+    public IMemberAccessor MemberAccessor { get; }
 
 
     /// <summary>
@@ -30,7 +35,7 @@ public class MemberMapping : IMemberOptions
     /// <value>
     /// The display name.
     /// </value>
-    public string DisplayName { get; set; }
+    public string? DisplayName { get; set; }
 
     /// <summary>
     /// Gets or sets the equality <see langword="delegate" />.
@@ -38,7 +43,7 @@ public class MemberMapping : IMemberOptions
     /// <value>
     /// The equality <see langword="delegate" />.
     /// </value>
-    public Func<object, object, bool> Equality { get; set; }
+    public Func<object?, object?, bool>? Equality { get; set; }
 
     /// <summary>
     /// Gets or sets the member value string formatter <see langword="delegate" />.
@@ -46,7 +51,7 @@ public class MemberMapping : IMemberOptions
     /// <value>
     /// The string formatter <see langword="delegate" />.
     /// </value>
-    public Func<object, string> Formatter { get; set; }
+    public Func<object?, string?>? Formatter { get; set; }
 
     /// <summary>
     /// Gets or sets the collection comparison.

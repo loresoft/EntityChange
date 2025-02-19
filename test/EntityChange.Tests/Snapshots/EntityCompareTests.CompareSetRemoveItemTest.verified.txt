@@ -1,6 +1,6 @@
 ﻿[
   {
-    PropertyName: Categories,
+    PropertyName: Categories[2],
     DisplayName: Categories,
     Path: Categories[2],
     Operation: Remove,

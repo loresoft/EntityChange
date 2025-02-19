@@ -101,7 +101,7 @@ public class EntityConfiguration
                 var memberMapping = mapping.Members.FirstOrDefault(m => m.MemberAccessor.Name == property.Name);
                 if (memberMapping == null)
                 {
-                    memberMapping = new MemberMapping { MemberAccessor = property };
+                    memberMapping = new MemberMapping(property);
                     mapping.Members.Add(memberMapping);
                 }
 
@@ -125,7 +125,7 @@ public class EntityConfiguration
                     continue;
                 }
 
-                memberMapping.DisplayName = property.Name.ToSpacedWords();
+                memberMapping.DisplayName = property.Name.ToTitle();
             }
 
             mapping.Mapped = true;
@@ -152,14 +152,11 @@ public class EntityConfiguration
 
     private EntityMapping GetClassMap(Type type)
     {
-        var classMapping = Mapping.GetOrAdd(type, t =>
+        return Mapping.GetOrAdd(type, t =>
         {
             var typeAccessor = TypeAccessor.GetAccessor(t);
-            var mapping = new EntityMapping(typeAccessor) { AutoMap = AutoMap };
-            return mapping;
+            return new EntityMapping(typeAccessor) { AutoMap = AutoMap };
         });
-
-        return classMapping;
     }
 
 

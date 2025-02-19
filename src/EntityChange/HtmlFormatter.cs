@@ -58,7 +58,10 @@ public class HtmlFormatter : IChangeFormatter
     /// </returns>
     public string Format(IReadOnlyList<ChangeRecord> changes)
     {
-        var builder = new StringBuilder();
+        if (changes is null)
+            throw new ArgumentNullException(nameof(changes));
+
+        var builder = StringBuilderCache.Acquire();
         builder.AppendLine(HeaderTemplate ?? string.Empty);
 
         foreach (var change in changes)
@@ -71,11 +74,12 @@ public class HtmlFormatter : IChangeFormatter
             else
                 template = OperationReplaceTemplate;
 
-            var line = NameFormatter.Format(template, change);
+            var line = NameFormatter.FormatName(template, change);
             builder.AppendLine(line);
         }
 
         builder.AppendLine(FooterTemplate ?? string.Empty);
-        return builder.ToString();
+
+        return StringBuilderCache.ToString(builder);
     }
 }

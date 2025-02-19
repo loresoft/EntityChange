@@ -20,7 +20,7 @@
     CurrentFormatted: 5000
   },
   {
-    PropertyName: Items,
+    PropertyName: Items[1],
     DisplayName: Items,
     Path: Items[1],
     CurrentValue: {

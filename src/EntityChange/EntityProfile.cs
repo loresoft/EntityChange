@@ -1,9 +1,9 @@
-﻿using EntityChange.Fluent;
+using EntityChange.Fluent;
 
 namespace EntityChange;
 
 /// <summary>
-/// A <see langword="base"/> class for creating entity comparision profiles
+/// A <see langword="base"/> class for creating entity comparison profiles
 /// </summary>
 /// <typeparam name="TEntity">The type of the entity.</typeparam>
 public abstract class EntityProfile<TEntity> : EntityMappingBuilder<TEntity>, IEntityProfile

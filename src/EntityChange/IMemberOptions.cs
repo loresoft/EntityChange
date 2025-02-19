@@ -11,7 +11,7 @@ public interface IMemberOptions
     /// <value>
     /// The display name.
     /// </value>
-    string DisplayName { get; set; }
+    string? DisplayName { get; set; }
 
     /// <summary>
     /// Gets or sets the equality <see langword="delegate"/>.
@@ -19,7 +19,7 @@ public interface IMemberOptions
     /// <value>
     /// The equality <see langword="delegate"/>.
     /// </value>
-    Func<object, object, bool> Equality { get; set; }
+    Func<object?, object?, bool>? Equality { get; set; }
 
     /// <summary>
     /// Gets or sets the string formatter <see langword="delegate" />.
@@ -27,7 +27,7 @@ public interface IMemberOptions
     /// <value>
     /// The string formatter <see langword="delegate" />.
     /// </value>
-    Func<object, string> Formatter { get; set; }
+    Func<object?, string?>? Formatter { get; set; }
 
     /// <summary>
     /// Gets or sets the collection comparison.
