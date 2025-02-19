@@ -137,7 +137,7 @@ public static class StringExtensions
         if (format == null)
             throw new ArgumentNullException("format");
 
-        return NameFormatter.Format(format, source);
+        return NameFormatter.FormatName(format, source);
     }
 
     /// <summary>
@@ -151,7 +151,7 @@ public static class StringExtensions
         if (format == null)
             throw new ArgumentNullException("format");
 
-        return NameFormatter.Format(format, item);
+        return NameFormatter.FormatName(format, item);
     }
 
     /// <summary>

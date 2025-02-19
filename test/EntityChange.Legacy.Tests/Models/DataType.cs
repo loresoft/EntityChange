@@ -1,22 +1,20 @@
-using System;
-
-using EntityChange.Attributes;
+﻿using System;
 
 namespace EntityChange.Tests.Models;
 
 public class DataType
 {
-    public string? String { get; set; }
+    public string String { get; set; }
 
-    public int? Integer { get; set; }
+    public int Integer { get; set; }
 
-    public long? Long { get; set; }
+    public long Long { get; set; }
 
-    public double? Double { get; set; }
+    public double Double { get; set; }
 
-    public decimal? Decimal { get; set; }
+    public decimal Decimal { get; set; }
 
-    public DateTime? DateTime { get; set; }
+    public DateTime DateTime { get; set; }
 
     public static DataType Sample()
     {

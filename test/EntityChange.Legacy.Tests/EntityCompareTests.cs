@@ -53,8 +53,9 @@ public class EntityCompareTests
             }
         };
 
-        var comparer = new OrderChangeDetector();
-        var changes = comparer.DetectChanges(original, current);
+        var configuration = new EntityConfiguration();
+        var comparer = new EntityComparer(configuration);
+        var changes = comparer.Compare(original, current);
 
         changes.Should().NotBeNull();
         changes.Count.Should().Be(3);
@@ -65,7 +66,7 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
     }
-    /*
+
     [Fact]
     public void CompareObjectValueFormatter()
     {
@@ -965,12 +966,12 @@ public class EntityCompareTests
         var node = new TreeNode
         {
             Name = "Root",
-            Nodes = new List<TreeNode>
+            nodes = new List<TreeNode>
             {
                 new TreeNode
                 {
                     Name = "Level 1",
-                    Nodes = new List<TreeNode>
+                    nodes = new List<TreeNode>
                     {
                         new TreeNode
                         {
@@ -984,12 +985,12 @@ public class EntityCompareTests
         var node2 = new TreeNode
         {
             Name = "Root",
-            Nodes = new List<TreeNode>
+            nodes = new List<TreeNode>
             {
                 new TreeNode
                 {
                     Name = "Level 1",
-                    Nodes = new List<TreeNode>
+                    nodes = new List<TreeNode>
                     {
                         new TreeNode
                         {
@@ -1006,7 +1007,7 @@ public class EntityCompareTests
         changes.Should().NotBeEmpty();
         changes.First().Path.Should().Be("nodes[0].nodes[0].Name");
     }
-    */
+
     private void WriteMarkdown(IReadOnlyList<ChangeRecord> changes)
     {
         var formatter = new MarkdownFormatter();
@@ -1014,5 +1015,4 @@ public class EntityCompareTests
 
         _output.WriteLine(markdown);
     }
-
 }

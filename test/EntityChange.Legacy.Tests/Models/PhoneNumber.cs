@@ -1,8 +1,7 @@
 namespace EntityChange.Tests.Models;
 
-public class EmailAddress
+public class PhoneNumber
 {
     public ContactType Type { get; set; }
-
-    public string? Address { get; set; }
+    public string Number { get; set; }
 }

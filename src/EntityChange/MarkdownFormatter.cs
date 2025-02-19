@@ -58,6 +58,12 @@ public class MarkdownFormatter : IChangeFormatter
     /// </returns>
     public string Format(IReadOnlyList<ChangeRecord> changes)
     {
+        if (changes is null)
+            throw new ArgumentNullException(nameof(changes));
+
+        if (changes.Count == 0)
+            return string.Empty;
+
         var builder = new StringBuilder();
         builder.AppendLine(HeaderTemplate ?? string.Empty);
 
@@ -71,7 +77,7 @@ public class MarkdownFormatter : IChangeFormatter
             else
                 template = OperationReplaceTemplate;
 
-            var line = NameFormatter.Format(template, change);
+            var line = template.FormatName(change);
             builder.AppendLine(line);
         }
 

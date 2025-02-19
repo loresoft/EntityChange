@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+
+using EntityChange.Attributes;
 
 namespace EntityChange.Tests.Models;
 
 public class TreeNode
 {
-    public List<TreeNode> nodes { get; set; }
-    public string Name { get; set; }
+    public List<TreeNode>? Nodes { get; set; }
+
+    public string? Name { get; set; }
 }
