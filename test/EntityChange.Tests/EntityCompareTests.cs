@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -1011,7 +1012,7 @@ public class EntityCompareTests
     }
 
     [Fact]
-    public async Task ComparenNestedObjectsPathsTest()
+    public async Task CompareNestedObjectsPathsTest()
     {
         var node = new TreeNode
         {
@@ -1058,6 +1059,37 @@ public class EntityCompareTests
         changes.First().Path.Should().Be("nodes[0].nodes[0].Name");
 
         await Verifier.Verify(changes).UseDirectory("Snapshots");
+    }
+
+    [Fact]
+    public void CompareValueTypeRootElementsTest()
+    {
+        int original = 1;
+        int current = 2;
+
+        var entityComparer = new EntityComparer();
+        var changes = entityComparer.Compare(original, current);
+
+        changes.Should().NotBeEmpty();
+
+        ChangeRecord changeRecord = changes.First();
+        changeRecord.OriginalValue.Should().Be(1);
+        changeRecord.CurrentValue.Should().Be(2);
+    }
+
+    [Fact]
+    public void CompareArrayRootElementsTest()
+    {
+        TreeNode[] original = [new TreeNode { Name = "Level 1" }];
+        TreeNode[] current = [];
+
+        EntityComparer entityComparer = new EntityComparer();
+        var changes = entityComparer.Compare(original, current);
+
+        changes.Should().NotBeEmpty();
+
+        ChangeRecord changeRecord = changes.First();
+        changeRecord.Path.Should().Be("[0]");
     }
 
     private void WriteMarkdown(IReadOnlyList<ChangeRecord> changes)
