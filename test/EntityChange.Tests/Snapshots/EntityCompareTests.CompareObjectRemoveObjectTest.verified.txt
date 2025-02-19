@@ -20,8 +20,7 @@
       State: NY,
       Zip: 10026
     },
-    OriginalFormatted: 123 Main St, New York, NY 10026,
-    CurrentFormatted: 
+    OriginalFormatted: 123 Main St, New York, NY 10026
   },
   {
     PropertyName: Total,

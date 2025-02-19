@@ -4,7 +4,6 @@
     DisplayName: Data,
     Path: Data[Path],
     CurrentValue: ./home,
-    OriginalFormatted: ,
     CurrentFormatted: ./home
   }
 ]

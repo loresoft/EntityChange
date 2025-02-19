@@ -5,8 +5,7 @@
     Path: Roles,
     Operation: Remove,
     OriginalValue: Administrator,
-    OriginalFormatted: Administrator,
-    CurrentFormatted: 
+    OriginalFormatted: Administrator
   },
   {
     PropertyName: Address,
@@ -25,7 +24,6 @@
     CurrentValue: {
       Address: user@home.com
     },
-    OriginalFormatted: ,
     CurrentFormatted: user@home.com
   },
   {
@@ -73,7 +71,6 @@
     DisplayName: Categories,
     Path: Categories[2],
     CurrentValue: Blah,
-    OriginalFormatted: ,
     CurrentFormatted: Blah
   },
   {

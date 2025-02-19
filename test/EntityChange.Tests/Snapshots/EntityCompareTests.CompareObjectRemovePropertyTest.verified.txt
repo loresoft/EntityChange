@@ -15,8 +15,7 @@
     Path: BillingAddress.Address2,
     Operation: Replace,
     OriginalValue: Suite 101,
-    OriginalFormatted: Suite 101,
-    CurrentFormatted: 
+    OriginalFormatted: Suite 101
   },
   {
     PropertyName: Zip,

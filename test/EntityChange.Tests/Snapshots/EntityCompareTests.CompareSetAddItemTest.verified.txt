@@ -4,7 +4,6 @@
     DisplayName: Categories,
     Path: Categories[2],
     CurrentValue: Blah,
-    OriginalFormatted: ,
     CurrentFormatted: Blah
   }
 ]

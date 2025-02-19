@@ -4,7 +4,6 @@
     DisplayName: Data,
     Path: Data[Boost],
     CurrentValue: 1,
-    OriginalFormatted: ,
     CurrentFormatted: 1
   }
 ]

@@ -5,7 +5,6 @@
     Path: Data[Boost],
     Operation: Remove,
     OriginalValue: 1,
-    OriginalFormatted: 1,
-    CurrentFormatted: 
+    OriginalFormatted: 1
   }
 ]

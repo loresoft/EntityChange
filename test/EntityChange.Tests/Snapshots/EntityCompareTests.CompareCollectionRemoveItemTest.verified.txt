@@ -29,8 +29,7 @@
       Quanity: 1,
       UnitPrice: 5000.0
     },
-    OriginalFormatted: EntityChange.Tests.Models.OrderLine,
-    CurrentFormatted: 
+    OriginalFormatted: EntityChange.Tests.Models.OrderLine
   },
   {
     PropertyName: Total,

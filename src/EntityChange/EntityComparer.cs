@@ -406,14 +406,14 @@ public class EntityComparer : IEntityComparer
         _changes.Add(changeRecord);
     }
 
-    private static string FormatValue(object? value, Func<object?, string?>? formatter)
+    private static string? FormatValue(object? value, Func<object?, string?>? formatter)
     {
         if (value is null)
-            return string.Empty;
+            return null;
 
         if (formatter is not null)
-            return formatter(value) ?? string.Empty;
+            return formatter(value);
 
-        return value?.ToString() ?? string.Empty;
+        return value?.ToString();
     }
 }

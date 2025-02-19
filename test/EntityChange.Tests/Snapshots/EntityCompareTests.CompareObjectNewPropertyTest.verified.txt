@@ -15,7 +15,6 @@
     Path: BillingAddress.Address2,
     Operation: Replace,
     CurrentValue: Suite 101,
-    OriginalFormatted: ,
     CurrentFormatted: Suite 101
   },
   {

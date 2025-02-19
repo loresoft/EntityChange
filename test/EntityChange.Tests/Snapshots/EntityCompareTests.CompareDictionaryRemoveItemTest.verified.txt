@@ -5,7 +5,6 @@
     Path: Data[Path],
     Operation: Remove,
     OriginalValue: ./home,
-    OriginalFormatted: ./home,
-    CurrentFormatted: 
+    OriginalFormatted: ./home
   }
 ]

@@ -19,8 +19,7 @@
       Quanity: 1,
       UnitPrice: 5000.0
     },
-    OriginalFormatted: abc-123,
-    CurrentFormatted: 
+    OriginalFormatted: abc-123
   },
   {
     PropertyName: Total,

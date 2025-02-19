@@ -5,7 +5,6 @@
     Path: Categories[2],
     Operation: Remove,
     OriginalValue: Blah,
-    OriginalFormatted: Blah,
-    CurrentFormatted: 
+    OriginalFormatted: Blah
   }
 ]
