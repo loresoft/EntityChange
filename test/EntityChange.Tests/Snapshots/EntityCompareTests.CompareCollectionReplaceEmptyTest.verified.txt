@@ -1,0 +1,22 @@
+﻿[
+  {
+    PropertyName: Id,
+    DisplayName: Id,
+    Path: Id,
+    Operation: Replace,
+    OriginalValue: Guid_1,
+    CurrentValue: Guid_2,
+    OriginalFormatted: Guid_1,
+    CurrentFormatted: Guid_2
+  },
+  {
+    PropertyName: Total,
+    DisplayName: Total,
+    Path: Total,
+    Operation: Replace,
+    OriginalValue: 10000.0,
+    CurrentValue: 11000.0,
+    OriginalFormatted: 10000,
+    CurrentFormatted: 11000
+  }
+]

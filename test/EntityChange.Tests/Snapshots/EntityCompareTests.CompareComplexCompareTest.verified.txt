@@ -1,0 +1,99 @@
+﻿[
+  {
+    PropertyName: Roles,
+    DisplayName: Roles,
+    Path: Roles,
+    Operation: Remove,
+    OriginalValue: Administrator,
+    OriginalFormatted: Administrator,
+    CurrentFormatted: 
+  },
+  {
+    PropertyName: Address,
+    DisplayName: Email Address,
+    Path: EmailAddresses[1].Address,
+    Operation: Replace,
+    OriginalValue: user@Personal.com,
+    CurrentValue: user@gmail.com,
+    OriginalFormatted: user@Personal.com,
+    CurrentFormatted: user@gmail.com
+  },
+  {
+    PropertyName: EmailAddresses,
+    DisplayName: Email Addresses,
+    Path: EmailAddresses[2],
+    CurrentValue: {
+      Address: user@home.com
+    },
+    OriginalFormatted: ,
+    CurrentFormatted: user@home.com
+  },
+  {
+    PropertyName: Status,
+    DisplayName: Status,
+    Path: Status,
+    Operation: Replace,
+    OriginalValue: New,
+    CurrentValue: Verified,
+    OriginalFormatted: New,
+    CurrentFormatted: Verified
+  },
+  {
+    PropertyName: Updated,
+    DisplayName: Updated,
+    Path: Updated,
+    Operation: Replace,
+    OriginalValue: DateTime_1,
+    CurrentValue: DateTime_2,
+    OriginalFormatted: 1/6/2024 12:00:00 AM,
+    CurrentFormatted: 1/7/2024 12:00:00 AM
+  },
+  {
+    PropertyName: Zip,
+    DisplayName: Zip,
+    Path: MailingAddresses[0].Zip,
+    Operation: Replace,
+    OriginalValue: 10026,
+    CurrentValue: 10027,
+    OriginalFormatted: 10026,
+    CurrentFormatted: 10027
+  },
+  {
+    PropertyName: Number,
+    DisplayName: Number,
+    Path: PhoneNumbers[0].Number,
+    Operation: Replace,
+    OriginalValue: 888-555-1212,
+    CurrentValue: 800-555-1212,
+    OriginalFormatted: 888-555-1212,
+    CurrentFormatted: 800-555-1212
+  },
+  {
+    PropertyName: Categories,
+    DisplayName: Categories,
+    Path: Categories[2],
+    CurrentValue: Blah,
+    OriginalFormatted: ,
+    CurrentFormatted: Blah
+  },
+  {
+    PropertyName: Data[Boost],
+    DisplayName: Data,
+    Path: Data[Boost],
+    Operation: Replace,
+    OriginalValue: 1,
+    CurrentValue: 2,
+    OriginalFormatted: 1,
+    CurrentFormatted: 2
+  },
+  {
+    PropertyName: Data[Path],
+    DisplayName: Data,
+    Path: Data[Path],
+    Operation: Replace,
+    OriginalValue: ./home,
+    CurrentValue: ./path,
+    OriginalFormatted: ./home,
+    CurrentFormatted: ./path
+  }
+]

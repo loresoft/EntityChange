@@ -1,0 +1,22 @@
+﻿[
+  {
+    PropertyName: Data[Boost],
+    DisplayName: Data,
+    Path: Data[Boost],
+    Operation: Replace,
+    OriginalValue: 1,
+    CurrentValue: 2,
+    OriginalFormatted: 1,
+    CurrentFormatted: 2
+  },
+  {
+    PropertyName: Data[Path],
+    DisplayName: Data,
+    Path: Data[Path],
+    Operation: Replace,
+    OriginalValue: ./home,
+    CurrentValue: ./path,
+    OriginalFormatted: ./home,
+    CurrentFormatted: ./path
+  }
+]

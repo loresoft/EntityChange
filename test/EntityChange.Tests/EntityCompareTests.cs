@@ -2,10 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 
 using EntityChange.Tests.Models;
 
 using FluentAssertions;
+
+using VerifyXunit;
 
 using Xunit;
 using Xunit.Abstractions;
@@ -23,7 +26,7 @@ public class EntityCompareTests
     }
 
     [Fact]
-    public void CompareObjectTest()
+    public async Task CompareObjectTestAsync()
     {
         var original = new Order
         {
@@ -65,10 +68,12 @@ public class EntityCompareTests
         changes[2].Path.Should().Be("Total");
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareObjectValueFormatter()
+    public async Task CompareObjectValueFormatter()
     {
         var original = new Order
         {
@@ -103,10 +108,12 @@ public class EntityCompareTests
         changes[0].CurrentFormatted.Should().Be("$11,000.00");
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareObjectNewPropertyTest()
+    public async Task CompareObjectNewPropertyTest()
     {
         var original = new Order
         {
@@ -150,10 +157,12 @@ public class EntityCompareTests
         changes[3].Path.Should().Be("Total");
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareObjectRemovePropertyTest()
+    public async Task CompareObjectRemovePropertyTest()
     {
         var original = new Order
         {
@@ -198,10 +207,12 @@ public class EntityCompareTests
         changes[3].Path.Should().Be("Total");
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareObjectNewObjectTest()
+    public async Task CompareObjectNewObjectTest()
     {
         var original = new Order
         {
@@ -237,10 +248,12 @@ public class EntityCompareTests
         changes[2].Path.Should().Be("Total");
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareObjectRemoveObjectTest()
+    public async Task CompareObjectRemoveObjectTest()
     {
         var original = new Order
         {
@@ -276,10 +289,12 @@ public class EntityCompareTests
         changes[2].Path.Should().Be("Total");
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareCollectionAddItemTest()
+    public async Task CompareCollectionAddItemTest()
     {
         var original = new Order
         {
@@ -318,10 +333,12 @@ public class EntityCompareTests
         changes[3].Path.Should().Be("Total");
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareCollectionRemoveItemTest()
+    public async Task CompareCollectionRemoveItemTest()
     {
         var original = new Order
         {
@@ -360,10 +377,12 @@ public class EntityCompareTests
         changes[3].Path.Should().Be("Total");
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareCollectionReplaceTest()
+    public async Task CompareCollectionReplaceTest()
     {
         var original = new Order
         {
@@ -410,10 +429,12 @@ public class EntityCompareTests
         changes[2].Path.Should().Be("Total");
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareCollectionRemoveTest()
+    public async Task CompareCollectionRemoveTest()
     {
         var original = new Order
         {
@@ -460,10 +481,12 @@ public class EntityCompareTests
         changes[2].Path.Should().Be("Total");
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareCollectionReplaceEmptyTest()
+    public async Task CompareCollectionReplaceEmptyTest()
     {
         var original = new Order
         {
@@ -491,10 +514,12 @@ public class EntityCompareTests
         changes[1].Path.Should().Be("Total");
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareCollectionRemoveEmptyTest()
+    public async Task CompareCollectionRemoveEmptyTest()
     {
         var original = new Order
         {
@@ -522,10 +547,12 @@ public class EntityCompareTests
         changes[1].Path.Should().Be("Total");
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareCollectionObjectEqualityTest()
+    public async Task CompareCollectionObjectEqualityTest()
     {
         var original = new Order
         {
@@ -579,10 +606,12 @@ public class EntityCompareTests
         changes[3].Path.Should().Be("Items[1].UnitPrice");
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareDictionaryTest()
+    public async Task CompareDictionaryTest()
     {
         var original = new Contact
         {
@@ -617,10 +646,12 @@ public class EntityCompareTests
         changes[1].Operation.Should().Be(ChangeOperation.Replace);
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareDictionaryAddItemTest()
+    public async Task CompareDictionaryAddItemTest()
     {
         var original = new Contact
         {
@@ -652,10 +683,12 @@ public class EntityCompareTests
         changes[0].Operation.Should().Be(ChangeOperation.Add);
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareDictionaryRemoveItemTest()
+    public async Task CompareDictionaryRemoveItemTest()
     {
         var original = new Contact
         {
@@ -687,10 +720,12 @@ public class EntityCompareTests
         changes[0].Operation.Should().Be(ChangeOperation.Remove);
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareDictionaryReplaceTest()
+    public async Task CompareDictionaryReplaceTest()
     {
         var original = new Contact
         {
@@ -717,10 +752,12 @@ public class EntityCompareTests
         changes[0].Operation.Should().Be(ChangeOperation.Add);
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareDictionaryRemoveTest()
+    public async Task CompareDictionaryRemoveTest()
     {
         var original = new Contact
         {
@@ -747,10 +784,12 @@ public class EntityCompareTests
         changes[0].Operation.Should().Be(ChangeOperation.Remove);
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareDictionaryReplaceEmptyTest()
+    public async Task CompareDictionaryReplaceEmptyTest()
     {
         var original = new Contact
         {
@@ -771,10 +810,13 @@ public class EntityCompareTests
         changes.Count.Should().Be(0);
 
         WriteMarkdown(changes);
+
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareDictionaryRemoveEmptyTest()
+    public async Task CompareDictionaryRemoveEmptyTest()
     {
         var original = new Contact
         {
@@ -795,10 +837,12 @@ public class EntityCompareTests
         changes.Count.Should().Be(0);
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareSetAddItemTest()
+    public async Task CompareSetAddItemTest()
     {
         var original = new Contact
         {
@@ -823,10 +867,12 @@ public class EntityCompareTests
         changes[0].Operation.Should().Be(ChangeOperation.Add);
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareSetRemoveItemTest()
+    public async Task CompareSetRemoveItemTest()
     {
         var original = new Contact
         {
@@ -851,16 +897,18 @@ public class EntityCompareTests
         changes[0].Operation.Should().Be(ChangeOperation.Remove);
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareComplexCompareTest()
+    public async Task CompareComplexCompareTest()
     {
         var original = new Contact
         {
             Id = Guid.NewGuid().ToString(),
-            Created = DateTime.Now,
-            Updated = DateTime.Now,
+            Created = new DateTime(2024, 1, 6),
+            Updated = new DateTime(2024, 1, 6),
             FirstName = "Jim",
             LastName = "Bob",
             JobTitle = "CEO",
@@ -896,8 +944,8 @@ public class EntityCompareTests
         var current = new Contact
         {
             Id = original.Id,
-            Created = original.Created,
-            Updated = original.Updated.AddSeconds(1),
+            Created = new DateTime(2024, 1, 6),
+            Updated = new DateTime(2024, 1, 7),
             FirstName = "Jim",
             LastName = "Bob",
             JobTitle = "CEO",
@@ -958,10 +1006,12 @@ public class EntityCompareTests
         changes.Count.Should().Be(10);
 
         WriteMarkdown(changes);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void ComparenNestedObjectsPathsTest()
+    public async Task ComparenNestedObjectsPathsTest()
     {
         var node = new TreeNode
         {
@@ -1006,6 +1056,8 @@ public class EntityCompareTests
 
         changes.Should().NotBeEmpty();
         changes.First().Path.Should().Be("nodes[0].nodes[0].Name");
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     private void WriteMarkdown(IReadOnlyList<ChangeRecord> changes)

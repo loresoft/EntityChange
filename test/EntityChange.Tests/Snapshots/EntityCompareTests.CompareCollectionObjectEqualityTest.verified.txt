@@ -1,0 +1,42 @@
+﻿[
+  {
+    PropertyName: Quanity,
+    DisplayName: Quanity,
+    Path: Items[0].Quanity,
+    Operation: Replace,
+    OriginalValue: 1,
+    CurrentValue: 2,
+    OriginalFormatted: 1,
+    CurrentFormatted: 2
+  },
+  {
+    PropertyName: UnitPrice,
+    DisplayName: Unit Price,
+    Path: Items[0].UnitPrice,
+    Operation: Replace,
+    OriginalValue: 10000.0,
+    CurrentValue: 5000.0,
+    OriginalFormatted: 10000,
+    CurrentFormatted: 5000
+  },
+  {
+    PropertyName: Quanity,
+    DisplayName: Quanity,
+    Path: Items[1].Quanity,
+    Operation: Replace,
+    OriginalValue: 1,
+    CurrentValue: 2,
+    OriginalFormatted: 1,
+    CurrentFormatted: 2
+  },
+  {
+    PropertyName: UnitPrice,
+    DisplayName: Unit Price,
+    Path: Items[1].UnitPrice,
+    Operation: Replace,
+    OriginalValue: 10000.0,
+    CurrentValue: 5000.0,
+    OriginalFormatted: 10000,
+    CurrentFormatted: 5000
+  }
+]

@@ -1,0 +1,41 @@
+﻿[
+  {
+    PropertyName: Id,
+    DisplayName: Id,
+    Path: Id,
+    Operation: Replace,
+    OriginalValue: Guid_1,
+    CurrentValue: Guid_2,
+    OriginalFormatted: Guid_1,
+    CurrentFormatted: Guid_2
+  },
+  {
+    PropertyName: Address2,
+    DisplayName: Address 2,
+    Path: BillingAddress.Address2,
+    Operation: Replace,
+    OriginalValue: Suite 101,
+    OriginalFormatted: Suite 101,
+    CurrentFormatted: 
+  },
+  {
+    PropertyName: Zip,
+    DisplayName: Zip,
+    Path: BillingAddress.Zip,
+    Operation: Replace,
+    OriginalValue: 10038,
+    CurrentValue: 10026,
+    OriginalFormatted: 10038,
+    CurrentFormatted: 10026
+  },
+  {
+    PropertyName: Total,
+    DisplayName: Total,
+    Path: Total,
+    Operation: Replace,
+    OriginalValue: 10000.0,
+    CurrentValue: 11000.0,
+    OriginalFormatted: 10000,
+    CurrentFormatted: 11000
+  }
+]

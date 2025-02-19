@@ -1,0 +1,11 @@
+﻿[
+  {
+    PropertyName: Data,
+    DisplayName: Data,
+    Path: Data[Boost],
+    Operation: Remove,
+    OriginalValue: 1,
+    OriginalFormatted: 1,
+    CurrentFormatted: 
+  }
+]

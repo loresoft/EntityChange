@@ -1,0 +1,44 @@
+﻿[
+  {
+    PropertyName: Id,
+    DisplayName: Id,
+    Path: Id,
+    Operation: Replace,
+    OriginalValue: Guid_1,
+    CurrentValue: Guid_2,
+    OriginalFormatted: Guid_1,
+    CurrentFormatted: Guid_2
+  },
+  {
+    PropertyName: UnitPrice,
+    DisplayName: Unit Price,
+    Path: Items[0].UnitPrice,
+    Operation: Replace,
+    OriginalValue: 10000.0,
+    CurrentValue: 5000.0,
+    OriginalFormatted: 10000,
+    CurrentFormatted: 5000
+  },
+  {
+    PropertyName: Items,
+    DisplayName: Items,
+    Path: Items[1],
+    CurrentValue: {
+      Sku: xyz-123,
+      Quanity: 1,
+      UnitPrice: 5000.0
+    },
+    OriginalFormatted: ,
+    CurrentFormatted: EntityChange.Tests.Models.OrderLine
+  },
+  {
+    PropertyName: Total,
+    DisplayName: Total,
+    Path: Total,
+    Operation: Replace,
+    OriginalValue: 10000.0,
+    CurrentValue: 11000.0,
+    OriginalFormatted: 10000,
+    CurrentFormatted: 11000
+  }
+]

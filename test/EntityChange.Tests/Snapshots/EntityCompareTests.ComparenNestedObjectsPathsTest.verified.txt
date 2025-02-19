@@ -1,0 +1,12 @@
+﻿[
+  {
+    PropertyName: Name,
+    DisplayName: Name,
+    Path: nodes[0].nodes[0].Name,
+    Operation: Replace,
+    OriginalValue: Level 2,
+    CurrentValue: Level 3,
+    OriginalFormatted: Level 2,
+    CurrentFormatted: Level 3
+  }
+]
