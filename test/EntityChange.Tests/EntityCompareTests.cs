@@ -984,6 +984,8 @@ public class EntityCompareTests
         configuration.Configure(config => config
             .Entity<Contact>(e =>
             {
+                e.Property(p => p.Created).Formatter(p => p.ToShortDateString());
+                e.Property(p => p.Updated).Formatter(p => p.ToShortDateString());
                 e.Property(p => p.FirstName).Display("First Name");
                 e.Collection(p => p.Roles)
                     .CollectionComparison(CollectionComparison.ObjectEquality)

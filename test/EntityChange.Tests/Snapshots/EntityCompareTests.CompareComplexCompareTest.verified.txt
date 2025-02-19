@@ -1,5 +1,15 @@
 ﻿[
   {
+    PropertyName: Updated,
+    DisplayName: Updated,
+    Path: Updated,
+    Operation: Replace,
+    OriginalValue: DateTime_1,
+    CurrentValue: DateTime_2,
+    OriginalFormatted: Date_1,
+    CurrentFormatted: Date_2
+  },
+  {
     PropertyName: Roles,
     DisplayName: Roles,
     Path: Roles,
@@ -35,16 +45,6 @@
     CurrentValue: Verified,
     OriginalFormatted: New,
     CurrentFormatted: Verified
-  },
-  {
-    PropertyName: Updated,
-    DisplayName: Updated,
-    Path: Updated,
-    Operation: Replace,
-    OriginalValue: DateTime_1,
-    CurrentValue: DateTime_2,
-    OriginalFormatted: 1/6/2024 12:00:00 AM,
-    CurrentFormatted: 1/7/2024 12:00:00 AM
   },
   {
     PropertyName: Zip,
