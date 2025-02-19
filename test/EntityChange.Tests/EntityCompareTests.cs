@@ -1065,7 +1065,7 @@ public class EntityCompareTests
     }
 
     [Fact]
-    public void CompareValueTypeRootElementsTest()
+    public async Task CompareValueTypeRootElementsTest()
     {
         int original = 1;
         int current = 2;
@@ -1078,10 +1078,12 @@ public class EntityCompareTests
         ChangeRecord changeRecord = changes.First();
         changeRecord.OriginalValue.Should().Be(1);
         changeRecord.CurrentValue.Should().Be(2);
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
-    public void CompareArrayRootElementsTest()
+    public async Task CompareArrayRootElementsTest()
     {
         TreeNode[] original = [new TreeNode { Name = "Level 1" }];
         TreeNode[] current = [];
@@ -1093,6 +1095,8 @@ public class EntityCompareTests
 
         ChangeRecord changeRecord = changes.First();
         changeRecord.Path.Should().Be("[0]");
+
+        await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
 
     [Fact]
@@ -1122,6 +1126,8 @@ public class EntityCompareTests
 
         await Verifier.Verify(changes).UseDirectory("Snapshots");
     }
+
+
 
     private void WriteMarkdown(IReadOnlyList<ChangeRecord> changes)
     {

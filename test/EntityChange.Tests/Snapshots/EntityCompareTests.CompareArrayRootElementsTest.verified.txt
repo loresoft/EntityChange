@@ -1,0 +1,12 @@
+﻿[
+  {
+    PropertyName: [0],
+    DisplayName: 0,
+    Path: [0],
+    Operation: Remove,
+    OriginalValue: {
+      Name: Level 1
+    },
+    OriginalFormatted: EntityChange.Tests.Models.TreeNode
+  }
+]

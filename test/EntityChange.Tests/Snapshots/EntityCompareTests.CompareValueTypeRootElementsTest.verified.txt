@@ -1,0 +1,12 @@
+﻿[
+  {
+    PropertyName: ,
+    DisplayName: ,
+    Path: ,
+    Operation: Replace,
+    OriginalValue: 1,
+    CurrentValue: 2,
+    OriginalFormatted: 1,
+    CurrentFormatted: 2
+  }
+]
