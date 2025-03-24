@@ -1,0 +1,1 @@
+﻿[{"propertyName":"Name","displayName":"Name","path":"Name","operation":"Replace","originalValue":"Name 1","originalFormatted":"Name 1"},{"propertyName":"Description","displayName":"Description","path":"Description","operation":"Replace","currentValue":"Test 2","currentFormatted":"Test 2"}]

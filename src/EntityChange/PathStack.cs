@@ -1,4 +1,6 @@
+using System.Collections.Concurrent;
 using System.IO;
+using System.Text.Json.Serialization;
 
 using EntityChange.Extensions;
 
@@ -9,7 +11,7 @@ namespace EntityChange;
 /// </summary>
 public class PathStack
 {
-    private readonly Stack<PathValue> _pathStack = [];
+    private readonly ConcurrentStack<PathValue> _pathStack = [];
 
     /// <summary>
     /// Push a property name to the stack
@@ -52,10 +54,11 @@ public class PathStack
     /// <returns>The top path name</returns>
     public string CurrentName()
     {
-        if (_pathStack.Count == 0)
+        if (_pathStack.IsEmpty)
             return string.Empty;
 
-        var peeked = _pathStack.Peek();
+        if (!_pathStack.TryPeek(out var peeked))
+            return string.Empty;
 
         // not an indexer, use as is
         if (peeked.Indexer != true)
@@ -95,7 +98,8 @@ public class PathStack
     /// <inheritdoc/>
     public override string ToString()
     {
-        return ToPath([.. _pathStack]);
+        var array = _pathStack.ToArray();
+        return ToPath(array);
     }
 
 

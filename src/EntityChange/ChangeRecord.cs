@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace EntityChange;
 
 /// <summary>
@@ -11,6 +13,8 @@ public class ChangeRecord
     /// <value>
     /// The name of the property that was changed.
     /// </value>
+    [JsonPropertyName("propertyName")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? PropertyName { get; set; }
 
     /// <summary>
@@ -19,6 +23,8 @@ public class ChangeRecord
     /// <value>
     /// The display name for the changed property.
     /// </value>
+    [JsonPropertyName("displayName")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? DisplayName { get; set; }
 
     /// <summary>
@@ -27,6 +33,8 @@ public class ChangeRecord
     /// <value>
     /// The object graph change path.
     /// </value>
+    [JsonPropertyName("path")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Path { get; set; }
 
     /// <summary>
@@ -35,6 +43,8 @@ public class ChangeRecord
     /// <value>
     /// The type of change operation.
     /// </value>
+    [JsonPropertyName("operation")]
+    [JsonConverter(typeof(JsonStringEnumConverter<ChangeOperation>))]
     public ChangeOperation Operation { get; set; }
 
     /// <summary>
@@ -43,6 +53,8 @@ public class ChangeRecord
     /// <value>
     /// The original value.
     /// </value>
+    [JsonPropertyName("originalValue")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public object? OriginalValue { get; set; }
 
     /// <summary>
@@ -51,6 +63,8 @@ public class ChangeRecord
     /// <value>
     /// The current value.
     /// </value>
+    [JsonPropertyName("currentValue")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public object? CurrentValue { get; set; }
 
     /// <summary>
@@ -59,6 +73,8 @@ public class ChangeRecord
     /// <value>
     /// The original value formatted as a <see cref="string"/>.
     /// </value>
+    [JsonPropertyName("originalFormatted")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? OriginalFormatted { get; set; }
 
     /// <summary>
@@ -67,5 +83,7 @@ public class ChangeRecord
     /// <value>
     /// The current value formatted as a <see cref="string"/>.
     /// </value>
+    [JsonPropertyName("currentFormatted")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? CurrentFormatted { get; set; }
 }
