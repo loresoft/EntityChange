@@ -71,7 +71,7 @@ public class MemberMappingBuilder<TEntity, TProperty>
         if (formatterFactory == null)
             MemberMapping.Formatter = null;
         else
-            MemberMapping.Formatter = v => formatterFactory(v is not null ? (TProperty)v : default);
+            MemberMapping.Formatter = v => formatterFactory(v is TProperty property ? property : default);
 
         return this;
     }

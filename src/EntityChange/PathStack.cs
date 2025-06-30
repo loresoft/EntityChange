@@ -70,8 +70,11 @@ public class PathStack
 
         // add indexers till property is reached
         var paths = new List<PathValue>();
-        foreach (var path in _pathStack)
+        var pathList = _pathStack.ToList();
+
+        for (int i = 0; i < pathList.Count; i++)
         {
+            var path = pathList[i];
             paths.Add(path);
             if (path.Indexer != true)
                 break;
