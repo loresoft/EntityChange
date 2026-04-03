@@ -2,14 +2,15 @@
 
 ## Overview
 
-Refactor EntityChange to use a Roslyn incremental source generator instead of runtime reflection for comparing object graphs. The existing reflection-based code remains untouched — all new code lives in new projects.
+Refactor EntityChange to use a Roslyn incremental source generator instead of runtime reflection for comparing object graphs. The existing reflection-based code remains untouched. New attributes, interfaces, and base types are added to the main `EntityChange` project so it carries the runtime contract. The generator project is development-only (`PrivateAssets="All"`).
 
 ---
 
-## New Projects
+## New & Modified Projects
 
-### 1. `src/EntityChange.Generators` — Source Generator + Attributes + Diagnostic Analyzer
-### 2. `test/EntityChange.Generators.Tests` — Unit tests for the generator and analyzer
+### Modified: `src/EntityChange` — Add attributes, `IEntityComparer<T>`, `EntityComparer<T>` base class
+### New: `src/EntityChange.Generators` — Source Generator + Diagnostic Analyzer (dev-only)
+### New: `test/EntityChange.Generators.Tests` — Unit tests for the generator and analyzer
 
 ---
 
@@ -34,16 +35,26 @@ IEntityComparer legacyComparer = comparer;
 var changes2 = legacyComparer.Compare(original, current);
 ```
 
+### Package Dependency Model
+
+```
+User Project
+├── PackageReference: EntityChange          (runtime dependency — attributes, base class, interfaces)
+└── PackageReference: EntityChange.Generators (dev-only — PrivateAssets="All", generates code at build)
+```
+
+The generator package ships with `<IncludeBuildOutput>false</IncludeBuildOutput>` and packs into `analyzers/dotnet/cs`. It is never a transitive runtime dependency.
+
 ### Type Hierarchy
 
 ```
 IEntityComparer                          (existing interface, unchanged)
-└── IEntityComparer<T>                   (new generic interface)
-    └── EntityComparer<T>                (new abstract base class)
+└── IEntityComparer<T>                   (new generic interface, in EntityChange)
+    └── EntityComparer<T>                (new abstract base class, in EntityChange)
         └── OrderComparer [partial]      (user-declared + generated)
 ```
 
-### Interface Definitions (shipped in EntityChange.Generators as source)
+### Interface Definitions (in EntityChange project)
 
 ```csharp
 // New generic interface — extends the existing non-generic one
@@ -95,40 +106,58 @@ public abstract class EntityComparer<T> : IEntityComparer<T>
 
 ## Project Details
 
-### Project 1: `src/EntityChange.Generators/EntityChange.Generators.csproj`
+### Modified: `src/EntityChange/EntityChange.csproj`
 
-**Target:** `netstandard2.0` (required for analyzers/generators)
+New files added to the existing project (no existing files modified):
 
-**NuGet References:**
-- `Microsoft.CodeAnalysis.CSharp` (>= 4.3.0 for incremental generators)
-
-**Ships as an analyzer/generator NuGet package** — uses `<IncludeBuildOutput>false</IncludeBuildOutput>` and packs into `analyzers/dotnet/cs`.
-
-**Contents:**
-
-#### A. Attributes (embedded as source via `[ExcludeFromCodeCoverage]` approach or `additionalfiles`)
-
-These are injected into the consuming project via the generator so there is no runtime dependency:
+#### A. Attributes (in `EntityChange` namespace)
 
 | Attribute | Target | Purpose |
 |-----------|--------|---------|
 | `[GenerateComparer]` | Class | Marks partial class for generation |
 | `[CompareIgnore]` | Property | Exclude property from comparison |
 | `[CompareDisplay(Name)]` | Property | Override display name (alternative to DataAnnotations) |
-| `[CompareFormat(Format)]` | Property | Format string for value display (e.g. `"C"`, `"d"`) |
 | `[CompareCollection(CollectionComparison)]` | Property | Set collection comparison mode |
 
-The generator also reads existing `System.ComponentModel.DataAnnotations` attributes:
+**No custom format attribute.** Instead, the generator reads the standard `[DisplayFormat(DataFormatString = "...")]` from `System.ComponentModel.DataAnnotations` (already referenced by the project for netstandard2.0).
+
+The generator also reads these existing `System.ComponentModel.DataAnnotations` attributes on the target type `T`:
 - `[Display(Name = "...")]` → display name
-- `[DisplayName("...")]` → display name  
+- `[DisplayName("...")]` → display name
+- `[DisplayFormat(DataFormatString = "...")]` → value format string (e.g. `"{0:C}"`, `"{0:d}"`)
 - `[NotMapped]` → treated as ignored
 
-#### B. Incremental Source Generator: `EntityChangeGenerator`
+#### B. New Types (in `EntityChange` namespace)
+
+| Type | Kind | Purpose |
+|------|------|---------|
+| `IEntityComparer<T>` | Interface | Generic comparer interface, extends `IEntityComparer` |
+| `EntityComparer<T>` | Abstract class | Base class with comparison helpers for generated code |
+
+These are compiled into the `EntityChange` assembly and available at runtime. The generator references them by fully-qualified name in emitted code.
+
+---
+
+### New: `src/EntityChange.Generators/EntityChange.Generators.csproj`
+
+**Target:** `netstandard2.0` (required for analyzers/generators)
+
+**NuGet References:**
+- `Microsoft.CodeAnalysis.CSharp` (>= 4.3.0 for incremental generators)
+
+**Ships as a dev-only analyzer/generator NuGet package:**
+- `<IncludeBuildOutput>false</IncludeBuildOutput>`
+- Packs into `analyzers/dotnet/cs`
+- Consumers reference with `PrivateAssets="All"` — no transitive runtime dependency
+
+**Contents:**
+
+#### A. Incremental Source Generator: `EntityChangeGenerator`
 
 **Pipeline design for optimal caching:**
 
 ```
-Step 1: SyntaxProvider.ForAttributeWithMetadataName("GenerateComparerAttribute")
+Step 1: SyntaxProvider.ForAttributeWithMetadataName("EntityChange.GenerateComparerAttribute")
         → Filter to partial classes deriving from EntityComparer<T>
         → Extract: ComparerModel (equatable record)
             - ClassName, Namespace, Accessibility
@@ -138,7 +167,7 @@ Step 2: For each ComparerModel, walk T's property tree → PropertyModel[]
         → Each PropertyModel (equatable record):
             - Name, TypeFullName, DisplayName
             - IsIgnored, FormatString
-            - IsCollection, IsDictionary, IsComplexObject, IsValueType
+            - IsCollection, IsSet, IsDictionary, IsComplexObject, IsValueType
             - CollectionComparison mode
             - CollectionElementType (if applicable)
             - DictionaryKeyType, DictionaryValueType (if applicable)
@@ -188,10 +217,10 @@ partial class OrderComparer
         CompareValue(original.OrderNumber, current.OrderNumber, "OrderNumber", "Order Number");
         PathStack.Pop();
         
-        // Total — has [CompareFormat("C")]
+        // Total — has [DisplayFormat(DataFormatString = "{0:C}")]
         PathStack.PushProperty("Total");
         CompareValue(original.Total, current.Total, "Total", "Total",
-            formatter: v => ((decimal)v).ToString("C"));
+            formatter: v => string.Format("{0:C}", v));
         PathStack.Pop();
         
         // --- Nested complex object ---
@@ -219,29 +248,17 @@ partial class OrderComparer
 3. **Collections (IList, ICollection, arrays)**: Delegate to base `CompareListByIndex` or `CompareListByEquality` with a typed comparison callback
 4. **Sets (ISet\<T\>, HashSet\<T\>, IReadOnlySet\<T\>)**: Delegate to base `CompareSet<TElement>` — uses set semantics (added = `current.Except(original)`, removed = `original.Except(current)`), no index paths
 5. **Dictionaries**: Delegate to base `CompareDictionary<TKey, TValue>` 
-6. **Display names**: Resolved at generation time from `[Display]`, `[DisplayName]`, `[CompareDisplay]`, or PascalCase→Title conversion
-7. **Format strings**: Resolved at generation time from `[CompareFormat]` — generates inline `ToString(format)` calls
-8. **Ignored properties**: Simply omitted from generated code
+6. **Display names**: Resolved at generation time from `[CompareDisplay]` > `[Display]` > `[DisplayName]` > PascalCase→Title conversion
+7. **Format strings**: Resolved at generation time from `[DisplayFormat(DataFormatString = "...")]` — generates inline `string.Format(format, v)` calls
+8. **Ignored properties**: `[CompareIgnore]` or `[NotMapped]` — simply omitted from generated code
 9. **Nullable properties**: Null-checked before accessing
 10. **Enum properties**: Treated as value types, compared with `Equals`
 11. **Abstract/interface properties**: Use runtime type via `GetType()` for the specific compare, with fallback to `CompareValue`
 12. **Auto-detect sets**: Properties typed as `ISet<T>`, `HashSet<T>`, or `IReadOnlySet<T>` automatically use `CompareSet` unless overridden via `[CompareCollection]`
 
-#### C. Source-Injected Types
+#### B. Diagnostic Analyzer (same project)
 
-The generator injects these types into the consuming assembly (via `RegisterPostInitializationOutput`):
-
-1. `GenerateComparerAttribute` — marker attribute
-2. `CompareIgnoreAttribute` — ignore property
-3. `CompareDisplayAttribute` — display name override  
-4. `CompareFormatAttribute` — format string
-5. `CompareCollectionAttribute` — collection comparison mode
-6. `IEntityComparer<T>` — generic interface
-7. `EntityComparer<T>` — abstract base class with helpers
-
-#### D. Diagnostic Analyzer (same project)
-
-The analyzer lives in the same `EntityChange.Generators` assembly alongside the generator. Both are loaded from the `analyzers/dotnet/cs` NuGet folder. This keeps packaging simple and lets the analyzer share attribute symbol constants with the generator.
+The analyzer lives in the same `EntityChange.Generators` assembly alongside the generator. Both are loaded from the `analyzers/dotnet/cs` NuGet folder.
 
 **Diagnostic Rules:**
 
@@ -250,7 +267,7 @@ The analyzer lives in the same `EntityChange.Generators` assembly alongside the 
 | `EC0001` | Warning | Class with `[GenerateComparer]` must be `partial` |
 | `EC0002` | Warning | Class with `[GenerateComparer]` must derive from `EntityComparer<T>` |
 | `EC0003` | Warning | `EntityComparer<T>` type parameter `T` must be a reference type with accessible properties |
-| `EC0004` | Warning | `[CompareFormat]` applied to a non-formattable type |
+| `EC0004` | Warning | `[DisplayFormat]` applied to a non-formattable type |
 | `EC0005` | Warning | `[CompareCollection]` applied to a non-collection property |
 | `EC0006` | Info | Property type is not supported for deep comparison (will be compared by reference) |
 
@@ -261,7 +278,7 @@ The analyzer lives in the same `EntityChange.Generators` assembly alongside the 
 
 ---
 
-### Project 2: `test/EntityChange.Generators.Tests/EntityChange.Generators.Tests.csproj`
+### New: `test/EntityChange.Generators.Tests/EntityChange.Generators.Tests.csproj`
 
 **Target:** `net9.0`
 
@@ -284,13 +301,15 @@ The analyzer lives in the same `EntityChange.Generators` assembly alongside the 
 ### Phase 1: Project Scaffolding
 1. Create `src/EntityChange.Generators/EntityChange.Generators.csproj` with correct SDK, TFM, and analyzer packaging properties
 2. Create `test/EntityChange.Generators.Tests/EntityChange.Generators.Tests.csproj`
-3. Add both projects to `EntityChange.slnx`
-4. Create `src/EntityChange.Generators/Properties/launchSettings.json` for debugging
+3. Add both new projects to `EntityChange.slnx`
 
-### Phase 2: Attributes & Base Types (Post-Initialization Source)
-6. Create attribute source strings: `GenerateComparerAttribute`, `CompareIgnoreAttribute`, `CompareDisplayAttribute`, `CompareFormatAttribute`, `CompareCollectionAttribute`
-7. Create `IEntityComparer<T>` interface source (bridges to existing `IEntityComparer`)
-8. Create `EntityComparer<T>` abstract base class source with:
+### Phase 2: Attributes & Base Types (in EntityChange project)
+4. Add `GenerateComparerAttribute.cs` to `src/EntityChange/`
+5. Add `CompareIgnoreAttribute.cs` to `src/EntityChange/`
+6. Add `CompareDisplayAttribute.cs` to `src/EntityChange/`
+7. Add `CompareCollectionAttribute.cs` to `src/EntityChange/`
+8. Add `IEntityComparer{T}.cs` — generic interface bridging to existing `IEntityComparer`
+9. Add `EntityComparer{T}.cs` — abstract base class with:
    - `PathStack`, `Changes` fields
    - `CreateChange()` helper
    - `CompareValue()` for scalar comparison
@@ -298,7 +317,6 @@ The analyzer lives in the same `EntityChange.Generators` assembly alongside the 
    - `CompareListByEquality()` for equality-based collection comparison
    - `CompareSet<TElement>()` for set comparison (added/removed via set difference)
    - `CompareDictionary<TKey, TValue>()` for dictionary comparison
-9. Register all via `RegisterPostInitializationOutput`
 
 ### Phase 3: Generator Models (Equatable Records)
 10. Define `ComparerInfo` record: class name, namespace, accessibility, target type symbol
@@ -324,22 +342,24 @@ The analyzer lives in the same `EntityChange.Generators` assembly alongside the 
 26. Handle nullability, enums, abstract types
 
 ### Phase 6: Data Annotation Support in Generator
-26. Read `[Display(Name=...)]` from `System.ComponentModel.DataAnnotations`
-27. Read `[DisplayName(...)]` from `System.ComponentModel`
-28. Read `[NotMapped]` → treat as ignored
-29. Read `[CompareDisplay]`, `[CompareIgnore]`, `[CompareFormat]`, `[CompareCollection]` (new attributes)
-30. Priority: `[CompareDisplay]` > `[Display]` > `[DisplayName]` > PascalCase→Title
+27. Read `[Display(Name=...)]` from `System.ComponentModel.DataAnnotations`
+28. Read `[DisplayName(...)]` from `System.ComponentModel`
+29. Read `[DisplayFormat(DataFormatString=...)]` from `System.ComponentModel.DataAnnotations`
+30. Read `[NotMapped]` → treat as ignored
+31. Read `[CompareDisplay]`, `[CompareIgnore]`, `[CompareCollection]` (EntityChange attributes)
+32. Priority for display name: `[CompareDisplay]` > `[Display]` > `[DisplayName]` > PascalCase→Title
+33. Priority for format: `[DisplayFormat]` (only source)
 
 ### Phase 7: Diagnostic Analyzer (same project as generator)
-31. Create `EntityChangeAnalyzer` class in `EntityChange.Generators`
-32. Implement EC0001–EC0006 diagnostics
-33. Register appropriate symbol/syntax actions
+34. Create `EntityChangeAnalyzer` class in `EntityChange.Generators`
+35. Implement EC0001–EC0006 diagnostics
+36. Register appropriate symbol/syntax actions
 
 ### Phase 8: Tests
-34. Generator snapshot tests with Verify
-35. Round-trip behavior tests (compile + run generated comparer, compare output with legacy)
-36. Analyzer diagnostic tests
-37. Edge case tests
+37. Generator snapshot tests with Verify
+38. Round-trip behavior tests (compile + run generated comparer, compare output with legacy)
+39. Analyzer diagnostic tests
+40. Edge case tests
 
 ---
 
@@ -357,7 +377,7 @@ The incremental generator pipeline is designed for maximum cache hits:
 
 ## What Stays Unchanged
 
-- `src/EntityChange/` — all existing code (reflection-based comparer, fluent config, formatters, etc.) is untouched
+- All existing files in `src/EntityChange/` — reflection-based comparer, fluent config, formatters, etc. are untouched
 - `test/EntityChange.Tests/` — existing tests remain as-is
 - `IEntityComparer` interface — the new `IEntityComparer<T>` extends it, maintaining backward compatibility
 - `ChangeRecord`, `ChangeOperation`, `CollectionComparison`, `PathStack` — reused by generated code via the base class
