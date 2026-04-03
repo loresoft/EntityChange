@@ -8,9 +8,8 @@ Refactor EntityChange to use a Roslyn incremental source generator instead of ru
 
 ## New Projects
 
-### 1. `src/EntityChange.Generators` — Source Generator + Attributes
-### 2. `src/EntityChange.Generators.Analyzers` — Diagnostic Analyzer (warnings)
-### 3. `test/EntityChange.Generators.Tests` — Unit tests for the generator and analyzer
+### 1. `src/EntityChange.Generators` — Source Generator + Attributes + Diagnostic Analyzer
+### 2. `test/EntityChange.Generators.Tests` — Unit tests for the generator and analyzer
 
 ---
 
@@ -83,6 +82,7 @@ public abstract class EntityComparer<T> : IEntityComparer<T>
     // Collection comparison helpers (reusable, not generated per-type):
     protected void CompareListByIndex<TElement>(...) { ... }
     protected void CompareListByEquality<TElement>(...) { ... }
+    protected void CompareSet<TElement>(...) { ... }
     protected void CompareDictionary<TKey, TValue>(...) { ... }
     protected void CompareValue(object? original, object? current, 
         string propertyName, string displayName,
@@ -217,13 +217,15 @@ partial class OrderComparer
 1. **Value types & strings**: Direct `CompareValue()` call with property access — no reflection
 2. **Nested complex objects**: Generate a typed `Compare{TypeName}` method, recurse into its properties
 3. **Collections (IList, ICollection, arrays)**: Delegate to base `CompareListByIndex` or `CompareListByEquality` with a typed comparison callback
-4. **Dictionaries**: Delegate to base `CompareDictionary<TKey, TValue>` 
-5. **Display names**: Resolved at generation time from `[Display]`, `[DisplayName]`, `[CompareDisplay]`, or PascalCase→Title conversion
-6. **Format strings**: Resolved at generation time from `[CompareFormat]` — generates inline `ToString(format)` calls
-7. **Ignored properties**: Simply omitted from generated code
-8. **Nullable properties**: Null-checked before accessing
-9. **Enum properties**: Treated as value types, compared with `Equals`
-10. **Abstract/interface properties**: Use runtime type via `GetType()` for the specific compare, with fallback to `CompareValue`
+4. **Sets (ISet\<T\>, HashSet\<T\>, IReadOnlySet\<T\>)**: Delegate to base `CompareSet<TElement>` — uses set semantics (added = `current.Except(original)`, removed = `original.Except(current)`), no index paths
+5. **Dictionaries**: Delegate to base `CompareDictionary<TKey, TValue>` 
+6. **Display names**: Resolved at generation time from `[Display]`, `[DisplayName]`, `[CompareDisplay]`, or PascalCase→Title conversion
+7. **Format strings**: Resolved at generation time from `[CompareFormat]` — generates inline `ToString(format)` calls
+8. **Ignored properties**: Simply omitted from generated code
+9. **Nullable properties**: Null-checked before accessing
+10. **Enum properties**: Treated as value types, compared with `Equals`
+11. **Abstract/interface properties**: Use runtime type via `GetType()` for the specific compare, with fallback to `CompareValue`
+12. **Auto-detect sets**: Properties typed as `ISet<T>`, `HashSet<T>`, or `IReadOnlySet<T>` automatically use `CompareSet` unless overridden via `[CompareCollection]`
 
 #### C. Source-Injected Types
 
@@ -237,13 +239,9 @@ The generator injects these types into the consuming assembly (via `RegisterPost
 6. `IEntityComparer<T>` — generic interface
 7. `EntityComparer<T>` — abstract base class with helpers
 
----
+#### D. Diagnostic Analyzer (same project)
 
-### Project 2: `src/EntityChange.Generators.Analyzers/EntityChange.Generators.Analyzers.csproj`
-
-**Target:** `netstandard2.0`
-
-**Separate from the generator** to keep the generator pipeline lean and cacheable.
+The analyzer lives in the same `EntityChange.Generators` assembly alongside the generator. Both are loaded from the `analyzers/dotnet/cs` NuGet folder. This keeps packaging simple and lets the analyzer share attribute symbol constants with the generator.
 
 **Diagnostic Rules:**
 
@@ -263,7 +261,7 @@ The generator injects these types into the consuming assembly (via `RegisterPost
 
 ---
 
-### Project 3: `test/EntityChange.Generators.Tests/EntityChange.Generators.Tests.csproj`
+### Project 2: `test/EntityChange.Generators.Tests/EntityChange.Generators.Tests.csproj`
 
 **Target:** `net9.0`
 
@@ -285,10 +283,9 @@ The generator injects these types into the consuming assembly (via `RegisterPost
 
 ### Phase 1: Project Scaffolding
 1. Create `src/EntityChange.Generators/EntityChange.Generators.csproj` with correct SDK, TFM, and analyzer packaging properties
-2. Create `src/EntityChange.Generators.Analyzers/EntityChange.Generators.Analyzers.csproj`
-3. Create `test/EntityChange.Generators.Tests/EntityChange.Generators.Tests.csproj`
-4. Add all three projects to `EntityChange.slnx`
-5. Create `src/EntityChange.Generators/Properties/launchSettings.json` for debugging
+2. Create `test/EntityChange.Generators.Tests/EntityChange.Generators.Tests.csproj`
+3. Add both projects to `EntityChange.slnx`
+4. Create `src/EntityChange.Generators/Properties/launchSettings.json` for debugging
 
 ### Phase 2: Attributes & Base Types (Post-Initialization Source)
 6. Create attribute source strings: `GenerateComparerAttribute`, `CompareIgnoreAttribute`, `CompareDisplayAttribute`, `CompareFormatAttribute`, `CompareCollectionAttribute`
@@ -299,6 +296,7 @@ The generator injects these types into the consuming assembly (via `RegisterPost
    - `CompareValue()` for scalar comparison
    - `CompareListByIndex()` for index-based collection comparison
    - `CompareListByEquality()` for equality-based collection comparison
+   - `CompareSet<TElement>()` for set comparison (added/removed via set difference)
    - `CompareDictionary<TKey, TValue>()` for dictionary comparison
 9. Register all via `RegisterPostInitializationOutput`
 
@@ -320,9 +318,10 @@ The generator injects these types into the consuming assembly (via `RegisterPost
 20. Generate `Compare(T?, T?)` override method
 21. Generate per-type `Compare{TypeName}()` private methods for complex objects
 22. Generate inline scalar comparisons with display names and format strings
-23. Generate collection delegation calls
-24. Generate dictionary delegation calls
-25. Handle nullability, enums, abstract types
+23. Generate collection delegation calls (list, array)
+24. Generate set delegation calls (auto-detected for ISet<T>/HashSet<T>/IReadOnlySet<T>)
+25. Generate dictionary delegation calls
+26. Handle nullability, enums, abstract types
 
 ### Phase 6: Data Annotation Support in Generator
 26. Read `[Display(Name=...)]` from `System.ComponentModel.DataAnnotations`
@@ -331,8 +330,8 @@ The generator injects these types into the consuming assembly (via `RegisterPost
 29. Read `[CompareDisplay]`, `[CompareIgnore]`, `[CompareFormat]`, `[CompareCollection]` (new attributes)
 30. Priority: `[CompareDisplay]` > `[Display]` > `[DisplayName]` > PascalCase→Title
 
-### Phase 7: Diagnostic Analyzer
-31. Create `EntityChangeAnalyzer` class
+### Phase 7: Diagnostic Analyzer (same project as generator)
+31. Create `EntityChangeAnalyzer` class in `EntityChange.Generators`
 32. Implement EC0001–EC0006 diagnostics
 33. Register appropriate symbol/syntax actions
 
@@ -352,7 +351,7 @@ The incremental generator pipeline is designed for maximum cache hits:
 2. **Equatable models** — all intermediate pipeline values are equatable records/structs. If a user edits an unrelated file, the pipeline short-circuits and reuses cached output
 3. **No `Compilation`-level transforms** — we avoid `RegisterSourceOutput(compilationProvider, ...)` which would invalidate on every keystroke
 4. **Property walking is deterministic** — properties are sorted by declaration order, so the model is stable across compilations
-5. **Separate analyzer project** — diagnostics don't pollute the generator cache
+5. **Lightweight analyzer** — diagnostics use symbol actions only (no syntax tree walking), so they don't interfere with the generator's incremental cache
 
 ---
 
