@@ -116,7 +116,6 @@ New files added to the existing project (no existing files modified):
 |-----------|--------|---------|
 | `[GenerateComparer]` | Class | Marks partial class for generation |
 | `[CompareIgnore]` | Property | Exclude property from comparison |
-| `[CompareDisplay(Name)]` | Property | Override display name (alternative to DataAnnotations) |
 | `[CompareCollection(CollectionComparison)]` | Property | Set collection comparison mode |
 
 **No custom format attribute.** Instead, the generator reads the standard `[DisplayFormat(DataFormatString = "...")]` from `System.ComponentModel.DataAnnotations` (already referenced by the project for netstandard2.0).
@@ -248,7 +247,7 @@ partial class OrderComparer
 3. **Collections (IList, ICollection, arrays)**: Delegate to base `CompareListByIndex` or `CompareListByEquality` with a typed comparison callback
 4. **Sets (ISet\<T\>, HashSet\<T\>, IReadOnlySet\<T\>)**: Delegate to base `CompareSet<TElement>` — uses set semantics (added = `current.Except(original)`, removed = `original.Except(current)`), no index paths
 5. **Dictionaries**: Delegate to base `CompareDictionary<TKey, TValue>` 
-6. **Display names**: Resolved at generation time from `[CompareDisplay]` > `[Display]` > `[DisplayName]` > PascalCase→Title conversion
+6. **Display names**: Resolved at generation time from `[Display(Name)]` > `[DisplayName]` > PascalCase→Title conversion
 7. **Format strings**: Resolved at generation time from `[DisplayFormat(DataFormatString = "...")]` — generates inline `string.Format(format, v)` calls
 8. **Ignored properties**: `[CompareIgnore]` or `[NotMapped]` — simply omitted from generated code
 9. **Nullable properties**: Null-checked before accessing
@@ -306,8 +305,7 @@ The analyzer lives in the same `EntityChange.Generators` assembly alongside the 
 ### Phase 2: Attributes & Base Types (in EntityChange project)
 4. Add `GenerateComparerAttribute.cs` to `src/EntityChange/`
 5. Add `CompareIgnoreAttribute.cs` to `src/EntityChange/`
-6. Add `CompareDisplayAttribute.cs` to `src/EntityChange/`
-7. Add `CompareCollectionAttribute.cs` to `src/EntityChange/`
+6. Add `CompareCollectionAttribute.cs` to `src/EntityChange/`
 8. Add `IEntityComparer{T}.cs` — generic interface bridging to existing `IEntityComparer`
 9. Add `EntityComparer{T}.cs` — abstract base class with:
    - `PathStack`, `Changes` fields
@@ -346,8 +344,8 @@ The analyzer lives in the same `EntityChange.Generators` assembly alongside the 
 28. Read `[DisplayName(...)]` from `System.ComponentModel`
 29. Read `[DisplayFormat(DataFormatString=...)]` from `System.ComponentModel.DataAnnotations`
 30. Read `[NotMapped]` → treat as ignored
-31. Read `[CompareDisplay]`, `[CompareIgnore]`, `[CompareCollection]` (EntityChange attributes)
-32. Priority for display name: `[CompareDisplay]` > `[Display]` > `[DisplayName]` > PascalCase→Title
+31. Read `[CompareIgnore]`, `[CompareCollection]` (EntityChange attributes)
+32. Priority for display name: `[Display(Name)]` > `[DisplayName]` > PascalCase→Title
 33. Priority for format: `[DisplayFormat]` (only source)
 
 ### Phase 7: Diagnostic Analyzer (same project as generator)
