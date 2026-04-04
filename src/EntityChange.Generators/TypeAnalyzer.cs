@@ -113,7 +113,7 @@ internal static class TypeAnalyzer
             FormatString = GetFormatString(property),
             IsIgnored = IsIgnored(property),
             IsNullable = property.Type.NullableAnnotation == NullableAnnotation.Annotated
-                || property.Type.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T,
+                || (property.Type is INamedTypeSymbol pt && pt.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T),
         };
 
         CategorizeProperty(property.Type, model);

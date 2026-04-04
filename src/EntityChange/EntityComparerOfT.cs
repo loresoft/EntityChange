@@ -17,7 +17,7 @@ public abstract class EntityComparer<T> : IEntityComparer<T>
     /// <summary>
     /// Gets the list of accumulated changes.
     /// </summary>
-    protected List<ChangeRecord> Changes { get; } = [];
+    protected List<ChangeRecord> Changes { get; } = new();
 
     /// <summary>
     /// Compares the specified <paramref name="original"/> and <paramref name="current"/> entities.
@@ -159,8 +159,8 @@ public abstract class EntityComparer<T> : IEntityComparer<T>
         IEnumerable<TElement>? current,
         Func<object?, string?>? formatter = null)
     {
-        var originalSet = original != null ? new HashSet<TElement>(original) : [];
-        var currentSet = current != null ? new HashSet<TElement>(current) : [];
+        var originalSet = original != null ? new HashSet<TElement>(original) : new HashSet<TElement>();
+        var currentSet = current != null ? new HashSet<TElement>(current) : new HashSet<TElement>();
 
         if (originalSet.Count == 0 && currentSet.Count == 0)
             return;
@@ -204,8 +204,8 @@ public abstract class EntityComparer<T> : IEntityComparer<T>
         if (original is null && current is null)
             return;
 
-        var originalKeys = original?.Keys.ToList() ?? [];
-        var currentKeys = current?.Keys.ToList() ?? [];
+        var originalKeys = original?.Keys.ToList() ?? new List<TKey>();
+        var currentKeys = current?.Keys.ToList() ?? new List<TKey>();
 
         // common keys
         var commonKeys = originalKeys.Intersect(currentKeys).ToList();
@@ -256,8 +256,8 @@ public abstract class EntityComparer<T> : IEntityComparer<T>
         if (original is null && current is null)
             return;
 
-        var originalKeys = original != null ? original.Keys.Cast<object>().ToList() : [];
-        var currentKeys = current != null ? current.Keys.Cast<object>().ToList() : [];
+        var originalKeys = original != null ? original.Keys.Cast<object>().ToList() : new List<object>();
+        var currentKeys = current != null ? current.Keys.Cast<object>().ToList() : new List<object>();
 
         // common keys
         var commonKeys = originalKeys.Intersect(currentKeys).ToList();

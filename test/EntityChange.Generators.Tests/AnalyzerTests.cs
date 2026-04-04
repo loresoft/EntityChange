@@ -1,7 +1,9 @@
+using System.Collections.Immutable;
 using System.Linq;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 using FluentAssertions;
 
@@ -117,7 +119,7 @@ public class AnalyzerTests
         var analyzer = new EntityChangeAnalyzer();
 
         var compilationWithAnalyzers = compilation
-            .WithAnalyzers(System.Collections.Immutable.ImmutableArray.Create<Microsoft.CodeAnalysis.Diagnostics.DiagnosticAnalyzer>(analyzer));
+            .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(analyzer));
 
         return compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().Result.ToArray();
     }

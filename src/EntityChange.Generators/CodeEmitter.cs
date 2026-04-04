@@ -56,7 +56,7 @@ internal static class CodeEmitter
             sb.AppendLine();
             sb.AppendLine($"{methodName}(original, current);");
             sb.AppendLine();
-            sb.AppendLine("return Changes.ToList();");
+            sb.AppendLine("return new global::System.Collections.Generic.List<global::EntityChange.ChangeRecord>(Changes);");
         }
     }
 

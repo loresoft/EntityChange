@@ -10,7 +10,6 @@ using Xunit;
 
 namespace EntityChange.Generators.Tests;
 
-[UsesVerify]
 public class GeneratorSnapshotTests
 {
     [Fact]
