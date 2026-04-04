@@ -1,5 +1,7 @@
 using System.Collections.Immutable;
+using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
