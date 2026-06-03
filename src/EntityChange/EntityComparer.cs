@@ -378,8 +378,8 @@ public class EntityComparer : IEntityComparer
 
     private IMemberOptions? CurrentMember()
     {
-        return _memberStack.Count > 0
-            ? _memberStack.Peek()
+        return _memberStack.TryPeek(out var member)
+            ? member
             : null;
     }
 
