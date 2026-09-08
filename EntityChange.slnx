@@ -6,5 +6,7 @@
     <File Path="src/Directory.Build.props" />
   </Folder>
   <Project Path="src/EntityChange/EntityChange.csproj" />
+  <Project Path="src/EntityChange.Generators/EntityChange.Generators.csproj" />
   <Project Path="test/EntityChange.Tests/EntityChange.Tests.csproj" />
+  <Project Path="test/EntityChange.Generators.Tests/EntityChange.Generators.Tests.csproj" />
 </Solution>

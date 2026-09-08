@@ -9,6 +9,7 @@ namespace EntityChange;
 /// <summary>
 /// A class to compare two entities generating a change list.
 /// </summary>
+[Obsolete("Use source-generated EntityComparer<T> instead.")]
 public class EntityComparer : IEntityComparer
 {
     private readonly PathStack _pathStack;
