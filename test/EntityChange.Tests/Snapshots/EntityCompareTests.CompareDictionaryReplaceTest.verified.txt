@@ -1,9 +1,0 @@
-﻿[
-  {
-    PropertyName: Data[Boost],
-    DisplayName: Data,
-    Path: Data[Boost],
-    CurrentValue: 1,
-    CurrentFormatted: 1
-  }
-]

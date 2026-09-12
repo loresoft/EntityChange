@@ -1,19 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Channels;
-using System.Threading.Tasks;
 
 using EntityChange.Tests.Models;
-
-using FluentAssertions;
-
-using VerifyXunit;
-
-using Xunit;
-using Xunit.Abstractions;
 
 namespace EntityChange.Tests;
 
@@ -28,11 +18,11 @@ public class EntityCompareTests
     }
 
     [Fact]
-    public async Task CompareObjectTestAsync()
+    public void CompareObjectTestAsync()
     {
         var original = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000001-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 10000,
             BillingAddress = new MailingAddress
@@ -46,7 +36,7 @@ public class EntityCompareTests
 
         var current = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000002-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 11000,
             BillingAddress = new MailingAddress
@@ -71,15 +61,51 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Id",
+                "displayName": "Id",
+                "path": "Id",
+                "operation": "Replace",
+                "originalValue": "00000001-0000-0000-0000-000000000000",
+                "currentValue": "00000002-0000-0000-0000-000000000000",
+                "originalFormatted": "00000001-0000-0000-0000-000000000000",
+                "currentFormatted": "00000002-0000-0000-0000-000000000000"
+              },
+              {
+                "propertyName": "Zip",
+                "displayName": "Zip",
+                "path": "BillingAddress.Zip",
+                "operation": "Replace",
+                "originalValue": "10038",
+                "currentValue": "10026",
+                "originalFormatted": "10038",
+                "currentFormatted": "10026"
+              },
+              {
+                "propertyName": "Total",
+                "displayName": "Total",
+                "path": "Total",
+                "operation": "Replace",
+                "originalValue": 10000,
+                "currentValue": 11000,
+                "originalFormatted": "10000",
+                "currentFormatted": "11000"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareObjectValueFormatter()
+    public void CompareObjectValueFormatter()
     {
         var original = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000003-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 10000,
         };
@@ -111,15 +137,31 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Total",
+                "displayName": "Total",
+                "path": "Total",
+                "operation": "Replace",
+                "originalValue": 10000,
+                "currentValue": 11000,
+                "originalFormatted": "$10,000.00",
+                "currentFormatted": "$11,000.00"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareObjectNewPropertyTest()
+    public void CompareObjectNewPropertyTest()
     {
         var original = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000004-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 10000,
             BillingAddress = new MailingAddress
@@ -133,7 +175,7 @@ public class EntityCompareTests
 
         var current = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000005-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 11000,
             BillingAddress = new MailingAddress
@@ -160,15 +202,59 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Id",
+                "displayName": "Id",
+                "path": "Id",
+                "operation": "Replace",
+                "originalValue": "00000004-0000-0000-0000-000000000000",
+                "currentValue": "00000005-0000-0000-0000-000000000000",
+                "originalFormatted": "00000004-0000-0000-0000-000000000000",
+                "currentFormatted": "00000005-0000-0000-0000-000000000000"
+              },
+              {
+                "propertyName": "Address2",
+                "displayName": "Address 2",
+                "path": "BillingAddress.Address2",
+                "operation": "Replace",
+                "currentValue": "Suite 101",
+                "currentFormatted": "Suite 101"
+              },
+              {
+                "propertyName": "Zip",
+                "displayName": "Zip",
+                "path": "BillingAddress.Zip",
+                "operation": "Replace",
+                "originalValue": "10038",
+                "currentValue": "10026",
+                "originalFormatted": "10038",
+                "currentFormatted": "10026"
+              },
+              {
+                "propertyName": "Total",
+                "displayName": "Total",
+                "path": "Total",
+                "operation": "Replace",
+                "originalValue": 10000,
+                "currentValue": 11000,
+                "originalFormatted": "10000",
+                "currentFormatted": "11000"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareObjectRemovePropertyTest()
+    public void CompareObjectRemovePropertyTest()
     {
         var original = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000006-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 10000,
             BillingAddress = new MailingAddress
@@ -183,7 +269,7 @@ public class EntityCompareTests
 
         var current = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000007-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 11000,
             BillingAddress = new MailingAddress
@@ -210,22 +296,66 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Id",
+                "displayName": "Id",
+                "path": "Id",
+                "operation": "Replace",
+                "originalValue": "00000006-0000-0000-0000-000000000000",
+                "currentValue": "00000007-0000-0000-0000-000000000000",
+                "originalFormatted": "00000006-0000-0000-0000-000000000000",
+                "currentFormatted": "00000007-0000-0000-0000-000000000000"
+              },
+              {
+                "propertyName": "Address2",
+                "displayName": "Address 2",
+                "path": "BillingAddress.Address2",
+                "operation": "Replace",
+                "originalValue": "Suite 101",
+                "originalFormatted": "Suite 101"
+              },
+              {
+                "propertyName": "Zip",
+                "displayName": "Zip",
+                "path": "BillingAddress.Zip",
+                "operation": "Replace",
+                "originalValue": "10038",
+                "currentValue": "10026",
+                "originalFormatted": "10038",
+                "currentFormatted": "10026"
+              },
+              {
+                "propertyName": "Total",
+                "displayName": "Total",
+                "path": "Total",
+                "operation": "Replace",
+                "originalValue": 10000,
+                "currentValue": 11000,
+                "originalFormatted": "10000",
+                "currentFormatted": "11000"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareObjectNewObjectTest()
+    public void CompareObjectNewObjectTest()
     {
         var original = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000008-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 10000
         };
 
         var current = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000009-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 11000,
             BillingAddress = new MailingAddress
@@ -251,15 +381,49 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Id",
+                "displayName": "Id",
+                "path": "Id",
+                "operation": "Replace",
+                "originalValue": "00000008-0000-0000-0000-000000000000",
+                "currentValue": "00000009-0000-0000-0000-000000000000",
+                "originalFormatted": "00000008-0000-0000-0000-000000000000",
+                "currentFormatted": "00000009-0000-0000-0000-000000000000"
+              },
+              {
+                "propertyName": "BillingAddress",
+                "displayName": "Billing Address",
+                "path": "BillingAddress",
+                "operation": "Replace",
+                "currentValue": "123 Main St, New York, NY 10026",
+                "currentFormatted": "123 Main St, New York, NY 10026"
+              },
+              {
+                "propertyName": "Total",
+                "displayName": "Total",
+                "path": "Total",
+                "operation": "Replace",
+                "originalValue": 10000,
+                "currentValue": 11000,
+                "originalFormatted": "10000",
+                "currentFormatted": "11000"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareObjectRemoveObjectTest()
+    public void CompareObjectRemoveObjectTest()
     {
         var original = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000010-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 10000,
             BillingAddress = new MailingAddress
@@ -273,7 +437,7 @@ public class EntityCompareTests
 
         var current = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000011-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 11000
         };
@@ -292,15 +456,49 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Id",
+                "displayName": "Id",
+                "path": "Id",
+                "operation": "Replace",
+                "originalValue": "00000010-0000-0000-0000-000000000000",
+                "currentValue": "00000011-0000-0000-0000-000000000000",
+                "originalFormatted": "00000010-0000-0000-0000-000000000000",
+                "currentFormatted": "00000011-0000-0000-0000-000000000000"
+              },
+              {
+                "propertyName": "BillingAddress",
+                "displayName": "Billing Address",
+                "path": "BillingAddress",
+                "operation": "Replace",
+                "originalValue": "123 Main St, New York, NY 10026",
+                "originalFormatted": "123 Main St, New York, NY 10026"
+              },
+              {
+                "propertyName": "Total",
+                "displayName": "Total",
+                "path": "Total",
+                "operation": "Replace",
+                "originalValue": 10000,
+                "currentValue": 11000,
+                "originalFormatted": "10000",
+                "currentFormatted": "11000"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareCollectionAddItemTest()
+    public void CompareCollectionAddItemTest()
     {
         var original = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000012-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 10000,
             Items = new List<OrderLine>
@@ -311,7 +509,7 @@ public class EntityCompareTests
 
         var current = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000013-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 11000,
             Items = new List<OrderLine>
@@ -336,15 +534,59 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Id",
+                "displayName": "Id",
+                "path": "Id",
+                "operation": "Replace",
+                "originalValue": "00000012-0000-0000-0000-000000000000",
+                "currentValue": "00000013-0000-0000-0000-000000000000",
+                "originalFormatted": "00000012-0000-0000-0000-000000000000",
+                "currentFormatted": "00000013-0000-0000-0000-000000000000"
+              },
+              {
+                "propertyName": "UnitPrice",
+                "displayName": "Unit Price",
+                "path": "Items[0].UnitPrice",
+                "operation": "Replace",
+                "originalValue": 10000,
+                "currentValue": 5000,
+                "originalFormatted": "10000",
+                "currentFormatted": "5000"
+              },
+              {
+                "propertyName": "Items[1]",
+                "displayName": "Items",
+                "path": "Items[1]",
+                "operation": "Add",
+                "currentValue": "EntityChange.Tests.Models.OrderLine",
+                "currentFormatted": "EntityChange.Tests.Models.OrderLine"
+              },
+              {
+                "propertyName": "Total",
+                "displayName": "Total",
+                "path": "Total",
+                "operation": "Replace",
+                "originalValue": 10000,
+                "currentValue": 11000,
+                "originalFormatted": "10000",
+                "currentFormatted": "11000"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareCollectionRemoveItemTest()
+    public void CompareCollectionRemoveItemTest()
     {
         var original = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000014-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 10000,
             Items = new List<OrderLine>
@@ -356,7 +598,7 @@ public class EntityCompareTests
 
         var current = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000015-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 11000,
             Items = new List<OrderLine>
@@ -380,22 +622,66 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Id",
+                "displayName": "Id",
+                "path": "Id",
+                "operation": "Replace",
+                "originalValue": "00000014-0000-0000-0000-000000000000",
+                "currentValue": "00000015-0000-0000-0000-000000000000",
+                "originalFormatted": "00000014-0000-0000-0000-000000000000",
+                "currentFormatted": "00000015-0000-0000-0000-000000000000"
+              },
+              {
+                "propertyName": "UnitPrice",
+                "displayName": "Unit Price",
+                "path": "Items[0].UnitPrice",
+                "operation": "Replace",
+                "originalValue": 10000,
+                "currentValue": 5000,
+                "originalFormatted": "10000",
+                "currentFormatted": "5000"
+              },
+              {
+                "propertyName": "Items[1]",
+                "displayName": "Items",
+                "path": "Items[1]",
+                "operation": "Remove",
+                "originalValue": "EntityChange.Tests.Models.OrderLine",
+                "originalFormatted": "EntityChange.Tests.Models.OrderLine"
+              },
+              {
+                "propertyName": "Total",
+                "displayName": "Total",
+                "path": "Total",
+                "operation": "Replace",
+                "originalValue": 10000,
+                "currentValue": 11000,
+                "originalFormatted": "10000",
+                "currentFormatted": "11000"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareCollectionReplaceTest()
+    public void CompareCollectionReplaceTest()
     {
         var original = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000016-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 10000,
         };
 
         var current = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000017-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 11000,
             Items = new List<OrderLine>
@@ -432,15 +718,49 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Id",
+                "displayName": "Id",
+                "path": "Id",
+                "operation": "Replace",
+                "originalValue": "00000016-0000-0000-0000-000000000000",
+                "currentValue": "00000017-0000-0000-0000-000000000000",
+                "originalFormatted": "00000016-0000-0000-0000-000000000000",
+                "currentFormatted": "00000017-0000-0000-0000-000000000000"
+              },
+              {
+                "propertyName": "Items[0]",
+                "displayName": "Items",
+                "path": "Items[0]",
+                "operation": "Add",
+                "currentValue": "EntityChange.Tests.Models.OrderLine",
+                "currentFormatted": "abc-123"
+              },
+              {
+                "propertyName": "Total",
+                "displayName": "Total",
+                "path": "Total",
+                "operation": "Replace",
+                "originalValue": 10000,
+                "currentValue": 11000,
+                "originalFormatted": "10000",
+                "currentFormatted": "11000"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareCollectionRemoveTest()
+    public void CompareCollectionRemoveTest()
     {
         var original = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000018-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 10000,
             Items = new List<OrderLine>
@@ -451,7 +771,7 @@ public class EntityCompareTests
 
         var current = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000019-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 11000,
         };
@@ -484,22 +804,56 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Id",
+                "displayName": "Id",
+                "path": "Id",
+                "operation": "Replace",
+                "originalValue": "00000018-0000-0000-0000-000000000000",
+                "currentValue": "00000019-0000-0000-0000-000000000000",
+                "originalFormatted": "00000018-0000-0000-0000-000000000000",
+                "currentFormatted": "00000019-0000-0000-0000-000000000000"
+              },
+              {
+                "propertyName": "Items[0]",
+                "displayName": "Items",
+                "path": "Items[0]",
+                "operation": "Remove",
+                "originalValue": "EntityChange.Tests.Models.OrderLine",
+                "originalFormatted": "abc-123"
+              },
+              {
+                "propertyName": "Total",
+                "displayName": "Total",
+                "path": "Total",
+                "operation": "Replace",
+                "originalValue": 10000,
+                "currentValue": 11000,
+                "originalFormatted": "10000",
+                "currentFormatted": "11000"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareCollectionReplaceEmptyTest()
+    public void CompareCollectionReplaceEmptyTest()
     {
         var original = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000020-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 10000,
         };
 
         var current = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000021-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 11000,
             Items = new List<OrderLine>()
@@ -517,15 +871,41 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Id",
+                "displayName": "Id",
+                "path": "Id",
+                "operation": "Replace",
+                "originalValue": "00000020-0000-0000-0000-000000000000",
+                "currentValue": "00000021-0000-0000-0000-000000000000",
+                "originalFormatted": "00000020-0000-0000-0000-000000000000",
+                "currentFormatted": "00000021-0000-0000-0000-000000000000"
+              },
+              {
+                "propertyName": "Total",
+                "displayName": "Total",
+                "path": "Total",
+                "operation": "Replace",
+                "originalValue": 10000,
+                "currentValue": 11000,
+                "originalFormatted": "10000",
+                "currentFormatted": "11000"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareCollectionRemoveEmptyTest()
+    public void CompareCollectionRemoveEmptyTest()
     {
         var original = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000022-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 10000,
             Items = new List<OrderLine>()
@@ -533,7 +913,7 @@ public class EntityCompareTests
 
         var current = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000023-0000-0000-0000-000000000000",
             OrderNumber = 1000,
             Total = 11000,
         };
@@ -550,15 +930,41 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Id",
+                "displayName": "Id",
+                "path": "Id",
+                "operation": "Replace",
+                "originalValue": "00000022-0000-0000-0000-000000000000",
+                "currentValue": "00000023-0000-0000-0000-000000000000",
+                "originalFormatted": "00000022-0000-0000-0000-000000000000",
+                "currentFormatted": "00000023-0000-0000-0000-000000000000"
+              },
+              {
+                "propertyName": "Total",
+                "displayName": "Total",
+                "path": "Total",
+                "operation": "Replace",
+                "originalValue": 10000,
+                "currentValue": 11000,
+                "originalFormatted": "10000",
+                "currentFormatted": "11000"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareCollectionObjectEqualityTest()
+    public void CompareCollectionObjectEqualityTest()
     {
         var original = new Order
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000024-0000-0000-0000-000000000000",
             Items = new List<OrderLine>
             {
                 new OrderLine { Sku = "XYZ-123", Quanity = 1, UnitPrice = 10000 },
@@ -609,15 +1015,61 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Quanity",
+                "displayName": "Quanity",
+                "path": "Items[0].Quanity",
+                "operation": "Replace",
+                "originalValue": 1,
+                "currentValue": 2,
+                "originalFormatted": "1",
+                "currentFormatted": "2"
+              },
+              {
+                "propertyName": "UnitPrice",
+                "displayName": "Unit Price",
+                "path": "Items[0].UnitPrice",
+                "operation": "Replace",
+                "originalValue": 10000,
+                "currentValue": 5000,
+                "originalFormatted": "10000",
+                "currentFormatted": "5000"
+              },
+              {
+                "propertyName": "Quanity",
+                "displayName": "Quanity",
+                "path": "Items[1].Quanity",
+                "operation": "Replace",
+                "originalValue": 1,
+                "currentValue": 2,
+                "originalFormatted": "1",
+                "currentFormatted": "2"
+              },
+              {
+                "propertyName": "UnitPrice",
+                "displayName": "Unit Price",
+                "path": "Items[1].UnitPrice",
+                "operation": "Replace",
+                "originalValue": 10000,
+                "currentValue": 5000,
+                "originalFormatted": "10000",
+                "currentFormatted": "5000"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareDictionaryTest()
+    public void CompareDictionaryTest()
     {
         var original = new Contact
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000025-0000-0000-0000-000000000000",
             Data = new Dictionary<string, object>
             {
                 { "Boost", 1 },
@@ -649,15 +1101,41 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Data[Boost]",
+                "displayName": "Data",
+                "path": "Data[Boost]",
+                "operation": "Replace",
+                "originalValue": 1,
+                "currentValue": 2,
+                "originalFormatted": "1",
+                "currentFormatted": "2"
+              },
+              {
+                "propertyName": "Data[Path]",
+                "displayName": "Data",
+                "path": "Data[Path]",
+                "operation": "Replace",
+                "originalValue": "./home",
+                "currentValue": "./path",
+                "originalFormatted": "./home",
+                "currentFormatted": "./path"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareDictionaryAddItemTest()
+    public void CompareDictionaryAddItemTest()
     {
         var original = new Contact
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000026-0000-0000-0000-000000000000",
             Data = new Dictionary<string, object>
             {
                 { "Boost", 1 },
@@ -686,15 +1164,29 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Data[Path]",
+                "displayName": "Data",
+                "path": "Data[Path]",
+                "operation": "Add",
+                "currentValue": "./home",
+                "currentFormatted": "./home"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareDictionaryRemoveItemTest()
+    public void CompareDictionaryRemoveItemTest()
     {
         var original = new Contact
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000027-0000-0000-0000-000000000000",
             Data = new Dictionary<string, object>
             {
                 { "Boost", 1 },
@@ -723,15 +1215,29 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Data[Path]",
+                "displayName": "Data",
+                "path": "Data[Path]",
+                "operation": "Remove",
+                "originalValue": "./home",
+                "originalFormatted": "./home"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareDictionaryReplaceTest()
+    public void CompareDictionaryReplaceTest()
     {
         var original = new Contact
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000028-0000-0000-0000-000000000000",
         };
 
         var current = new Contact
@@ -755,15 +1261,29 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Data[Boost]",
+                "displayName": "Data",
+                "path": "Data[Boost]",
+                "operation": "Add",
+                "currentValue": 1,
+                "currentFormatted": "1"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareDictionaryRemoveTest()
+    public void CompareDictionaryRemoveTest()
     {
         var original = new Contact
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000029-0000-0000-0000-000000000000",
             Data = new Dictionary<string, object>
             {
                 { "Boost", 1 },
@@ -787,15 +1307,29 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Data[Boost]",
+                "displayName": "Data",
+                "path": "Data[Boost]",
+                "operation": "Remove",
+                "originalValue": 1,
+                "originalFormatted": "1"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareDictionaryReplaceEmptyTest()
+    public void CompareDictionaryReplaceEmptyTest()
     {
         var original = new Contact
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000030-0000-0000-0000-000000000000",
         };
 
         var current = new Contact
@@ -814,15 +1348,20 @@ public class EntityCompareTests
         WriteMarkdown(changes);
 
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            []
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareDictionaryRemoveEmptyTest()
+    public void CompareDictionaryRemoveEmptyTest()
     {
         var original = new Contact
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000031-0000-0000-0000-000000000000",
             Data = new Dictionary<string, object>()
         };
 
@@ -840,15 +1379,20 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            []
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareSetAddItemTest()
+    public void CompareSetAddItemTest()
     {
         var original = new Contact
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000032-0000-0000-0000-000000000000",
             Categories = new HashSet<string> { "Person", "Owner" },
         };
 
@@ -870,15 +1414,29 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Categories[2]",
+                "displayName": "Categories",
+                "path": "Categories[2]",
+                "operation": "Add",
+                "currentValue": "Blah",
+                "currentFormatted": "Blah"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareSetRemoveItemTest()
+    public void CompareSetRemoveItemTest()
     {
         var original = new Contact
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000033-0000-0000-0000-000000000000",
             Categories = new HashSet<string> { "Person", "Owner", "Blah" },
         };
 
@@ -900,15 +1458,29 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Categories[2]",
+                "displayName": "Categories",
+                "path": "Categories[2]",
+                "operation": "Remove",
+                "originalValue": "Blah",
+                "originalFormatted": "Blah"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareComplexCompareTest()
+    public void CompareComplexCompareTest()
     {
         var original = new Contact
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "00000034-0000-0000-0000-000000000000",
             Created = new DateTime(2024, 1, 6),
             Updated = new DateTime(2024, 1, 6),
             FirstName = "Jim",
@@ -1011,11 +1583,111 @@ public class EntityCompareTests
 
         WriteMarkdown(changes);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Updated",
+                "displayName": "Updated",
+                "path": "Updated",
+                "operation": "Replace",
+                "originalValue": "2024-01-06T00:00:00",
+                "currentValue": "2024-01-07T00:00:00",
+                "originalFormatted": "1/6/2024",
+                "currentFormatted": "1/7/2024"
+              },
+              {
+                "propertyName": "Roles",
+                "displayName": "Roles",
+                "path": "Roles",
+                "operation": "Remove",
+                "originalValue": "Administrator",
+                "originalFormatted": "Administrator"
+              },
+              {
+                "propertyName": "Address",
+                "displayName": "Email Address",
+                "path": "EmailAddresses[1].Address",
+                "operation": "Replace",
+                "originalValue": "user@Personal.com",
+                "currentValue": "user@gmail.com",
+                "originalFormatted": "user@Personal.com",
+                "currentFormatted": "user@gmail.com"
+              },
+              {
+                "propertyName": "EmailAddresses[2]",
+                "displayName": "Email Addresses",
+                "path": "EmailAddresses[2]",
+                "operation": "Add",
+                "currentValue": "EntityChange.Tests.Models.EmailAddress",
+                "currentFormatted": "user@home.com"
+              },
+              {
+                "propertyName": "Status",
+                "displayName": "Status",
+                "path": "Status",
+                "operation": "Replace",
+                "originalValue": "New",
+                "currentValue": "Verified",
+                "originalFormatted": "New",
+                "currentFormatted": "Verified"
+              },
+              {
+                "propertyName": "Zip",
+                "displayName": "Zip",
+                "path": "MailingAddresses[0].Zip",
+                "operation": "Replace",
+                "originalValue": "10026",
+                "currentValue": "10027",
+                "originalFormatted": "10026",
+                "currentFormatted": "10027"
+              },
+              {
+                "propertyName": "Number",
+                "displayName": "Number",
+                "path": "PhoneNumbers[0].Number",
+                "operation": "Replace",
+                "originalValue": "888-555-1212",
+                "currentValue": "800-555-1212",
+                "originalFormatted": "888-555-1212",
+                "currentFormatted": "800-555-1212"
+              },
+              {
+                "propertyName": "Categories[2]",
+                "displayName": "Categories",
+                "path": "Categories[2]",
+                "operation": "Add",
+                "currentValue": "Blah",
+                "currentFormatted": "Blah"
+              },
+              {
+                "propertyName": "Data[Boost]",
+                "displayName": "Data",
+                "path": "Data[Boost]",
+                "operation": "Replace",
+                "originalValue": 1,
+                "currentValue": 2,
+                "originalFormatted": "1",
+                "currentFormatted": "2"
+              },
+              {
+                "propertyName": "Data[Path]",
+                "displayName": "Data",
+                "path": "Data[Path]",
+                "operation": "Replace",
+                "originalValue": "./home",
+                "currentValue": "./path",
+                "originalFormatted": "./home",
+                "currentFormatted": "./path"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareNestedObjectsPathsTest()
+    public void CompareNestedObjectsPathsTest()
     {
         var node = new TreeNode
         {
@@ -1061,11 +1733,27 @@ public class EntityCompareTests
         changes.Should().NotBeEmpty();
         changes.First().Path.Should().Be("nodes[0].nodes[0].Name");
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "Name",
+                "displayName": "Name",
+                "path": "nodes[0].nodes[0].Name",
+                "operation": "Replace",
+                "originalValue": "Level 2",
+                "currentValue": "Level 3",
+                "originalFormatted": "Level 2",
+                "currentFormatted": "Level 3"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareValueTypeRootElementsTest()
+    public void CompareValueTypeRootElementsTest()
     {
         int original = 1;
         int current = 2;
@@ -1079,11 +1767,27 @@ public class EntityCompareTests
         changeRecord.OriginalValue.Should().Be(1);
         changeRecord.CurrentValue.Should().Be(2);
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "",
+                "displayName": "",
+                "path": "",
+                "operation": "Replace",
+                "originalValue": 1,
+                "currentValue": 2,
+                "originalFormatted": "1",
+                "currentFormatted": "2"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareArrayRootElementsTest()
+    public void CompareArrayRootElementsTest()
     {
         TreeNode[] original = [new TreeNode { Name = "Level 1" }];
         TreeNode[] current = [];
@@ -1096,11 +1800,25 @@ public class EntityCompareTests
         ChangeRecord changeRecord = changes.First();
         changeRecord.Path.Should().Be("[0]");
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "[0]",
+                "displayName": "0",
+                "path": "[0]",
+                "operation": "Remove",
+                "originalValue": "EntityChange.Tests.Models.TreeNode",
+                "originalFormatted": "EntityChange.Tests.Models.TreeNode"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
     [Fact]
-    public async Task CompareAbstract()
+    public void CompareAbstract()
     {
         var obj1 = new Consumer()
         {
@@ -1124,7 +1842,33 @@ public class EntityCompareTests
 
         changes.Should().NotBeEmpty();
 
-        await Verifier.Verify(changes).UseDirectory("Snapshots");
+        const string expected =
+            """
+            [
+              {
+                "propertyName": "SomeString",
+                "displayName": "Some String",
+                "path": "SomeProperty.SomeString",
+                "operation": "Replace",
+                "originalValue": "Test1",
+                "currentValue": "Test2",
+                "originalFormatted": "Test1",
+                "currentFormatted": "Test2"
+              },
+              {
+                "propertyName": "Id",
+                "displayName": "Id",
+                "path": "SomeProperty.Id",
+                "operation": "Replace",
+                "originalValue": 1,
+                "currentValue": 2,
+                "originalFormatted": "1",
+                "currentFormatted": "2"
+              }
+            ]
+            """;
+
+        JsonAssert.Equal(expected, changes);
     }
 
 

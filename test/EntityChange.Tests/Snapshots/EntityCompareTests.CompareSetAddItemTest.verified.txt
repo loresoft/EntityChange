@@ -1,9 +1,0 @@
-﻿[
-  {
-    PropertyName: Categories[2],
-    DisplayName: Categories,
-    Path: Categories[2],
-    CurrentValue: Blah,
-    CurrentFormatted: Blah
-  }
-]

@@ -1,11 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 using EntityChange.Extensions;
-
-using FluentAssertions;
-
-using Xunit;
 
 namespace EntityChange.Tests;
 

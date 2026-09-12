@@ -1,10 +1,6 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 using EntityChange.Tests.Models;
-
-using FluentAssertions;
-
-using Xunit;
 
 namespace EntityChange.Tests;
 

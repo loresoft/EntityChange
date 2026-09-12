@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace EntityChange.Tests.Models;
@@ -15,7 +15,7 @@ public class Contact
 
     public string JobTitle { get; set; }
 
-    public Status Status { get; set; }  
+    public Status Status { get; set; }
 
     public bool IsActive { get; set; }
 

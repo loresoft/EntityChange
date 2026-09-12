@@ -3,10 +3,6 @@ using System.Linq;
 using EntityChange.Fluent;
 using EntityChange.Tests.Models;
 
-using FluentAssertions;
-
-using Xunit;
-
 namespace EntityChange.Tests;
 
 public class ConfigurationTests

@@ -55,6 +55,7 @@ public class ChangeRecord
     /// </value>
     [JsonPropertyName("originalValue")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonConverter(typeof(ObjectValueJsonConverter))]
     public object? OriginalValue { get; set; }
 
     /// <summary>
@@ -65,6 +66,7 @@ public class ChangeRecord
     /// </value>
     [JsonPropertyName("currentValue")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonConverter(typeof(ObjectValueJsonConverter))]
     public object? CurrentValue { get; set; }
 
     /// <summary>
