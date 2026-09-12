@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.Json;
 
 namespace EntityChange.Tests;
@@ -192,7 +193,7 @@ public class SerializationTests
                 "path": "Property4",
                 "operation": "Replace",
                 "currentValue": "2024-05-17T14:30:00Z",
-                "currentFormatted": "5/17/2024 2:30:00 PM"
+                "currentFormatted": "05/17/2024 14:30:00"
               },
               {
                 "propertyName": "Property5",
@@ -200,7 +201,7 @@ public class SerializationTests
                 "path": "Property5",
                 "operation": "Replace",
                 "currentValue": "2024-05-17T14:30:00-05:00",
-                "currentFormatted": "5/17/2024 2:30:00 PM -05:00"
+                "currentFormatted": "05/17/2024 14:30:00 -05:00"
               },
               {
                 "propertyName": "Property6",
@@ -216,7 +217,7 @@ public class SerializationTests
                 "path": "Property7",
                 "operation": "Replace",
                 "currentValue": "2024-05-17",
-                "currentFormatted": "5/17/2024"
+                "currentFormatted": "05/17/2024"
               },
               {
                 "propertyName": "Property8",
@@ -224,7 +225,7 @@ public class SerializationTests
                 "path": "Property8",
                 "operation": "Replace",
                 "currentValue": "14:30:00.0000000",
-                "currentFormatted": "2:30 PM"
+                "currentFormatted": "14:30"
               },
               {
                 "propertyName": "Property9",
@@ -304,7 +305,7 @@ public class SerializationTests
                 "path": "Property4",
                 "operation": "Replace",
                 "currentValue": "2024-05-17T14:30:00Z",
-                "currentFormatted": "5/17/2024 2:30:00 PM"
+                "currentFormatted": "05/17/2024 14:30:00"
               },
               {
                 "propertyName": "Property5",
@@ -312,7 +313,7 @@ public class SerializationTests
                 "path": "Property5",
                 "operation": "Replace",
                 "currentValue": "2024-05-17T14:30:00-05:00",
-                "currentFormatted": "5/17/2024 2:30:00 PM -05:00"
+                "currentFormatted": "05/17/2024 14:30:00 -05:00"
               },
               {
                 "propertyName": "Property6",
@@ -328,7 +329,7 @@ public class SerializationTests
                 "path": "Property7",
                 "operation": "Replace",
                 "currentValue": "2024-05-17",
-                "currentFormatted": "5/17/2024"
+                "currentFormatted": "05/17/2024"
               },
               {
                 "propertyName": "Property8",
@@ -336,7 +337,7 @@ public class SerializationTests
                 "path": "Property8",
                 "operation": "Replace",
                 "currentValue": "14:30:00.0000000",
-                "currentFormatted": "2:30 PM"
+                "currentFormatted": "14:30"
               },
               {
                 "propertyName": "Property9",
@@ -531,7 +532,8 @@ public class SerializationTests
                 OriginalValue = null,
                 OriginalFormatted = null,
                 CurrentValue = values[index],
-                CurrentFormatted = values[index].ToString(),
+                // format with invariant culture so expected values are stable across platforms
+                CurrentFormatted = Convert.ToString(values[index], CultureInfo.InvariantCulture),
             });
         }
 
