@@ -6,7 +6,9 @@ env:
   DOTNET_ENVIRONMENT: github
   ASPNETCORE_ENVIRONMENT: github
   BUILD_PATH: "${{github.workspace}}/artifacts"
-  COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+
+permissions:
+  contents: read
 
 on:
   push:
@@ -33,7 +35,7 @@ jobs:
       - name: Install .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: 9.x
+          dotnet-version: 10.x
 
       - name: Restore Dependencies
         run: dotnet restore
@@ -42,13 +44,21 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Run Test
-        run: dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage" --settings coverlet.runsettings
+        run: dotnet test --no-build --configuration Release --coverlet --coverlet-output-format lcov
+
+      - name: Collect Coverage
+        if: success()
+        id: coverage
+        run: |
+          FILES=$(find ${{github.workspace}} -name 'coverage.*.info' -print | tr '\n' ' ')
+          echo "files=$FILES" >> $GITHUB_OUTPUT
 
       - name: Report Coverage
-        if: success()
+        if: success() && steps.coverage.outputs.files != ''
         uses: coverallsapp/github-action@v2
+        continue-on-error: true
         with:
-          file: "${{github.workspace}}/test/*/TestResults/*/coverage.info"
+          files: ${{ steps.coverage.outputs.files }}
           format: lcov
 
       - name: Create Packages
@@ -67,9 +77,13 @@ jobs:
     needs: build
     if: success() && github.event_name != 'pull_request' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))
 
+    permissions:
+      contents: read
+      packages: write
+
     steps:
       - name: Download Artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: packages
 
