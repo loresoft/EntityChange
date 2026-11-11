@@ -1,0 +1,17 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>false</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="AssemblyMetadata.Generators" Version="2.2.0" />
+    <PackageVersion Include="AwesomeAssertions" Version="9.6.0" />
+    <PackageVersion Include="coverlet.MTP" Version="10.1.0" />
+    <PackageVersion Include="MinVer" Version="8.0.0" />
+    <PackageVersion Include="xunit.v3.mtp-v2" Version="4.0.3" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <PackageVersion Include="System.Text.Json" Version="11.0.0" />
+  </ItemGroup>
+</Project>

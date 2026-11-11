@@ -30,6 +30,7 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
@@ -38,8 +39,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AssemblyMetadata.Generators" Version="2.2.0" PrivateAssets="All" />
-    <PackageReference Include="MinVer" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="AssemblyMetadata.Generators" PrivateAssets="All" />
+    <PackageReference Include="MinVer" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
