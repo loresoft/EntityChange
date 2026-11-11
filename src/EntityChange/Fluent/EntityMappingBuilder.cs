@@ -75,7 +75,7 @@ public class EntityMappingBuilder<TEntity>
     /// <param name="collection">The source property to configure.</param>
     /// <returns>A fluent member builder for the specified property.</returns>
     public CollectionMappingBuilder<TEntity, TProperty> Collection<TProperty>(Expression<Func<TEntity, TProperty>> collection)
-        where TProperty : IEnumerable
+        where TProperty : IEnumerable?
     {
         var propertyAccessor = EntityMapping.TypeAccessor.FindProperty(collection);
 

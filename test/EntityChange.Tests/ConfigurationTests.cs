@@ -19,8 +19,7 @@ public class ConfigurationTests
             e.Collection(p => p.Items).CollectionComparison(CollectionComparison.ObjectEquality);
         });
 
-        EntityMapping orderMapping;
-        bool result = configuration.Mapping.TryGetValue(typeof(Order), out orderMapping);
+        bool result = configuration.Mapping.TryGetValue(typeof(Order), out var orderMapping);
 
         result.Should().BeTrue();
         orderMapping.Should().NotBeNull();

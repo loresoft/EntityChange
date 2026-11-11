@@ -95,13 +95,13 @@ public class DeltaCompareTests
     public class User
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 
     public class UserRole
     {
-        public string UserName { get; set; }
-        public string RoleName { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string RoleName { get; set; } = string.Empty;
     }
 
 }

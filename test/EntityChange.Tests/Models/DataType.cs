@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 
 namespace EntityChange.Tests.Models;
 
 public class DataType
 {
-    public string String { get; set; }
+    public string? String { get; set; }
 
     public int Integer { get; set; }
 

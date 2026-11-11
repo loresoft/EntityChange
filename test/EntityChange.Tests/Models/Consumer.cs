@@ -7,10 +7,10 @@ public abstract class AbstractBase
 
 public class ConcreteClass : AbstractBase
 {
-    public string SomeString { get; set; }
+    public string? SomeString { get; set; }
 }
 
 public class Consumer
 {
-    public AbstractBase SomeProperty { get; set; }
+    public AbstractBase? SomeProperty { get; set; }
 }
